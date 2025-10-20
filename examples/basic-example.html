@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journium SDK Basic Example</title>
+</head>
+<body>
+    <h1>Journium SDK Test</h1>
+    <button id="track-event">Track Custom Event</button>
+    <button id="track-pageview">Track Pageview</button>
+    
+    <script type="module">
+        // This would work after building the packages
+        // import { init } from '../packages/journium-js/dist/index.esm.js';
+        
+        // For demo purposes, we'll simulate the SDK
+        console.log('Journium SDK Example loaded');
+        console.log('Project structure created successfully!');
+        
+        // Simulate SDK initialization
+        const mockJournium = {
+            track: (event, properties) => {
+                console.log('📊 Event tracked:', event, properties);
+            },
+            capturePageview: (properties) => {
+                console.log('📄 Pageview captured:', {
+                    $current_url: window.location.href,
+                    $title: document.title,
+                    ...properties
+                });
+            }
+        };
+        
+        document.getElementById('track-event').addEventListener('click', () => {
+            mockJournium.track('button_clicked', { button_name: 'track-event' });
+        });
+        
+        document.getElementById('track-pageview').addEventListener('click', () => {
+            mockJournium.capturePageview({ custom_prop: 'test' });
+        });
+        
+        // Auto-capture pageview on load
+        mockJournium.capturePageview();
+    </script>
+</body>
+</html>
