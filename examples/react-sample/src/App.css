@@ -1,0 +1,142 @@
+.app-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.6;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+header h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #7f8c8d;
+  font-size: 18px;
+}
+
+.demo-section {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.demo-section h2 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.demo-section p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.demo-button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.demo-button:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.demo-button:active {
+  transform: translateY(0);
+}
+
+.demo-button.purchase {
+  background: #e74c3c;
+}
+
+.demo-button.purchase:hover {
+  background: #c0392b;
+}
+
+.demo-button.signup {
+  background: #27ae60;
+}
+
+.demo-button.signup:hover {
+  background: #229954;
+}
+
+.demo-button.pageview {
+  background: #9b59b6;
+}
+
+.demo-button.pageview:hover {
+  background: #8e44ad;
+}
+
+.demo-section.info {
+  background: #e8f5e8;
+  border-left-color: #27ae60;
+}
+
+.demo-section.info ul {
+  margin: 0 0 20px 0;
+  padding-left: 20px;
+}
+
+.demo-section.info li {
+  margin-bottom: 8px;
+}
+
+.demo-section.info li strong {
+  color: #27ae60;
+}
+
+.note {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 20px;
+  color: #856404;
+}
+
+.note strong {
+  color: #856404;
+}
+
+@media (max-width: 600px) {
+  .app-content {
+    padding: 10px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .demo-button {
+    min-width: auto;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, ReactNode } from 'react';
-import { Journium, JourniumConfig } from 'journium-js';
+import { Journium } from 'journium-js';
+import { JourniumConfig } from '@journium/shared';
 
 interface JourniumContextValue {
   journium: Journium | null;
@@ -18,7 +19,7 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   config,
   autoCapture = true,
 }) => {
-  console.log('----inside JourniumProvider JourniumProvider config:', config);
+  console.log('----??>> inside JourniumProvider JourniumProvider config:', config);
   const journiumRef = useRef<Journium | null>(null);
 
   useEffect(() => {

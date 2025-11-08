@@ -16,7 +16,10 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
-  "dependencies": {},
+  "dependencies": {
+    "journium-js": "workspace:*",
+    "@journium/shared": "workspace:*"
+  },
   "peerDependencies": {
     "react": ">=16.8.0"
   },
