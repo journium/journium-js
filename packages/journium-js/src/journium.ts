@@ -1,14 +1,38 @@
-import { JourniumConfig } from '@journium/shared';
+import { JourniumConfig, AutocaptureConfig } from '@journium/shared';
 import { JourniumClient } from './client';
 import { PageviewTracker } from './pageview';
+import { AutocaptureTracker } from './autocapture';
 
 export class Journium {
   private client: JourniumClient;
   private pageviewTracker: PageviewTracker;
+  private autocaptureTracker: AutocaptureTracker;
+  private config: JourniumConfig;
 
   constructor(config: JourniumConfig) {
+    this.config = config;
     this.client = new JourniumClient(config);
     this.pageviewTracker = new PageviewTracker(this.client);
+    
+    const autocaptureConfig = this.resolveAutocaptureConfig(config.autocapture);
+    this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureConfig);
+  }
+
+  private resolveAutocaptureConfig(autocapture?: boolean | AutocaptureConfig): AutocaptureConfig {
+    if (autocapture === false || autocapture === undefined) {
+      return {
+        captureClicks: false,
+        captureFormSubmits: false,
+        captureFormChanges: false,
+        captureTextSelection: false,
+      };
+    }
+
+    if (autocapture === true) {
+      return {}; // Use default configuration
+    }
+
+    return autocapture;
   }
 
   track(event: string, properties?: Record<string, any>): void {
@@ -21,10 +45,23 @@ export class Journium {
 
   startAutoCapture(): void {
     this.pageviewTracker.startAutoCapture();
+    
+    if (this.config.autocapture) {
+      this.autocaptureTracker.start();
+    }
   }
 
   stopAutoCapture(): void {
     this.pageviewTracker.stopAutoCapture();
+    this.autocaptureTracker.stop();
+  }
+
+  startAutocapture(): void {
+    this.autocaptureTracker.start();
+  }
+
+  stopAutocapture(): void {
+    this.autocaptureTracker.stop();
   }
 
   async flush(): Promise<void> {
@@ -33,6 +70,7 @@ export class Journium {
 
   destroy(): void {
     this.pageviewTracker.stopAutoCapture();
+    this.autocaptureTracker.stop();
     this.client.destroy();
   }
 }

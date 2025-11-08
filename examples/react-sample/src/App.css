@@ -96,6 +96,15 @@ header p {
   background: #8e44ad;
 }
 
+.demo-button.submit {
+  background: #28a745;
+  width: 100%;
+}
+
+.demo-button.submit:hover {
+  background: #218838;
+}
+
 .demo-section.info {
   background: #e8f5e8;
   border-left-color: #27ae60;

@@ -125,6 +125,10 @@ importers:
         version: 2.1.4
 
   packages/journium-js:
+    dependencies:
+      '@journium/shared':
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@rollup/plugin-node-resolve':
         specifier: ^15.0.0

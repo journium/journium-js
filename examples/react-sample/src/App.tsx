@@ -7,7 +7,15 @@ const journiumConfig = {
   apiHost: 'http://localhost:3001',
   debug: true,
   flushAt: 10,
-  flushInterval: 30000
+  flushInterval: 30000,
+  autocapture: {
+    captureClicks: true,
+    captureFormSubmits: true,
+    captureFormChanges: true,
+    captureTextSelection: false,
+    ignoreClasses: ['no-track'],
+    captureContentText: true
+  }
 };
 
 function HomePage() {
@@ -92,6 +100,56 @@ function HomePage() {
           </button>
         </section>
 
+        <section className="demo-section">
+          <h2>Autocapture Demo</h2>
+          <p>The following elements will generate $autocapture events automatically when clicked:</p>
+          
+          <div className="button-group">
+            <button className="demo-button" data-testid="autocapture-btn-1">
+              Autocapture Button 1
+            </button>
+            
+            <button className="demo-button cart" id="special-btn" aria-label="Special button">
+              Button with ID & Aria
+            </button>
+            
+            <a href="#" className="demo-button nav" onClick={(e) => e.preventDefault()}>
+              Link Element
+            </a>
+            
+            <button className="demo-button no-track">
+              Ignored Button (no-track class)
+            </button>
+          </div>
+
+          <div style={{marginTop: '20px'}}>
+            <h3>Form Autocapture</h3>
+            <form onSubmit={(e) => e.preventDefault()} style={{display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px'}}>
+              <input 
+                type="text" 
+                placeholder="Your name" 
+                name="name"
+                style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc'}}
+              />
+              <input 
+                type="email" 
+                placeholder="Your email" 
+                name="email"
+                style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc'}}
+              />
+              <select name="country" style={{padding: '8px', borderRadius: '4px', border: '1px solid #ccc'}}>
+                <option value="">Select Country</option>
+                <option value="us">United States</option>
+                <option value="uk">United Kingdom</option>
+                <option value="ca">Canada</option>
+              </select>
+              <button type="submit" className="demo-button submit">
+                Submit Form (Autocaptured)
+              </button>
+            </form>
+          </div>
+        </section>
+
         <section className="demo-section info">
           <h2>📋 What's Happening</h2>
           <ul>
@@ -100,9 +158,13 @@ function HomePage() {
             <li><strong>E-commerce Events:</strong> Purchase tracking with product details</li>
             <li><strong>User Events:</strong> Signup tracking with source attribution</li>
             <li><strong>Manual Pageviews:</strong> Programmatically triggered pageview events</li>
+            <li><strong>$autocapture Events:</strong> Automatic tracking of button clicks and form interactions</li>
+            <li><strong>Element Properties:</strong> Captures element IDs, classes, text content, and position</li>
+            <li><strong>Form Tracking:</strong> Automatically tracks form submissions and field changes</li>
+            <li><strong>Ignore Classes:</strong> Elements with "no-track" class are ignored</li>
           </ul>
           <p className="note">
-            <strong>Note:</strong> Check your browser's developer console to see the events being tracked.
+            <strong>Note:</strong> Check your browser's developer console and the events monitor to see both manual and automatic events being tracked.
           </p>
         </section>
       </main>

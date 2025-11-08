@@ -7,7 +7,8 @@ const journiumConfig = {
   apiHost: 'http://localhost:3001',
   debug: true,
   flushAt: 10,
-  flushInterval: 30000
+  flushInterval: 30000,
+  autocapture: true
 };
 
 export default function App({ Component, pageProps }: AppProps) {

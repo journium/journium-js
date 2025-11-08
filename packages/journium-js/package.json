@@ -16,7 +16,9 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@journium/shared": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "rollup": "^3.0.0",

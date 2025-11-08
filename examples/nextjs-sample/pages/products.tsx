@@ -30,7 +30,7 @@ export default function Products() {
 
   const handleProductView = (product: Product) => {
     if (!viewedProducts.has(product.id)) {
-      setViewedProducts(prev => new Set([...prev, product.id]));
+      setViewedProducts(prev => new Set(Array.from(prev).concat(product.id)));
       trackEvent('product_viewed', {
         product_id: product.id,
         product_name: product.name,
