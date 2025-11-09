@@ -1,22 +1,91 @@
-import { JourniumEvent, JourniumConfig, generateId } from '@journium/shared';
+import { JourniumEvent, JourniumConfig, ConfigResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs } from '@journium/shared';
 import fetch from 'node-fetch';
 
 export class JourniumNodeClient {
   private config: JourniumConfig;
   private queue: JourniumEvent[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
+  private initialized: boolean = false;
 
   constructor(config: JourniumConfig) {
+    // Preserve apiHost and applicationKey, set minimal defaults for others
     this.config = {
       apiHost: 'https://api.journium.io',
-      debug: false,
-      flushAt: 20,
-      flushInterval: 10000,
       ...config,
     };
 
-    if (this.config.flushInterval && this.config.flushInterval > 0) {
-      this.startFlushTimer();
+    // Initialize asynchronously to fetch remote config
+    this.initialize();
+  }
+
+  private async initialize(): Promise<void> {
+    try {
+      if (this.config.applicationKey) {
+        if (this.config.debug) {
+          console.log('Journium: Fetching remote configuration...');
+        }
+        
+        const remoteConfigResponse = await fetchRemoteConfig(
+          this.config.apiHost!,
+          this.config.applicationKey,
+          this.config.configEndpoint,
+          fetch
+        );
+        
+        if (remoteConfigResponse && remoteConfigResponse.success) {
+          // Preserve apiHost and applicationKey, merge everything else from remote
+          const localOnlyConfig = {
+            apiHost: this.config.apiHost,
+            applicationKey: this.config.applicationKey,
+            configEndpoint: this.config.configEndpoint,
+          };
+          
+          this.config = {
+            ...localOnlyConfig,
+            ...remoteConfigResponse.config,
+          };
+          
+          if (this.config.debug) {
+            console.log('Journium: Remote configuration applied:', remoteConfigResponse.config);
+          }
+        } else {
+          // Fallback to minimal defaults if remote config fails
+          this.config = {
+            ...this.config,
+            debug: this.config.debug ?? false,
+            flushAt: this.config.flushAt ?? 20,
+            flushInterval: this.config.flushInterval ?? 10000,
+          };
+        }
+      }
+      
+      this.initialized = true;
+      
+      // Start flush timer after configuration is finalized
+      if (this.config.flushInterval && this.config.flushInterval > 0) {
+        this.startFlushTimer();
+      }
+      
+      if (this.config.debug) {
+        console.log('Journium: Node client initialized with config:', this.config);
+      }
+    } catch (error) {
+      console.warn('Journium: Failed to fetch remote config, using local config:', error);
+      
+      // Fallback to defaults
+      this.config = {
+        ...this.config,
+        debug: this.config.debug ?? false,
+        flushAt: this.config.flushAt ?? 20,
+        flushInterval: this.config.flushInterval ?? 10000,
+      };
+      
+      this.initialized = true;
+      
+      // Start with local config
+      if (this.config.flushInterval && this.config.flushInterval > 0) {
+        this.startFlushTimer();
+      }
     }
   }
 
@@ -42,7 +111,7 @@ export class JourniumNodeClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          'Authorization': `Bearer ${this.config.applicationKey}`,
         },
         body: JSON.stringify({
           events,
@@ -66,9 +135,11 @@ export class JourniumNodeClient {
 
   track(event: string, properties: Record<string, any> = {}, distinctId?: string): void {
     const journiumEvent: JourniumEvent = {
+      uuid: generateUuidv7(),
+      ingestion_key: this.config.applicationKey,
+      client_timestamp: getCurrentTimestamp(),
       event,
       properties,
-      timestamp: Date.now(),
       distinct_id: distinctId || generateId(),
     };
 

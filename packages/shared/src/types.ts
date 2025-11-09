@@ -1,7 +1,9 @@
 export interface JourniumEvent {
+  uuid: string;
+  ingestion_key: string;
+  client_timestamp: string;
   event: string;
   properties: Record<string, any>;
-  timestamp: number;
   distinct_id?: string;
   session_id?: string;
 }
@@ -16,13 +18,38 @@ export interface AutocaptureConfig {
   captureContentText?: boolean;
 }
 
+export interface RemoteConfig {
+  debug?: boolean;
+  flushAt?: number;
+  flushInterval?: number;
+  autocapture?: boolean | AutocaptureConfig;
+  sessionTimeout?: number;
+  sampling?: {
+    enabled?: boolean;
+    rate?: number;
+  };
+  features?: {
+    enableGeolocation?: boolean;
+    enableSessionRecording?: boolean;
+    enablePerformanceTracking?: boolean;
+  };
+}
+
+export interface ConfigResponse {
+  success: boolean;
+  config: RemoteConfig;
+  timestamp: string;
+}
+
 export interface JourniumConfig {
-  apiKey: string;
+  applicationKey: string;
   apiHost?: string;
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
   autocapture?: boolean | AutocaptureConfig;
+  configEndpoint?: string;
+  sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
 }
 
 export interface PageviewProperties {

@@ -221,6 +221,14 @@ export class AutocaptureTracker {
       }
     }
 
+    // Elements chain data
+    const elementsChain = this.getElementsChain(element);
+    properties.$elements_chain = elementsChain.chain;
+    properties.$elements_chain_href = elementsChain.href;
+    properties.$elements_chain_elements = elementsChain.elements;
+    properties.$elements_chain_texts = elementsChain.texts;
+    properties.$elements_chain_ids = elementsChain.ids;
+
     // Position information
     const rect = element.getBoundingClientRect();
     properties.$element_position = {
@@ -336,6 +344,91 @@ export class AutocaptureTracker {
     // For other elements, get text content but limit it
     const text = element.textContent?.trim() || '';
     return text.length > 50 ? text.substring(0, 47) + '...' : text;
+  }
+
+  private getElementsChain(element: HTMLElement): {
+    chain: string;
+    href: string;
+    elements: string[];
+    texts: string[];
+    ids: string[];
+  } {
+    const elements: string[] = [];
+    const texts: string[] = [];
+    const ids: string[] = [];
+    let href = '';
+
+    let current: HTMLElement | null = element;
+    while (current && current !== document.body) {
+      // Element selector
+      let selector = current.tagName.toLowerCase();
+      
+      // Add ID if present
+      if (current.id) {
+        selector += `#${current.id}`;
+        ids.push(current.id);
+      } else {
+        ids.push('');
+      }
+      
+      // Add classes if present
+      if (current.className && typeof current.className === 'string') {
+        const classes = current.className.trim().split(/\s+/).slice(0, 3); // Limit to first 3 classes
+        if (classes.length > 0 && classes[0] !== '') {
+          selector += '.' + classes.join('.');
+        }
+      }
+      
+      // Add nth-child if no ID (to make selector more specific)
+      if (!current.id && current.parentElement) {
+        const siblings = Array.from(current.parentElement.children)
+          .filter(child => child.tagName === current!.tagName);
+        if (siblings.length > 1) {
+          const index = siblings.indexOf(current) + 1;
+          selector += `:nth-child(${index})`;
+        }
+      }
+      
+      elements.push(selector);
+      
+      // Extract text content
+      let text = '';
+      if (current.tagName.toLowerCase() === 'a') {
+        text = current.textContent?.trim() || '';
+        // Capture href for links
+        if (!href && current.getAttribute('href')) {
+          href = current.getAttribute('href') || '';
+        }
+      } else if (['button', 'span', 'div'].includes(current.tagName.toLowerCase())) {
+        // For buttons and text elements, get direct text content (not including children)
+        const directText = Array.from(current.childNodes)
+          .filter(node => node.nodeType === Node.TEXT_NODE)
+          .map(node => node.textContent?.trim())
+          .join(' ')
+          .trim();
+        text = directText || '';
+      } else if (current.tagName.toLowerCase() === 'input') {
+        const input = current as HTMLInputElement;
+        text = input.placeholder || input.value || '';
+      }
+      
+      // Limit text length and clean it
+      text = text.substring(0, 100).replace(/\s+/g, ' ').trim();
+      texts.push(text);
+      
+      current = current.parentElement;
+    }
+    
+    // Build the chain string (reverse order so it goes from parent to child)
+    const chain = elements.reverse().join(' > ');
+    
+    return {
+      chain,
+      href,
+      elements: elements,
+      texts: texts.reverse(),
+      ids: ids.reverse()
+    };
   }
 
   private isSafeInputType(type: string): boolean {

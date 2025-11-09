@@ -53,6 +53,45 @@ function broadcastEvent(eventData) {
   });
 }
 
+app.get('/configs', (req, res) => {
+  const applicationKey = req.query.applicationKey;
+  
+  if (!applicationKey) {
+    return res.status(400).json({ error: 'applicationKey query parameter is required' });
+  }
+  
+  // Sample remote configuration - in production this would come from database
+  const remoteConfig = {
+    debug: true,
+    flushAt: 15,
+    flushInterval: 20000,
+    autocapture: {
+      captureClicks: true,
+      captureFormSubmits: true,
+      captureFormChanges: false,
+      ignoreClasses: ['no-track', 'sensitive'],
+      captureContentText: false
+    },
+    sampling: {
+      enabled: true,
+      rate: 1.0
+    },
+    features: {
+      enableGeolocation: false,
+      enableSessionRecording: false,
+      enablePerformanceTracking: true
+    }
+  };
+  
+  console.log(`Config requested for applicationKey: ${applicationKey}`);
+  
+  res.status(200).json({ 
+    success: true,
+    config: remoteConfig,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.post('/ingest_event', (req, res) => {
   try {
     const eventData = req.body;
@@ -61,7 +100,7 @@ app.post('/ingest_event', (req, res) => {
       return res.status(400).json({ error: 'Event data is required' });
     }
     
-    console.log('Event received:', eventData);
+    console.log('Event received:', JSON.stringify(eventData, null, 2));
     
     broadcastEvent(eventData);
     

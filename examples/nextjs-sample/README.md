@@ -72,7 +72,7 @@ The sample uses these Journium configuration options:
 
 ```typescript
 const journiumConfig = {
-  apiKey: 'demo-api-key',        // Your API key
+  applicationKey: 'demo-api-key',        // Your application key
   apiHost: 'https://api.journium.io',  // API endpoint  
   debug: true,                   // Enable console logging
   flushAt: 10,                   // Batch size for events

@@ -16,6 +16,9 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
+  "dependencies": {
+    "uuidv7": "^1.0.1"
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "rollup": "^3.0.0",

@@ -17,7 +17,7 @@ A comprehensive JavaScript SDK for Journium analytics, supporting web browsers, 
 import { init } from 'journium-js';
 
 const journium = init({
-  apiKey: 'your-api-key'
+  applicationKey: 'your-api-key'
 });
 
 // Track pageview
@@ -33,7 +33,7 @@ import { JourniumProvider, useTrackEvent } from '@journium/react';
 
 function App() {
   return (
-    <JourniumProvider config={{ apiKey: 'your-api-key' }}>
+    <JourniumProvider config={{ applicationKey: 'your-api-key' }}>
       <MyComponent />
     </JourniumProvider>
   );
@@ -56,7 +56,7 @@ import { NextJourniumProvider } from '@journium/nextjs';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <NextJourniumProvider config={{ apiKey: 'your-api-key' }}>
+    <NextJourniumProvider config={{ applicationKey: 'your-api-key' }}>
       <Component {...pageProps} />
     </NextJourniumProvider>
   );
@@ -68,7 +68,7 @@ function MyApp({ Component, pageProps }) {
 import { init } from '@journium/node';
 
 const journium = init({
-  apiKey: 'your-api-key'
+  applicationKey: 'your-api-key'
 });
 
 journium.trackPageview('https://example.com/page');

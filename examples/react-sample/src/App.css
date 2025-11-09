@@ -136,6 +136,28 @@ header p {
   color: #856404;
 }
 
+/* Navigation Styles */
+.nav-link {
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.nav-link:hover {
+  background-color: #007acc;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-link:visited {
+  color: inherit;
+}
+
 @media (max-width: 600px) {
   .app-content {
     padding: 10px;
@@ -147,5 +169,14 @@ header p {
   
   .demo-button {
     min-width: auto;
+  }
+  
+  nav {
+    margin: 10px 0 !important;
+  }
+  
+  .nav-link {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
