@@ -65,7 +65,7 @@ For the full experience with real-time event monitoring:
 # Start the events monitoring server
 pnpm --filter journium-events-monitor start
 
-# Open http://localhost:3001 in your browser
+# Open http://localhost:3006 in your browser
 ```
 
 #### 2. Start a Demo Application
@@ -78,7 +78,7 @@ pnpm --filter journium-react-sample start
 # OR Next.js Sample  
 pnpm --filter journium-nextjs-sample dev
 
-# Open http://localhost:3000 in your browser
+# Open http://localhost:3004 in your browser
 ```
 
 #### 3. Watch Events in Real-Time
@@ -92,20 +92,20 @@ pnpm --filter journium-nextjs-sample dev
 #### Events Monitor Only
 ```bash
 pnpm --filter journium-events-monitor start
-# Access dashboard at http://localhost:3001
+# Access dashboard at http://localhost:3006
 ```
 
 #### React Sample Only
 ```bash
 pnpm --filter journium-react-sample start
-# App runs at http://localhost:3000
+# App runs at http://localhost:3005
 # Events logged to browser console
 ```
 
 #### Next.js Sample Only
 ```bash
 pnpm --filter journium-nextjs-sample dev
-# App runs at http://localhost:3000
+# App runs at http://localhost:3004
 # Events logged to browser console
 ```
 

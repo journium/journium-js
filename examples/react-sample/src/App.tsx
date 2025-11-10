@@ -10,11 +10,12 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import './App.css';
 
 const journiumConfig = {
-  applicationKey: 'demo-api-key',
-  apiHost: 'http://localhost:3001',
+  applicationKey: 'client_abcdef1234567890abcdef1234567890',
+  apiHost: 'http://localhost:3006',
+  //apiHost: 'https://ingestion.bhushan-685.workers.dev',
   debug: true,
   flushAt: 10,
-  flushInterval: 30000,
+  flushInterval: 1000,
   autocapture: {
     captureClicks: true,
     captureFormSubmits: true,

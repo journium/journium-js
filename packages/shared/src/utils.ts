@@ -48,7 +48,7 @@ export const fetchRemoteConfig = async (
   fetchFn?: any
 ): Promise<any> => {
   const endpoint = configEndpoint || '/configs';
-  const url = `${apiHost}${endpoint}?applicationKey=${encodeURIComponent(applicationKey)}`;
+  const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(applicationKey)}`;
   
   try {
     let fetch = fetchFn;

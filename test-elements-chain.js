@@ -8,7 +8,7 @@ async function testElementsChain() {
   
   try {
     const page = await browser.newPage();
-    await page.goto('http://localhost:3000');
+    await page.goto('http://localhost:3005');
     
     // Wait for the page to load
     await page.waitForTimeout(2000);

@@ -30,7 +30,7 @@ This is a sample Next.js application demonstrating how to integrate the Journium
    pnpm dev
    ```
 
-4. **Open your browser** to `http://localhost:3000`
+4. **Open your browser** to `http://localhost:3004`
 
 ## Application Structure
 

@@ -5,7 +5,7 @@ A simple Node.js server that mocks a real event ingestion server for Journium SD
 ## Purpose
 
 This server is specifically designed to work with the Journium SDK examples:
-- **React Sample**: Configured to send events to `http://localhost:3001`
+- **React Sample**: Configured to send events to `http://localhost:3006`
 - **Next.js Sample**: Can be configured to send events to this server
 - **Real-time Monitoring**: See exactly what events are being tracked as you interact with the demo applications
 
@@ -34,17 +34,17 @@ pnpm --filter journium-react-sample start
 pnpm --filter journium-nextjs-sample dev
 ```
 
-The events monitor will be available at `http://localhost:3001`
+The events monitor will be available at `http://localhost:3006`
 
 ### 3. Access the Web UI
 Open your browser and navigate to:
 ```
-http://localhost:3001
+http://localhost:3006
 ```
 
 ### 4. Interact with Demo Apps
 Once both the events monitor and a demo application are running:
-1. Open the demo app (usually at `http://localhost:3000`)
+1. Open the demo app (React at `http://localhost:3005` or Next.js at `http://localhost:3004`)
 2. Click buttons, fill forms, navigate pages
 3. Watch the events appear in real-time on the events monitor dashboard
 
@@ -54,7 +54,7 @@ Once both the events monitor and a demo application are running:
 The Journium SDK automatically sends POST requests to the `/ingest_event` endpoint:
 
 ```bash
-curl -X POST http://localhost:3001/ingest_event \
+curl -X POST http://localhost:3006/ingest_event \
   -H "Content-Type: application/json" \
   -d '{"event": "button_clicked", "properties": {"button_text": "Track Event", "click_count": 1}}'
 ```
@@ -109,8 +109,8 @@ These are the types of events you'll see from the Journium SDK samples:
 {
   "event": "$pageview",
   "properties": {
-    "$current_url": "http://localhost:3000/",
-    "$host": "localhost:3000",
+    "$current_url": "http://localhost:3004/",
+    "$host": "localhost:3005",
     "$pathname": "/",
     "$title": "Journium React Sample",
     "page": "home",
@@ -138,7 +138,7 @@ These are the types of events you'll see from the Journium SDK samples:
 
 Connect to WebSocket for real-time events:
 ```javascript
-const ws = new WebSocket('ws://localhost:3001');
+const ws = new WebSocket('ws://localhost:3006');
 
 ws.onmessage = function(event) {
   const data = JSON.parse(event.data);
@@ -167,7 +167,7 @@ The React sample is already configured to use this events monitor:
 // examples/react-sample/src/App.tsx
 const journiumConfig = {
   applicationKey: 'demo-api-key',
-  apiHost: 'http://localhost:3001',  // Points to events monitor
+  apiHost: 'http://localhost:3006',  // Points to events monitor
   debug: true,
   flushAt: 10,
   flushInterval: 30000
@@ -181,7 +181,7 @@ To configure the Next.js sample to use this monitor, update the configuration:
 // examples/nextjs-sample/pages/_app.tsx
 const journiumConfig = {
   applicationKey: 'demo-api-key',
-  apiHost: 'http://localhost:3001',  // Add this line
+  apiHost: 'http://localhost:3006',  // Add this line
   debug: true,
   flushAt: 10,
   flushInterval: 30000
@@ -222,7 +222,7 @@ pnpm build
 ## Development
 
 ### Configuration
-- **Port**: 3001 (hardcoded for demo purposes)
+- **Port**: 3006 (hardcoded for demo purposes)
 - **Max Events**: UI displays last 100 events
 - **Auto-reconnect**: WebSocket clients automatically reconnect on disconnect
 - **CORS**: Enabled for all origins (development only)
@@ -230,9 +230,9 @@ pnpm build
 ### Logs
 The server logs all incoming events and WebSocket connections:
 ```
-Server running on http://localhost:3001
-WebSocket server running on ws://localhost:3001
-POST endpoint available at http://localhost:3001/ingest_event
+Server running on http://localhost:3006
+WebSocket server running on ws://localhost:3006
+POST endpoint available at http://localhost:3006/ingest_event
 Event received: { event: 'button_clicked', properties: {...} }
 New WebSocket client connected
 ```
@@ -257,8 +257,9 @@ New WebSocket client connected
    ```
 
 3. **Open Both Applications**:
-   - Events Monitor: `http://localhost:3001`
-   - React Sample: `http://localhost:3000`
+   - Events Monitor: `http://localhost:3006`
+   - React Sample: `http://localhost:3005`
+   - Next.js Sample: `http://localhost:3004`
 
 4. **Test Event Tracking**:
    - Arrange windows side by side
@@ -271,12 +272,12 @@ Send test events using the built-in UI or curl:
 
 ```bash
 # Test the endpoint directly
-curl -X POST http://localhost:3001/ingest_event \
+curl -X POST http://localhost:3006/ingest_event \
   -H "Content-Type: application/json" \
   -d '{"event": "test_event", "properties": {"source": "manual_test"}}'
 
 # Simulate Journium SDK event format
-curl -X POST http://localhost:3001/ingest_event \
+curl -X POST http://localhost:3006/ingest_event \
   -H "Content-Type: application/json" \
   -d '{
     "event": "user_signup",

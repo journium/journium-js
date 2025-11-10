@@ -29,7 +29,7 @@ This is a sample React application demonstrating how to integrate the Journium a
    pnpm start
    ```
 
-4. **Open your browser** to `http://localhost:3000`
+4. **Open your browser** to `http://localhost:3005`
 
 ## Code Overview
 

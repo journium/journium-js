@@ -10,7 +10,7 @@ export class JourniumClient {
   constructor(config: JourniumConfig) {
     // Preserve apiHost and applicationKey, set minimal defaults for others
     this.config = {
-      apiHost: 'http://localhost:3001',
+      apiHost: 'http://localhost:3006',
       ...config,
     };
 
