@@ -15,7 +15,7 @@ const journiumConfig = {
   //apiHost: 'https://ingestion.bhushan-685.workers.dev',
   debug: true,
   flushAt: 10,
-  flushInterval: 1000,
+  flushInterval: 30000,
   autocapture: {
     captureClicks: true,
     captureFormSubmits: true,

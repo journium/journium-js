@@ -54,10 +54,10 @@ function broadcastEvent(eventData) {
 }
 
 app.get('/configs', (req, res) => {
-  const applicationKey = req.query.applicationKey;
+  const ingestion_key = req.query.ingestion_key;
   
-  if (!applicationKey) {
-    return res.status(400).json({ error: 'applicationKey query parameter is required' });
+  if (!ingestion_key) {
+    return res.status(400).json({ error: 'ingestion_key query parameter is required' });
   }
   
   // Sample remote configuration - in production this would come from database
@@ -83,7 +83,7 @@ app.get('/configs', (req, res) => {
     }
   };
   
-  console.log(`Config requested for applicationKey: ${applicationKey}`);
+  console.log(`Config requested for ingestion_key: ${ingestion_key}`);
   
   res.status(200).json({ 
     success: true,
