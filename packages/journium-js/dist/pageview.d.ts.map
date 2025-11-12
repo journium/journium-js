@@ -1,0 +1,1 @@
+{"version":3,"file":"pageview.d.ts","sourceRoot":"","sources":["../src/pageview.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAE,MAAM,UAAU,CAAC;AAE1C,qBAAa,eAAe;IAC1B,OAAO,CAAC,MAAM,CAAiB;IAC/B,OAAO,CAAC,OAAO,CAAc;gBAEjB,MAAM,EAAE,cAAc;IAIlC,eAAe,CAAC,gBAAgB,GAAE,MAAM,CAAC,MAAM,EAAE,GAAG,CAAM,GAAG,IAAI;IAkBjE,gBAAgB,IAAI,IAAI;IAuBxB,eAAe,IAAI,IAAI;CAIxB"}
