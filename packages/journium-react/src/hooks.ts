@@ -65,9 +65,10 @@ export const useAutoTrackClicks = (
 
   useEffect(() => {
     if (journium && enabled) {
-      journium.startAutocapture();
+      // Use startAutoCapture for consistency (includes both pageview + clicks)
+      journium.startAutoCapture();
       return () => {
-        journium.stopAutocapture();
+        journium.stopAutoCapture();
       };
     }
     return undefined;

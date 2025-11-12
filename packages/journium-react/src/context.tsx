@@ -19,7 +19,6 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   config,
   autoCapture = true,
 }) => {
-  console.log('----??>> inside JourniumProvider JourniumProvider config:', config);
   const journiumRef = useRef<Journium | null>(null);
 
   useEffect(() => {
@@ -39,53 +38,8 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
     };
   }, [config, autoCapture]);
 
-  // Auto-track pageviews on URL changes
-  useEffect(() => {
-    if (!journiumRef.current) return;
-
-    // Track initial pageview
-    const trackPageview = () => {
-      if (journiumRef.current) {
-        journiumRef.current.capturePageview({
-          $current_url: window.location.href,
-          $pathname: window.location.pathname,
-          $search: window.location.search,
-          $hash: window.location.hash,
-          $title: document.title,
-        });
-      }
-    };
-
-    // Track initial pageview
-    trackPageview();
-
-    // Listen for navigation events
-    const handlePopState = () => {
-      trackPageview();
-    };
-
-    // Listen for pushState/replaceState (React Router navigation)
-    const originalPushState = window.history.pushState;
-    const originalReplaceState = window.history.replaceState;
-
-    window.history.pushState = function(...args) {
-      originalPushState.apply(window.history, args);
-      setTimeout(trackPageview, 0); // Use setTimeout to ensure DOM is updated
-    };
-
-    window.history.replaceState = function(...args) {
-      originalReplaceState.apply(window.history, args);
-      setTimeout(trackPageview, 0);
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      window.history.pushState = originalPushState;
-      window.history.replaceState = originalReplaceState;
-    };
-  }, []);
+  // Note: All pageview tracking is handled by startAutoCapture() when autoCapture=true
+  // When autoCapture=false, users should call capturePageview() manually as needed
 
   return (
     <JourniumContext.Provider value={{ journium: journiumRef.current }}>

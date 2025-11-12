@@ -56,12 +56,15 @@ export class Journium {
     this.autocaptureTracker.stop();
   }
 
+  // Aliases for consistency (deprecated - use startAutoCapture)
+  /** @deprecated Use startAutoCapture() instead */
   startAutocapture(): void {
-    this.autocaptureTracker.start();
+    this.startAutoCapture();
   }
 
+  /** @deprecated Use stopAutoCapture() instead */
   stopAutocapture(): void {
-    this.autocaptureTracker.stop();
+    this.stopAutoCapture();
   }
 
   async flush(): Promise<void> {

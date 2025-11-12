@@ -36,7 +36,7 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
 export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
   children,
   config,
-  autoCapture = false,
+  autoCapture = true, // Made consistent with React provider
   trackRouteChanges = true,
 }) => {
   return (

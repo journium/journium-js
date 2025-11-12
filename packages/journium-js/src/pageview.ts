@@ -4,6 +4,9 @@ import { JourniumClient } from './client';
 export class PageviewTracker {
   private client: JourniumClient;
   private lastUrl: string = '';
+  private originalPushState: typeof window.history.pushState | null = null;
+  private originalReplaceState: typeof window.history.replaceState | null = null;
+  private popStateHandler: (() => void) | null = null;
 
   constructor(client: JourniumClient) {
     this.client = client;
@@ -31,27 +34,45 @@ export class PageviewTracker {
     this.capturePageview();
 
     if (typeof window !== 'undefined') {
-      const originalPushState = window.history.pushState;
-      const originalReplaceState = window.history.replaceState;
+      // Store original methods for cleanup
+      this.originalPushState = window.history.pushState;
+      this.originalReplaceState = window.history.replaceState;
 
       window.history.pushState = (...args) => {
-        originalPushState.apply(window.history, args);
+        this.originalPushState!.apply(window.history, args);
         setTimeout(() => this.capturePageview(), 0);
       };
 
       window.history.replaceState = (...args) => {
-        originalReplaceState.apply(window.history, args);
+        this.originalReplaceState!.apply(window.history, args);
         setTimeout(() => this.capturePageview(), 0);
       };
 
-      window.addEventListener('popstate', () => {
+      this.popStateHandler = () => {
         setTimeout(() => this.capturePageview(), 0);
-      });
+      };
+
+      window.addEventListener('popstate', this.popStateHandler);
     }
   }
 
   stopAutoCapture(): void {
-    // In a real implementation, we'd need to store references to restore original methods
-    // For now, this is a placeholder
+    if (typeof window !== 'undefined') {
+      // Restore original methods
+      if (this.originalPushState) {
+        window.history.pushState = this.originalPushState;
+        this.originalPushState = null;
+      }
+
+      if (this.originalReplaceState) {
+        window.history.replaceState = this.originalReplaceState;
+        this.originalReplaceState = null;
+      }
+
+      if (this.popStateHandler) {
+        window.removeEventListener('popstate', this.popStateHandler);
+        this.popStateHandler = null;
+      }
+    }
   }
 }
