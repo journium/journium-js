@@ -1,11 +1,16 @@
 {
   "name": "@journium/node",
   "version": "0.1.0",
-  "description": "Journium Node.js server-side SDK",
+  "license": "MIT",
+  "description": "Journium Node.js server-side SDK - Track events from your Node.js applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -34,7 +39,20 @@
     "url": "git+https://github.com/journium/journium-js.git",
     "directory": "packages/journium-node"
   },
-  "keywords": ["analytics", "tracking", "journium", "nodejs", "server-side"],
+  "keywords": [
+    "analytics", 
+    "tracking", 
+    "journium", 
+    "nodejs", 
+    "server-side", 
+    "backend", 
+    "api", 
+    "typescript"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=14.0.0"
   }

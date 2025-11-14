@@ -1,11 +1,16 @@
 {
   "name": "journium-js",
   "version": "0.1.0",
-  "description": "Journium JavaScript SDK for web browsers",
+  "license": "MIT",
+  "description": "Journium JavaScript SDK for web browsers - Track events, pageviews, and user interactions with ease",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -32,5 +37,20 @@
     "url": "git+https://github.com/journium/journium-js.git",
     "directory": "packages/journium-js"
   },
-  "keywords": ["analytics", "tracking", "journium", "javascript", "browser"]
+  "keywords": [
+    "analytics", 
+    "tracking", 
+    "journium", 
+    "javascript", 
+    "browser", 
+    "web-analytics", 
+    "event-tracking", 
+    "pageview", 
+    "autocapture", 
+    "typescript"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
+  }
 }

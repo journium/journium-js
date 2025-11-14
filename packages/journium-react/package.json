@@ -1,11 +1,16 @@
 {
   "name": "@journium/react",
   "version": "0.1.0",
-  "description": "Journium React integration",
+  "license": "MIT",
+  "description": "Journium React integration - Provider, hooks, and components for React applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -38,5 +43,19 @@
     "url": "git+https://github.com/journium/journium-js.git",
     "directory": "packages/journium-react"
   },
-  "keywords": ["analytics", "tracking", "journium", "react", "hooks"]
+  "keywords": [
+    "analytics", 
+    "tracking", 
+    "journium", 
+    "react", 
+    "hooks", 
+    "provider", 
+    "context", 
+    "web-analytics", 
+    "typescript"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -1,11 +1,16 @@
 {
   "name": "@journium/shared",
   "version": "0.1.0",
-  "description": "Shared utilities for Journium SDK",
+  "license": "MIT",
+  "description": "Shared utilities and types for Journium SDK packages",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -31,5 +36,16 @@
     "type": "git",
     "url": "git+https://github.com/journium/journium-js.git",
     "directory": "packages/shared"
+  },
+  "keywords": [
+    "journium", 
+    "utilities", 
+    "types", 
+    "typescript", 
+    "sdk"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
   }
 }

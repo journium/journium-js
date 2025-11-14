@@ -1,11 +1,16 @@
 {
   "name": "@journium/nextjs",
   "version": "0.1.0",
-  "description": "Journium Next.js integration",
+  "license": "MIT",
+  "description": "Journium Next.js integration - SSR-ready analytics for Next.js applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -41,5 +46,19 @@
     "url": "git+https://github.com/journium/journium-js.git",
     "directory": "packages/journium-nextjs"
   },
-  "keywords": ["analytics", "tracking", "journium", "nextjs", "react", "ssr"]
+  "keywords": [
+    "analytics", 
+    "tracking", 
+    "journium", 
+    "nextjs", 
+    "react", 
+    "ssr", 
+    "ssg", 
+    "web-analytics", 
+    "typescript"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
+  }
 }
