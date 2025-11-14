@@ -166,7 +166,7 @@ The React sample is already configured to use this events monitor:
 ```typescript
 // examples/react-sample/src/App.tsx
 const journiumConfig = {
-  applicationKey: 'demo-api-key',
+  token: 'demo-api-key',
   apiHost: 'http://localhost:3006',  // Points to events monitor
   debug: true,
   flushAt: 10,
@@ -180,7 +180,7 @@ To configure the Next.js sample to use this monitor, update the configuration:
 ```typescript
 // examples/nextjs-sample/pages/_app.tsx
 const journiumConfig = {
-  applicationKey: 'demo-api-key',
+  token: 'demo-api-key',
   apiHost: 'http://localhost:3006',  // Add this line
   debug: true,
   flushAt: 10,

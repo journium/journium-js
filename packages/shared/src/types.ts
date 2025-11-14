@@ -42,8 +42,8 @@ export interface ConfigResponse {
 }
 
 export interface JourniumConfig {
-  applicationKey: string;
-  apiHost?: string;
+  token: string;
+  apiHost: string;
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;

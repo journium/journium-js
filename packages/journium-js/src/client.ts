@@ -1,85 +1,90 @@
 import { JourniumEvent, JourniumConfig, ConfigResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs, BrowserIdentityManager } from '@journium/shared';
 
 export class JourniumClient {
-  private config: JourniumConfig;
+  private config!: JourniumConfig;
   private queue: JourniumEvent[] = [];
   private flushTimer: number | null = null;
   private initialized: boolean = false;
-  private identityManager: BrowserIdentityManager;
+  private identityManager!: BrowserIdentityManager;
+  private configStorageKey!: string;
 
   constructor(config: JourniumConfig) {
-    // Preserve apiHost and applicationKey, set minimal defaults for others
-    this.config = {
-      apiHost: 'http://localhost:3006',
-      ...config,
-    };
+    // Validate required configuration
+    if (!config.token) {
+      console.error('Journium: token is required but not provided. SDK will not function.');
+      return;
+    }
+    
+    if (!config.apiHost) {
+      console.error('Journium: apiHost is required but not provided. SDK will not function.');
+      return;
+    }
+
+    this.config = config;
+
+    // Generate storage key for config caching
+    this.configStorageKey = `jrnm_${config.token}_config`;
 
     // Initialize identity manager
-    this.identityManager = new BrowserIdentityManager(this.config.sessionTimeout);
+    this.identityManager = new BrowserIdentityManager(this.config.sessionTimeout, this.config.token);
 
-    // Initialize asynchronously to fetch remote config
+    // Initialize synchronously with cached config, fetch fresh config in background
     this.initialize();
   }
 
-  private async initialize(): Promise<void> {
+  private loadCachedConfig(): any | null {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return null;
+    }
+    
     try {
-      if (this.config.applicationKey) {
-        if (this.config.debug) {
-          console.log('Journium: Fetching remote configuration...');
-        }
-        
-        const remoteConfigResponse = await fetchRemoteConfig(
-          this.config.apiHost!,
-          this.config.applicationKey,
-          this.config.configEndpoint
-        );
-        
-        if (remoteConfigResponse && remoteConfigResponse.success) {
-          // Preserve apiHost and applicationKey, merge everything else from remote
-          const localOnlyConfig = {
-            apiHost: this.config.apiHost,
-            applicationKey: this.config.applicationKey,
-            configEndpoint: this.config.configEndpoint,
-          };
-          
-          this.config = {
-            ...localOnlyConfig,
-            ...remoteConfigResponse.config,
-          };
+      const cached = window.localStorage.getItem(this.configStorageKey);
+      return cached ? JSON.parse(cached) : null;
+    } catch (error) {
+      if (this.config.debug) {
+        console.warn('Journium: Failed to load cached config:', error);
+      }
+      return null;
+    }
+  }
 
-          // Update session timeout if provided in remote config
-          if (remoteConfigResponse.config.sessionTimeout) {
-            this.identityManager.updateSessionTimeout(remoteConfigResponse.config.sessionTimeout);
-          }
-          
-          if (this.config.debug) {
-            console.log('Journium: Remote configuration applied:', remoteConfigResponse.config);
-          }
-        } else {
-          // Fallback to minimal defaults if remote config fails
-          this.config = {
-            ...this.config,
-            debug: this.config.debug ?? false,
-            flushAt: this.config.flushAt ?? 20,
-            flushInterval: this.config.flushInterval ?? 10000,
-          };
-        }
+  private saveCachedConfig(config: any): void {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+    
+    try {
+      window.localStorage.setItem(this.configStorageKey, JSON.stringify(config));
+    } catch (error) {
+      if (this.config.debug) {
+        console.warn('Journium: Failed to save config to cache:', error);
       }
-      
-      this.initialized = true;
-      
-      // Start flush timer after configuration is finalized
-      if (this.config.flushInterval && this.config.flushInterval > 0) {
-        this.startFlushTimer();
-      }
+    }
+  }
+
+  private async initialize(): Promise<void> {
+    // Step 1: Load cached config from localStorage (synchronous)
+    const cachedConfig = this.loadCachedConfig();
+    
+    // Step 2: Apply cached config immediately, or use defaults
+    const localOnlyConfig = {
+      apiHost: this.config.apiHost,
+      token: this.config.token,
+      configEndpoint: this.config.configEndpoint,
+    };
+    
+    if (cachedConfig) {
+      // Use cached remote config
+      this.config = {
+        ...localOnlyConfig,
+        ...cachedConfig,
+      };
       
       if (this.config.debug) {
-        console.log('Journium: Client initialized with config:', this.config);
+        console.log('Journium: Using cached configuration:', cachedConfig);
       }
-    } catch (error) {
-      console.warn('Journium: Failed to fetch remote config, using local config:', error);
-      
-      // Fallback to defaults
+    } else {
+      // Use defaults for first-time initialization
       this.config = {
         ...this.config,
         debug: this.config.debug ?? false,
@@ -87,11 +92,74 @@ export class JourniumClient {
         flushInterval: this.config.flushInterval ?? 10000,
       };
       
-      this.initialized = true;
+      if (this.config.debug) {
+        console.log('Journium: No cached config found, using defaults');
+      }
+    }
+    
+    // Update session timeout from config
+    if (this.config.sessionTimeout) {
+      this.identityManager.updateSessionTimeout(this.config.sessionTimeout);
+    }
+    
+    // Step 3: Mark as initialized immediately - no need to wait for remote fetch
+    this.initialized = true;
+    
+    // Step 4: Start flush timer immediately
+    if (this.config.flushInterval && this.config.flushInterval > 0) {
+      this.startFlushTimer();
+    }
+    
+    if (this.config.debug) {
+      console.log('Journium: Client initialized immediately with config:', this.config);
+    }
+    
+    // Step 5: Fetch fresh config in background (don't await)
+    if (this.config.token) {
+      this.fetchAndCacheRemoteConfig();
+    }
+  }
+
+  private async fetchAndCacheRemoteConfig(): Promise<void> {
+    try {
+      if (this.config.debug) {
+        console.log('Journium: Fetching remote configuration in background...');
+      }
       
-      // Start with local config
-      if (this.config.flushInterval && this.config.flushInterval > 0) {
-        this.startFlushTimer();
+      const remoteConfigResponse = await fetchRemoteConfig(
+        this.config.apiHost,
+        this.config.token,
+        this.config.configEndpoint
+      );
+      
+      if (remoteConfigResponse && remoteConfigResponse.success) {
+        // Save to cache for next session
+        this.saveCachedConfig(remoteConfigResponse.config);
+        
+        // Apply fresh config to current session
+        const localOnlyConfig = {
+          apiHost: this.config.apiHost,
+          token: this.config.token,
+          configEndpoint: this.config.configEndpoint,
+        };
+        
+        this.config = {
+          ...localOnlyConfig,
+          ...remoteConfigResponse.config,
+        };
+        
+        // Update session timeout if provided in fresh config
+        if (remoteConfigResponse.config.sessionTimeout) {
+          this.identityManager.updateSessionTimeout(remoteConfigResponse.config.sessionTimeout);
+        }
+        
+        if (this.config.debug) {
+          console.log('Journium: Background remote configuration applied:', remoteConfigResponse.config);
+        }
+      }
+    } catch (error) {
+      if (this.config.debug) {
+        console.warn('Journium: Background remote config fetch failed:', error);
       }
     }
   }
@@ -114,7 +182,7 @@ export class JourniumClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.applicationKey}`,
+          'Authorization': `Bearer ${this.config.token}`,
         },
         body: JSON.stringify({
           events,
@@ -137,6 +205,10 @@ export class JourniumClient {
   }
 
   track(event: string, properties: Record<string, any> = {}): void {
+    // Don't track if SDK is not properly configured
+    if (!this.config || !this.config.token || !this.config.apiHost || !this.initialized) {
+      return;
+    }
     const identity = this.identityManager.getIdentity();
     const userAgentInfo = this.identityManager.getUserAgentInfo();
     
@@ -155,7 +227,7 @@ export class JourniumClient {
 
     const journiumEvent: JourniumEvent = {
       uuid: generateUuidv7(),
-      ingestion_key: this.config.applicationKey,
+      ingestion_key: this.config.token,
       client_timestamp: getCurrentTimestamp(),
       event,
       properties: eventProperties,
@@ -173,6 +245,11 @@ export class JourniumClient {
   }
 
   async flush(): Promise<void> {
+    // Don't flush if SDK is not properly configured
+    if (!this.config || !this.config.token || !this.config.apiHost) {
+      return;
+    }
+    
     if (this.queue.length === 0) return;
 
     const events = [...this.queue];

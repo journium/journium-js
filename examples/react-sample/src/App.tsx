@@ -10,7 +10,7 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import './App.css';
 
 const journiumConfig = {
-  applicationKey: 'client_abcdef1234567890abcdef1234567890',
+  token: 'client_abcdef1234567890abcdef1234567890',
   apiHost: 'http://localhost:3006',
   //apiHost: 'https://ingestion.bhushan-685.workers.dev',
   debug: true,

@@ -43,12 +43,12 @@ export const isNode = (): boolean => {
 
 export const fetchRemoteConfig = async (
   apiHost: string,
-  applicationKey: string,
+  token: string,
   configEndpoint?: string,
   fetchFn?: any
 ): Promise<any> => {
   const endpoint = configEndpoint || '/configs';
-  const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(applicationKey)}`;
+  const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(token)}`;
   
   try {
     let fetch = fetchFn;

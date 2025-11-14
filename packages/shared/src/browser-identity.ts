@@ -14,17 +14,21 @@ export interface UserAgentInfo {
   $device_type: string;
 }
 
-const STORAGE_KEY = '__journium_identity';
 const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in ms
 
 export class BrowserIdentityManager {
   private identity: BrowserIdentity | null = null;
   private sessionTimeout: number = DEFAULT_SESSION_TIMEOUT;
+  private storageKey: string;
 
-  constructor(sessionTimeout?: number) {
+  constructor(sessionTimeout?: number, token?: string) {
     if (sessionTimeout) {
       this.sessionTimeout = sessionTimeout;
     }
+    
+    // Generate storage key with token pattern: jrnm_<token>_journium
+    this.storageKey = token ? `jrnm_${token}_journium` : '__journium_identity';
+    
     this.loadOrCreateIdentity();
   }
 
@@ -32,7 +36,7 @@ export class BrowserIdentityManager {
     if (!this.isBrowser()) return;
 
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(this.storageKey);
       if (stored) {
         const parsedIdentity = JSON.parse(stored) as BrowserIdentity;
         
@@ -82,7 +86,7 @@ export class BrowserIdentityManager {
     if (!this.isBrowser() || !this.identity) return;
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.identity));
+      localStorage.setItem(this.storageKey, JSON.stringify(this.identity));
     } catch (error) {
       console.warn('Journium: Failed to save identity to localStorage:', error);
     }

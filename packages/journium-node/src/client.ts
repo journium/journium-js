@@ -2,17 +2,24 @@ import { JourniumEvent, JourniumConfig, ConfigResponse, generateId, generateUuid
 import fetch from 'node-fetch';
 
 export class JourniumNodeClient {
-  private config: JourniumConfig;
+  private config!: JourniumConfig;
   private queue: JourniumEvent[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
   private initialized: boolean = false;
 
   constructor(config: JourniumConfig) {
-    // Preserve apiHost and applicationKey, set minimal defaults for others
-    this.config = {
-      apiHost: 'https://api.journium.io',
-      ...config,
-    };
+    // Validate required configuration
+    if (!config.token) {
+      console.error('Journium: token is required but not provided. SDK will not function.');
+      return;
+    }
+    
+    if (!config.apiHost) {
+      console.error('Journium: apiHost is required but not provided. SDK will not function.');
+      return;
+    }
+
+    this.config = config;
 
     // Initialize asynchronously to fetch remote config
     this.initialize();
@@ -20,23 +27,23 @@ export class JourniumNodeClient {
 
   private async initialize(): Promise<void> {
     try {
-      if (this.config.applicationKey) {
+      if (this.config.token) {
         if (this.config.debug) {
           console.log('Journium: Fetching remote configuration...');
         }
         
         const remoteConfigResponse = await fetchRemoteConfig(
-          this.config.apiHost!,
-          this.config.applicationKey,
+          this.config.apiHost,
+          this.config.token,
           this.config.configEndpoint,
           fetch
         );
         
         if (remoteConfigResponse && remoteConfigResponse.success) {
-          // Preserve apiHost and applicationKey, merge everything else from remote
+          // Preserve apiHost and token, merge everything else from remote
           const localOnlyConfig = {
             apiHost: this.config.apiHost,
-            applicationKey: this.config.applicationKey,
+            token: this.config.token,
             configEndpoint: this.config.configEndpoint,
           };
           
@@ -111,7 +118,7 @@ export class JourniumNodeClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.applicationKey}`,
+          'Authorization': `Bearer ${this.config.token}`,
         },
         body: JSON.stringify({
           events,
@@ -134,9 +141,13 @@ export class JourniumNodeClient {
   }
 
   track(event: string, properties: Record<string, any> = {}, distinctId?: string): void {
+    // Don't track if SDK is not properly configured
+    if (!this.config || !this.config.token || !this.config.apiHost) {
+      return;
+    }
     const journiumEvent: JourniumEvent = {
       uuid: generateUuidv7(),
-      ingestion_key: this.config.applicationKey,
+      ingestion_key: this.config.token,
       client_timestamp: getCurrentTimestamp(),
       event,
       properties,
@@ -173,6 +184,11 @@ export class JourniumNodeClient {
   }
 
   async flush(): Promise<void> {
+    // Don't flush if SDK is not properly configured
+    if (!this.config || !this.config.token || !this.config.apiHost) {
+      return;
+    }
+    
     if (this.queue.length === 0) return;
 
     const events = [...this.queue];

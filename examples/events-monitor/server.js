@@ -88,6 +88,7 @@ app.get('/configs', (req, res) => {
   res.status(200).json({ 
     success: true,
     config: remoteConfig,
+    tenant_id:"acme_corp",
     timestamp: new Date().toISOString()
   });
 });
