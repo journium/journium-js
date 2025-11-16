@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useTrackEvent, useAutoTrackPageview } from '@journium/nextjs';
+import { useJournium } from '@journium/nextjs';
 import styles from '../styles/Home.module.css';
 
 interface Product {
@@ -18,20 +18,13 @@ const sampleProducts: Product[] = [
 ];
 
 export default function Products() {
-  const trackEvent = useTrackEvent();
+  const { journium } = useJournium();
   const [viewedProducts, setViewedProducts] = useState<Set<string>>(new Set());
-
-  useAutoTrackPageview([], { 
-    page: 'products', 
-    route: '/products', 
-    framework: 'nextjs',
-    product_count: sampleProducts.length
-  });
 
   const handleProductView = (product: Product) => {
     if (!viewedProducts.has(product.id)) {
       setViewedProducts(prev => new Set(Array.from(prev).concat(product.id)));
-      trackEvent('product_viewed', {
+      journium?.track('product_viewed', {
         product_id: product.id,
         product_name: product.name,
         product_price: product.price,
@@ -42,7 +35,7 @@ export default function Products() {
   };
 
   const handleAddToCart = (product: Product) => {
-    trackEvent('add_to_cart', {
+    journium?.track('add_to_cart', {
       product_id: product.id,
       product_name: product.name,
       price: product.price,
@@ -54,7 +47,7 @@ export default function Products() {
   };
 
   const handlePurchase = (product: Product) => {
-    trackEvent('purchase_completed', {
+    journium?.track('purchase_completed', {
       product_id: product.id,
       product_name: product.name,
       price: product.price,

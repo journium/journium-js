@@ -1,0 +1,21 @@
+{
+  "name": "journium-js-sample",
+  "version": "1.0.0",
+  "description": "Vanilla JavaScript sample demonstrating journium-js SDK",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "dev": "http-server -p 3007 -o",
+    "start": "http-server -p 3007 -o",
+    "build": "echo 'No build step needed for vanilla JS'"
+  },
+  "dependencies": {
+    "journium-js": "^0.1.0-alpha.5"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": ["journium", "analytics", "javascript", "vanilla-js", "tracking"],
+  "author": "Journium Team",
+  "license": "MIT"
+}

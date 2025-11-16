@@ -1,12 +1,16 @@
 {
   "name": "@journium/react",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
+  "type": "module",
   "license": "MIT",
   "description": "Journium React integration - Provider, hooks, and components for React applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "homepage": "https://github.com/journium/journium-js",
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
@@ -22,8 +26,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "journium-js": "workspace:*",
-    "@journium/core": "workspace:*"
+    "journium-js": "^0.1.0-alpha.5",
+    "@journium/core": "^0.1.0-alpha.1"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

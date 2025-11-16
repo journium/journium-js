@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journium JavaScript SDK Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>📊 Journium JavaScript SDK Demo</h1>
+            <p>Vanilla JavaScript implementation showcasing event tracking, pageviews, and user interactions</p>
+        </div>
+    </header>
+
+    <nav class="navigation">
+        <div class="container">
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">Home</a>
+                <a href="#" class="nav-link" data-page="products">Products</a>
+                <a href="#" class="nav-link" data-page="about">About</a>
+                <a href="#" class="nav-link" data-page="contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <!-- Home Page -->
+            <div id="home" class="page active">
+                <section class="hero">
+                    <h2>🚀 Get Started with Journium</h2>
+                    <p>Track events, analyze user behavior, and gain insights with our powerful analytics platform.</p>
+                    <div class="button-group">
+                        <button id="cta-primary" class="btn btn-primary">Get Started</button>
+                        <button id="cta-secondary" class="btn btn-secondary">Learn More</button>
+                    </div>
+                </section>
+
+                <section class="features">
+                    <h3>🎯 Event Tracking Demo</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Custom Events</h4>
+                            <p>Track any user action with custom properties</p>
+                            <button class="btn btn-feature" data-event="feature_explored" data-feature="custom_events">
+                                Track Custom Event
+                            </button>
+                            <span class="event-count" data-count="custom_events">0</span>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>User Interactions</h4>
+                            <p>Monitor clicks, form submissions, and more</p>
+                            <button class="btn btn-feature" data-event="interaction_demo" data-type="button_click">
+                                Demo Interaction
+                            </button>
+                            <span class="event-count" data-count="interactions">0</span>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>E-commerce Tracking</h4>
+                            <p>Track purchases, cart additions, and conversions</p>
+                            <button class="btn btn-feature" data-event="add_to_cart" data-product="demo_product">
+                                Add to Cart
+                            </button>
+                            <span class="event-count" data-count="ecommerce">0</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="analytics-info">
+                    <h3>📈 Real-time Analytics</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h4>Events Tracked</h4>
+                            <div class="analytics-number" id="total-events">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>Page Views</h4>
+                            <div class="analytics-number" id="total-pageviews">1</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>Session Duration</h4>
+                            <div class="analytics-number" id="session-duration">00:00</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Products Page -->
+            <div id="products" class="page">
+                <section class="products-section">
+                    <h2>📦 Sample Products</h2>
+                    <p>Explore our product catalog and see e-commerce tracking in action</p>
+                    
+                    <div class="product-grid">
+                        <div class="product-card" data-product-id="prod_1">
+                            <div class="product-image">🎓</div>
+                            <h3>Analytics Masterclass</h3>
+                            <p class="product-description">Complete guide to web analytics</p>
+                            <div class="product-price">$149.99</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary product-btn" data-action="view" data-product-name="Analytics Masterclass">
+                                    View Details
+                                </button>
+                                <button class="btn btn-secondary product-btn" data-action="add_to_cart" data-product-name="Analytics Masterclass">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="product-card" data-product-id="prod_2">
+                            <div class="product-image">⚡</div>
+                            <h3>JavaScript Pro</h3>
+                            <p class="product-description">Advanced JavaScript techniques</p>
+                            <div class="product-price">$99.99</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary product-btn" data-action="view" data-product-name="JavaScript Pro">
+                                    View Details
+                                </button>
+                                <button class="btn btn-secondary product-btn" data-action="add_to_cart" data-product-name="JavaScript Pro">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="product-card" data-product-id="prod_3">
+                            <div class="product-image">🎨</div>
+                            <h3>UI/UX Bundle</h3>
+                            <p class="product-description">Design system and components</p>
+                            <div class="product-price">$199.99</div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary product-btn" data-action="view" data-product-name="UI/UX Bundle">
+                                    View Details
+                                </button>
+                                <button class="btn btn-secondary product-btn" data-action="add_to_cart" data-product-name="UI/UX Bundle">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- About Page -->
+            <div id="about" class="page">
+                <section class="about-section">
+                    <h2>ℹ️ About This Demo</h2>
+                    <p>This demo showcases the Journium JavaScript SDK in a vanilla JavaScript environment.</p>
+                    
+                    <div class="demo-features">
+                        <h3>🔍 What You'll See</h3>
+                        <ul>
+                            <li><strong>Automatic Page Views:</strong> Tracked when navigating between pages</li>
+                            <li><strong>Custom Events:</strong> Button clicks with custom properties</li>
+                            <li><strong>E-commerce Tracking:</strong> Product views and cart additions</li>
+                            <li><strong>Form Interactions:</strong> Contact form submissions</li>
+                            <li><strong>User Engagement:</strong> Time on page and session tracking</li>
+                        </ul>
+                    </div>
+
+                    <div class="tech-stack">
+                        <h3>🛠️ Technical Implementation</h3>
+                        <ul>
+                            <li><strong>Vanilla JavaScript:</strong> No frameworks, just pure JS</li>
+                            <li><strong>Journium SDK:</strong> Latest version via npm</li>
+                            <li><strong>Event-driven:</strong> Real-time tracking and updates</li>
+                            <li><strong>Responsive Design:</strong> Works on all devices</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Contact Page -->
+            <div id="contact" class="page">
+                <section class="contact-section">
+                    <h2>📧 Contact Us</h2>
+                    <p>Fill out the form below to see form tracking in action</p>
+                    
+                    <form id="contact-form" class="contact-form">
+                        <div class="form-group">
+                            <label for="name">Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" name="company">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message *</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="interest">Interest Level</label>
+                            <select id="interest" name="interest">
+                                <option value="">Select...</option>
+                                <option value="low">Just browsing</option>
+                                <option value="medium">Somewhat interested</option>
+                                <option value="high">Very interested</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                    
+                    <div id="form-success" class="form-success" style="display: none;">
+                        <h3>✅ Thank you!</h3>
+                        <p>Your message has been sent successfully.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Journium SDK</h4>
+                    <p>Powerful analytics for modern web applications</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <a href="https://docs.journium.app" target="_blank">Documentation</a>
+                    <a href="https://github.com/journium/journium-js" target="_blank">GitHub</a>
+                    <a href="https://npmjs.com/package/journium-js" target="_blank">npm</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Debug Info</h4>
+                    <div id="debug-info" class="debug-info">
+                        <div>Events: <span id="debug-events">0</span></div>
+                        <div>Page: <span id="debug-page">home</span></div>
+                        <div>Session: <span id="debug-session">Active</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load Journium SDK from node_modules -->
+    <script src="node_modules/journium-js/dist/index.umd.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

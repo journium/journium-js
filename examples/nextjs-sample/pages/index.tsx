@@ -1,21 +1,18 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useTrackEvent, useTrackPageview, useAutoTrackPageview } from '@journium/nextjs';
+import { useJournium } from '@journium/nextjs';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
-  const trackEvent = useTrackEvent();
-  const trackPageview = useTrackPageview();
+  const { journium } = useJournium();
   const [eventCount, setEventCount] = useState(0);
   const [pageviewCount, setPageviewCount] = useState(0);
-
-  useAutoTrackPageview([], { page: 'home', route: '/', framework: 'nextjs' });
 
   const handleButtonClick = () => {
     const newCount = eventCount + 1;
     setEventCount(newCount);
-    trackEvent('button_clicked', {
+    journium?.track('button_clicked', {
       button_text: 'Track Event',
       click_count: newCount,
       page: 'home',
@@ -27,7 +24,7 @@ export default function Home() {
   const handlePageviewClick = () => {
     const newCount = pageviewCount + 1;
     setPageviewCount(newCount);
-    trackPageview({
+    journium?.capturePageview({
       page: 'home_manual',
       manual_pageview: true,
       pageview_count: newCount,
@@ -36,7 +33,7 @@ export default function Home() {
   };
 
   const handleAddToCartClick = () => {
-    trackEvent('add_to_cart', {
+    journium?.track('add_to_cart', {
       product_id: 'nextjs_product_456',
       product_name: 'Next.js Course',
       price: 99.99,
@@ -47,7 +44,7 @@ export default function Home() {
   };
 
   const handleNewsletterSignup = () => {
-    trackEvent('newsletter_signup', {
+    journium?.track('newsletter_signup', {
       signup_method: 'homepage_form',
       source: 'nextjs_demo',
       user_segment: 'developer'
@@ -55,7 +52,7 @@ export default function Home() {
   };
 
   const handleDownloadClick = () => {
-    trackEvent('file_download', {
+    journium?.track('file_download', {
       file_name: 'nextjs_guide.pdf',
       file_type: 'pdf',
       download_source: 'homepage',

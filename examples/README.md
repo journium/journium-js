@@ -29,7 +29,22 @@ A complete React application showcasing:
 - Preconfigured to send events to the Events Monitor
 - Comprehensive event examples with metadata
 
-### 3. Next.js Sample (`nextjs-sample/`)
+### 3. Vanilla JavaScript Sample (`js-sample/`)
+A comprehensive vanilla JavaScript SPA demonstrating:
+- **Pure JavaScript Integration**: No frameworks, just the core SDK
+- **Single-Page Navigation**: SPA routing with pageview tracking
+- **Interactive UI**: Modern, responsive design with real-time counters
+- **Complete Event Coverage**: All major event types in one demo
+- **Live Analytics Dashboard**: Real-time metrics and debug information
+
+**Features:**
+- Multi-page SPA (Home, Products, About, Contact)
+- E-commerce product catalog with tracking
+- Contact form with field-level analytics
+- Session tracking and user engagement metrics
+- Visual event counters and live dashboard
+
+### 4. Next.js Sample (`nextjs-sample/`)
 A multi-page Next.js application demonstrating:
 - **NextJourniumProvider**: Next.js-specific provider with SSR support
 - **Automatic Route Tracking**: Pageviews on navigation between pages
@@ -69,15 +84,19 @@ pnpm --filter journium-events-monitor start
 ```
 
 #### 2. Start a Demo Application
-In another terminal, start either the React or Next.js sample:
+In another terminal, start any of the sample applications:
 
 ```bash
+# Vanilla JavaScript Sample
+pnpm --filter journium-js-sample start
+# Open http://localhost:3007 in your browser
+
 # React Sample
 pnpm --filter journium-react-sample start
+# Open http://localhost:3005 in your browser
 
 # OR Next.js Sample  
 pnpm --filter journium-nextjs-sample dev
-
 # Open http://localhost:3004 in your browser
 ```
 
@@ -93,6 +112,13 @@ pnpm --filter journium-nextjs-sample dev
 ```bash
 pnpm --filter journium-events-monitor start
 # Access dashboard at http://localhost:3006
+```
+
+#### JavaScript Sample Only
+```bash
+pnpm --filter journium-js-sample start
+# App runs at http://localhost:3007
+# Events logged to browser console
 ```
 
 #### React Sample Only
