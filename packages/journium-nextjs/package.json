@@ -1,12 +1,16 @@
 {
   "name": "@journium/nextjs",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
+  "type": "module",
   "license": "MIT",
   "description": "Journium Next.js integration - SSR-ready analytics for Next.js applications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "homepage": "https://github.com/journium/journium-js",
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
@@ -22,9 +26,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/core": "workspace:*",
-    "@journium/react": "workspace:*",
-    "journium-js": "workspace:*"
+    "@journium/core": "^0.1.0-alpha.1",
+    "@journium/react": "^0.1.0-alpha.1",
+    "journium-js": "^0.1.0-alpha.5"
   },
   "peerDependencies": {
     "next": ">=12.0.0",

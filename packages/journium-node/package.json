@@ -1,6 +1,6 @@
 {
   "name": "@journium/node",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "license": "MIT",
   "description": "Journium Node.js server-side SDK - Track events from your Node.js applications",
   "main": "dist/index.js",
@@ -22,7 +22,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/core": "workspace:*",
+    "@journium/core": "^0.1.0-alpha.1",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {

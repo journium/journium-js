@@ -155,7 +155,7 @@ importers:
   packages/journium-js:
     dependencies:
       '@journium/core':
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../core
     devDependencies:
       '@rollup/plugin-node-resolve':
@@ -180,13 +180,13 @@ importers:
   packages/journium-nextjs:
     dependencies:
       '@journium/core':
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../core
       '@journium/react':
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../journium-react
       journium-js:
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../journium-js
     devDependencies:
       '@rollup/plugin-node-resolve':
@@ -220,7 +220,7 @@ importers:
   packages/journium-node:
     dependencies:
       '@journium/core':
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../core
       node-fetch:
         specifier: ^2.6.7
@@ -251,10 +251,10 @@ importers:
   packages/journium-react:
     dependencies:
       '@journium/core':
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../core
       journium-js:
-        specifier: workspace:*
+        specifier: ^0.1.0-alpha.1
         version: link:../journium-js
     devDependencies:
       '@rollup/plugin-node-resolve':
