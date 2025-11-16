@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "journium-js": "workspace:*",
-    "@journium/shared": "workspace:*"
+    "@journium/core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

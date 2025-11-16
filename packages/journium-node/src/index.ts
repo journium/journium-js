@@ -1,7 +1,7 @@
 import { JourniumNodeClient } from './client';
 
 export { JourniumNodeClient } from './client';
-export * from '@journium/shared';
+export * from '@journium/core';
 
 export const init = (config: any) => {
   return new JourniumNodeClient(config);

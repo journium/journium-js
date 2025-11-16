@@ -1,11 +1,16 @@
 {
-  "name": "journium-js",
+  "name": "@journium/core",
   "version": "0.1.0",
-  "description": "Journium JavaScript SDK for web browsers",
+  "license": "MIT",
+  "description": "Core functionality and types for Journium SDK - identity, events, and configuration",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -17,7 +22,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/shared": "workspace:*"
+    "uuidv7": "^1.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -30,7 +35,20 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/journium/journium-js.git",
-    "directory": "packages/journium-js"
+    "directory": "packages/core"
   },
-  "keywords": ["analytics", "tracking", "journium", "javascript", "browser"]
+  "keywords": [
+    "journium", 
+    "core", 
+    "analytics", 
+    "identity", 
+    "events", 
+    "types", 
+    "typescript", 
+    "sdk"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
+  }
 }

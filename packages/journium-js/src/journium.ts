@@ -1,4 +1,4 @@
-import { JourniumConfig, AutocaptureConfig } from '@journium/shared';
+import { JourniumConfig, AutocaptureConfig } from '@journium/core';
 import { JourniumClient } from './client';
 import { PageviewTracker } from './pageview';
 import { AutocaptureTracker } from './autocapture';

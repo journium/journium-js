@@ -1,5 +1,5 @@
 import { JourniumClient } from './client';
-import { isBrowser } from '@journium/shared';
+import { isBrowser } from '@journium/core';
 
 export interface AutocaptureConfig {
   captureClicks?: boolean;

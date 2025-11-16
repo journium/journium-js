@@ -22,7 +22,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/shared": "workspace:*",
+    "@journium/core": "workspace:*",
     "@journium/react": "workspace:*",
     "journium-js": "workspace:*"
   },

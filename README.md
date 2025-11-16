@@ -30,7 +30,7 @@ This monorepo contains multiple packages optimized for different environments:
 | **`@journium/react`** | React integration | React applications with hooks |
 | **`@journium/nextjs`** | Next.js integration | Next.js apps with SSR support |
 | **`@journium/node`** | Node.js server SDK | Server-side tracking |
-| **`@journium/shared`** | Shared utilities | Internal use, types & utilities |
+| **`@journium/core`** | Core SDK functionality | Identity, events, types & utilities |
 
 ## 🚀 Installation
 
@@ -371,7 +371,7 @@ journium-js/
 │   ├── journium-react/      # React integration
 │   ├── journium-nextjs/     # Next.js integration
 │   ├── journium-node/       # Node.js SDK
-│   └── shared/              # Shared utilities
+│   └── core/                # Core SDK functionality
 ├── examples/
 │   ├── react-sample/        # React example app
 │   ├── nextjs-sample/       # Next.js example app  

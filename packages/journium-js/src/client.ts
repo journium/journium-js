@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, ConfigResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs, BrowserIdentityManager } from '@journium/shared';
+import { JourniumEvent, JourniumConfig, ConfigResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs, BrowserIdentityManager } from '@journium/core';
 
 export class JourniumClient {
   private config!: JourniumConfig;

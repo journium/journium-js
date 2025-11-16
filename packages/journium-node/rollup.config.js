@@ -23,7 +23,7 @@ export default [
         tsconfig: './tsconfig.json',
       }),
     ],
-    external: ['@journium/shared', 'node-fetch'],
+    external: ['@journium/core', 'node-fetch'],
   },
   {
     input: 'src/index.ts',
@@ -32,6 +32,6 @@ export default [
       format: 'esm',
     },
     plugins: [dts()],
-    external: ['@journium/shared', 'node-fetch'],
+    external: ['@journium/core', 'node-fetch'],
   },
 ];

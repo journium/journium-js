@@ -1,4 +1,4 @@
-import { PageviewProperties, getCurrentUrl, getPageTitle, getReferrer } from '@journium/shared';
+import { PageviewProperties, getCurrentUrl, getPageTitle, getReferrer } from '@journium/core';
 import { JourniumClient } from './client';
 
 export class PageviewTracker {

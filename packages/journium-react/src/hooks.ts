@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useJournium } from './context';
-import { AutocaptureConfig } from '@journium/shared';
+import { AutocaptureConfig } from '@journium/core';
 
 export const useTrackEvent = () => {
   const { journium } = useJournium();

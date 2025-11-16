@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { JourniumProvider as BaseJourniumProvider, useJournium } from '@journium/react';
-import { JourniumConfig } from '@journium/shared';
+import { JourniumConfig } from '@journium/core';
 
 interface NextJourniumProviderProps {
   children: ReactNode;

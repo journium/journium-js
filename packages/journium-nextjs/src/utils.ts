@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext, GetStaticPropsContext } from 'next';
-import { isNode } from '@journium/shared';
+import { isNode } from '@journium/core';
 
 export const isServerSide = (): boolean => {
   return isNode() && typeof window === 'undefined';

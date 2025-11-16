@@ -22,7 +22,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/shared": "workspace:*"
+    "@journium/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

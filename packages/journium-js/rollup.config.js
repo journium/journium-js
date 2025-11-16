@@ -22,7 +22,7 @@ export default [
         name: 'Journium',
         sourcemap: true,
         globals: {
-          '@journium/shared': 'JourniumShared',
+          '@journium/core': 'JourniumCore',
         },
       },
     ],

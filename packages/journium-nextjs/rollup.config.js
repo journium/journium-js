@@ -23,7 +23,7 @@ export default [
         tsconfig: './tsconfig.json',
       }),
     ],
-    external: ['react', 'next/router', '@journium/react', '@journium/shared', 'journium-js'],
+    external: ['react', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
   },
   {
     input: 'src/index.tsx',
@@ -32,6 +32,6 @@ export default [
       format: 'esm',
     },
     plugins: [dts()],
-    external: ['react', 'next/router', '@journium/react', '@journium/shared', 'journium-js'],
+    external: ['react', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
   },
 ];

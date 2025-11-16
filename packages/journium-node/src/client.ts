@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, ConfigResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs } from '@journium/shared';
+import { JourniumEvent, JourniumConfig, ConfigResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs } from '@journium/core';
 import fetch from 'node-fetch';
 
 export class JourniumNodeClient {

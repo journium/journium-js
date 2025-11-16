@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, ReactNode } from 'react';
 import { Journium } from 'journium-js';
-import { JourniumConfig } from '@journium/shared';
+import { JourniumConfig } from '@journium/core';
 
 interface JourniumContextValue {
   journium: Journium | null;
