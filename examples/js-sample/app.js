@@ -32,21 +32,16 @@ class JourniumDemo {
     // Initialize Journium SDK
     initializeJournium() {
         try {
-            // Initialize Journium with demo configuration
+            // Initialize Journium with minimal configuration
+            // Only include required local configs - remote config will handle the rest
             this.journium = window.Journium.init({
                 token: 'client_abcdef1234567890abcdef1234567890',
                 apiHost: 'http://localhost:3006', // Events monitor endpoint
                 //apiHost: 'https://ingestion.bhushan-685.workers.dev',
-                debug: true,
-                flushAt: 5, // Send events every 5 events for demo
-                flushInterval: 30000, // Or every 30 seconds
-                autocapture: {
-                    captureClicks: true,
-                    captureFormSubmits: true,
-                    captureFormChanges: false,
-                    ignoreClasses: ['no-track'],
-                    ignoreElements: ['input[type="password"]']
-                }
+                debug: true,  // Always set locally - never configured remotely
+                flushAt: 1,   // Demo: send events immediately
+                flushInterval: 1000,  // Demo: flush every 1 second
+                // autocapture: true by default - set to false to disable
             });
 
             // Start auto-capture for automatic tracking

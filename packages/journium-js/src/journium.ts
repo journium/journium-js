@@ -8,6 +8,7 @@ export class Journium {
   private pageviewTracker: PageviewTracker;
   private autocaptureTracker: AutocaptureTracker;
   private config: JourniumConfig;
+  private autocaptureEnabled: boolean;
 
   constructor(config: JourniumConfig) {
     this.config = config;
@@ -16,10 +17,13 @@ export class Journium {
     
     const autocaptureConfig = this.resolveAutocaptureConfig(config.autocapture);
     this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureConfig);
+    
+    // Store resolved autocapture state for startAutoCapture method
+    this.autocaptureEnabled = config.autocapture !== false;
   }
 
   private resolveAutocaptureConfig(autocapture?: boolean | AutocaptureConfig): AutocaptureConfig {
-    if (autocapture === false || autocapture === undefined) {
+    if (autocapture === false) {
       return {
         captureClicks: false,
         captureFormSubmits: false,
@@ -28,8 +32,8 @@ export class Journium {
       };
     }
 
-    if (autocapture === true) {
-      return {}; // Use default configuration
+    if (autocapture === true || autocapture === undefined) {
+      return {}; // Use default configuration (enabled by default)
     }
 
     return autocapture;
@@ -46,7 +50,7 @@ export class Journium {
   startAutoCapture(): void {
     this.pageviewTracker.startAutoCapture();
     
-    if (this.config.autocapture) {
+    if (this.autocaptureEnabled) {
       this.autocaptureTracker.start();
     }
   }

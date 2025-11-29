@@ -28,9 +28,12 @@ import App from './App';
 function Root() {
   return (
     <JourniumProvider
-      token="your-journium-token"
-      apiHost="https://your-journium-instance.com"
-      autocapture={true}
+      config={{
+        token: "your-journium-token",
+        apiHost: "https://your-journium-instance.com"
+        // autocapture: true by default - no need to specify unless disabling
+      }}
+      autoCapture={true} // Enables auto-pageview and triggers autocapture
     >
       <App />
     </JourniumProvider>

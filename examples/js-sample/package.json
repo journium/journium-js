@@ -10,7 +10,7 @@
     "build": "echo 'No build step needed for vanilla JS'"
   },
   "dependencies": {
-    "journium-js": "^0.1.0-alpha.5"
+    "journium-js": "workspace:*"
   },
   "devDependencies": {
     "http-server": "^14.1.1"

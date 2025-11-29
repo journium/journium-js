@@ -26,9 +26,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/core": "^0.1.0-alpha.1",
-    "@journium/react": "^0.1.0-alpha.1",
-    "journium-js": "^0.1.0-alpha.5"
+    "@journium/core": "workspace:*",
+    "@journium/react": "workspace:*",
+    "journium-js": "workspace:*"
   },
   "peerDependencies": {
     "next": ">=12.0.0",

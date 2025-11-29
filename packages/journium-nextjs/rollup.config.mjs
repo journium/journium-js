@@ -4,11 +4,11 @@ import dts from 'rollup-plugin-dts';
 
 export default [
   {
-    input: 'src/index.ts',
+    input: 'src/index.tsx',
     output: [
       {
         file: 'dist/index.js',
-        format: 'cjs',
+        format: 'esm',
         sourcemap: true,
       },
       {
@@ -23,15 +23,15 @@ export default [
         tsconfig: './tsconfig.json',
       }),
     ],
-    external: ['@journium/core', 'node-fetch'],
+    external: ['react', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
   },
   {
-    input: 'src/index.ts',
+    input: 'src/index.tsx',
     output: {
       file: 'dist/index.d.ts',
       format: 'esm',
     },
     plugins: [dts()],
-    external: ['@journium/core', 'node-fetch'],
+    external: ['react', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
   },
 ];

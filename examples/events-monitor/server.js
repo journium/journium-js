@@ -63,8 +63,8 @@ app.get('/configs', (req, res) => {
   // Sample remote configuration - in production this would come from database
   const remoteConfig = {
     debug: true,
-    flushAt: 15,
-    flushInterval: 20000,
+    flushAt: 5,
+    flushInterval: 1000,
     autocapture: {
       captureClicks: true,
       captureFormSubmits: true,

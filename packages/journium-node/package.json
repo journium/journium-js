@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.1",
   "license": "MIT",
   "description": "Journium Node.js server-side SDK - Track events from your Node.js applications",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
   },
+  "type": "module",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -22,7 +23,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/core": "^0.1.0-alpha.1",
+    "@journium/core": "workspace:*",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {

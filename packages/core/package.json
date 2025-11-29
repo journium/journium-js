@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.1",
   "license": "MIT",
   "description": "Core functionality and types for Journium SDK - identity, events, and configuration",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -11,6 +11,7 @@
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
   },
+  "type": "module",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",

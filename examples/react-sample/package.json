@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@journium/react": "^0.1.0-alpha.1",
+    "@journium/react": "workspace:*",
     "@types/node": "^16.18.96",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

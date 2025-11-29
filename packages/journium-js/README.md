@@ -36,7 +36,8 @@ journium.track('button_clicked', {
 // Track pageviews (optional - can be automatic)
 journium.capturePageview();
 
-// Start auto-capture (recommended)
+// Start auto-capture - automatically enabled when calling startAutoCapture()
+// Autocapture is enabled by default, but you need to start it:
 journium.startAutoCapture();
 ```
 
@@ -55,7 +56,7 @@ const journium = init({
   debug: false,                          // Optional: Enable debug logs
   flushAt: 20,                          // Optional: Flush after N events
   flushInterval: 10000,                 // Optional: Flush interval (ms)
-  autocapture: true,                    // Optional: Enable auto-capture
+  autocapture: true,                    // Optional: (default: true) - set false to disable
   sessionTimeout: 1800000               // Optional: Session timeout (30m)
 });
 ```
@@ -110,12 +111,21 @@ journium.capturePageview({
 
 Control automatic event capture for clicks, pageviews, and form interactions.
 
+**Note:** Autocapture is enabled by default. You can disable it entirely with `autocapture: false` in your config, or control it programmatically:
+
 ```javascript
-// Start capturing events automatically
+// Start capturing events automatically (autocapture is enabled by default)
 journium.startAutoCapture();
 
 // Stop automatic capture
 journium.stopAutoCapture();
+
+// Or disable entirely in configuration:
+const journium = init({
+  token: 'your-token',
+  apiHost: 'your-api.com',
+  autocapture: false  // Disables all autocapture functionality
+});
 ```
 
 Configure what gets auto-captured:
@@ -214,7 +224,7 @@ journium.track('feature_used', {
   flushInterval: 10000,               // Send events every N milliseconds
   sessionTimeout: 1800000,            // Session timeout (30 minutes)
   configEndpoint: '/configs',         // Custom config endpoint
-  autocapture: true                   // Enable/disable auto-capture
+  autocapture: true                   // Default: true - set false to disable auto-capture
 }
 ```
 
