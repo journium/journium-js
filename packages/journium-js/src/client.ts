@@ -3,7 +3,7 @@ import { JourniumEvent, JourniumConfig, ConfigResponse, generateUuidv7, getCurre
 export class JourniumClient {
   private config!: JourniumConfig;
   private queue: JourniumEvent[] = [];
-  private flushTimer: number | null = null;
+  private flushTimer: ReturnType<typeof setInterval> | null = null;
   private initialized: boolean = false;
   private identityManager!: BrowserIdentityManager;
   private configStorageKey!: string;
@@ -29,7 +29,8 @@ export class JourniumClient {
     this.identityManager = new BrowserIdentityManager(this.config.sessionTimeout, this.config.token);
 
     // Initialize synchronously with cached config, fetch fresh config in background
-    this.initialize();
+    this.initializeSync();
+    this.fetchRemoteConfigAsync();
   }
 
   private loadCachedConfig(): any | null {
@@ -62,7 +63,7 @@ export class JourniumClient {
     }
   }
 
-  private async initialize(): Promise<void> {
+  private initializeSync(): void {
     // Step 1: Load cached config from localStorage (synchronous)
     const cachedConfig = this.loadCachedConfig();
     
@@ -111,12 +112,14 @@ export class JourniumClient {
     }
     
     if (this.config.debug) {
-      console.log('Journium: Client initialized immediately with config:', this.config);
+      console.log('Journium: Client initialized and ready to track events');
     }
-    
-    // Step 5: Fetch fresh config in background (don't await)
+  }
+
+  private async fetchRemoteConfigAsync(): Promise<void> {
+    // Fetch fresh config in background
     if (this.config.token) {
-      this.fetchAndCacheRemoteConfig();
+      await this.fetchAndCacheRemoteConfig();
     }
   }
 
@@ -169,7 +172,8 @@ export class JourniumClient {
       clearInterval(this.flushTimer);
     }
 
-    this.flushTimer = window.setInterval(() => {
+    // Use universal setInterval (works in both browser and Node.js)
+    this.flushTimer = setInterval(() => {
       this.flush();
     }, this.config.flushInterval!);
   }
@@ -207,6 +211,9 @@ export class JourniumClient {
   track(event: string, properties: Record<string, any> = {}): void {
     // Don't track if SDK is not properly configured
     if (!this.config || !this.config.token || !this.config.apiHost || !this.initialized) {
+      if (this.config?.debug) {
+        console.warn('Journium: track() call rejected - SDK not ready');
+      }
       return;
     }
     const identity = this.identityManager.getIdentity();

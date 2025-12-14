@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Journium } from 'journium-js';
 import { JourniumConfig } from '@journium/core';
 
@@ -19,22 +19,20 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   config,
   autoCapture = true,
 }) => {
-  const journiumRef = useRef<Journium | null>(null);
+  const [journium, setJournium] = useState<Journium | null>(null);
 
   useEffect(() => {
-    if (!journiumRef.current) {
-      journiumRef.current = new Journium(config);
-      
-      if (autoCapture) {
-        journiumRef.current.startAutoCapture();
-      }
+    const journiumInstance = new Journium(config);
+    
+    if (autoCapture) {
+      journiumInstance.startAutoCapture();
     }
+    
+    setJournium(journiumInstance);
 
     return () => {
-      if (journiumRef.current) {
-        journiumRef.current.destroy();
-        journiumRef.current = null;
-      }
+      journiumInstance.destroy();
+      setJournium(null);
     };
   }, [config, autoCapture]);
 
@@ -42,7 +40,7 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   // When autoCapture=false, users should call capturePageview() manually as needed
 
   return (
-    <JourniumContext.Provider value={{ journium: journiumRef.current }}>
+    <JourniumContext.Provider value={{ journium }}>
       {children}
     </JourniumContext.Provider>
   );
