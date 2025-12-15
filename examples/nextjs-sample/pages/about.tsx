@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useJournium } from '@journium/nextjs';
+import { useTrackEvent } from '@journium/nextjs';
 import styles from '../styles/Home.module.css';
 
 export default function About() {
-  const { journium } = useJournium();
+  const trackEvent = useTrackEvent();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    journium?.track('form_field_updated', {
+    trackEvent('form_field_updated', {
       field_name: name,
       field_value_length: value.length,
       form_type: 'contact',
@@ -23,7 +23,7 @@ export default function About() {
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    journium?.track('contact_form_submitted', {
+    trackEvent('contact_form_submitted', {
       form_type: 'contact',
       has_name: !!formData.name,
       has_email: !!formData.email,
@@ -37,7 +37,7 @@ export default function About() {
   };
 
   const handleSocialClick = (platform: string) => {
-    journium?.track('social_link_clicked', {
+    trackEvent('social_link_clicked', {
       platform,
       page: 'about',
       link_type: 'external'
@@ -45,7 +45,7 @@ export default function About() {
   };
 
   const handleDocumentationClick = () => {
-    journium?.track('documentation_accessed', {
+    trackEvent('documentation_accessed', {
       section: 'getting_started',
       page: 'about',
       user_intent: 'learn_more'

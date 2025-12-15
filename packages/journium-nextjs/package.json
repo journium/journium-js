@@ -1,6 +1,6 @@
 {
   "name": "@journium/nextjs",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.3",
   "type": "module",
   "license": "MIT",
   "description": "Journium Next.js integration - SSR-ready analytics for Next.js applications",

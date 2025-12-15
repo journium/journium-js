@@ -1,6 +1,6 @@
 {
   "name": "@journium/core",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "license": "MIT",
   "description": "Core functionality and types for Journium SDK - identity, events, and configuration",
   "main": "dist/index.cjs",

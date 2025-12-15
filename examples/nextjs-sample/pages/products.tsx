@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useJournium } from '@journium/nextjs';
+import { useTrackEvent } from '@journium/nextjs';
 import styles from '../styles/Home.module.css';
 
 interface Product {
@@ -18,13 +18,13 @@ const sampleProducts: Product[] = [
 ];
 
 export default function Products() {
-  const { journium } = useJournium();
+  const trackEvent = useTrackEvent();
   const [viewedProducts, setViewedProducts] = useState<Set<string>>(new Set());
 
   const handleProductView = (product: Product) => {
     if (!viewedProducts.has(product.id)) {
       setViewedProducts(prev => new Set(Array.from(prev).concat(product.id)));
-      journium?.track('product_viewed', {
+      trackEvent('product_viewed', {
         product_id: product.id,
         product_name: product.name,
         product_price: product.price,
@@ -35,7 +35,7 @@ export default function Products() {
   };
 
   const handleAddToCart = (product: Product) => {
-    journium?.track('add_to_cart', {
+    trackEvent('add_to_cart', {
       product_id: product.id,
       product_name: product.name,
       price: product.price,
@@ -47,7 +47,7 @@ export default function Products() {
   };
 
   const handlePurchase = (product: Product) => {
-    journium?.track('purchase_completed', {
+    trackEvent('purchase_completed', {
       product_id: product.id,
       product_name: product.name,
       price: product.price,

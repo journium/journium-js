@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useJournium } from '@journium/nextjs';
+import { useTrackEvent, useTrackPageview } from '@journium/nextjs';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
-  const { journium } = useJournium();
+  const trackEvent = useTrackEvent();
+  const trackPageview = useTrackPageview();
   const [eventCount, setEventCount] = useState(0);
   const [pageviewCount, setPageviewCount] = useState(0);
 
   const handleButtonClick = () => {
     const newCount = eventCount + 1;
     setEventCount(newCount);
-    journium?.track('button_clicked', {
+    trackEvent('button_clicked', {
       button_text: 'Track Event',
       click_count: newCount,
       page: 'home',
@@ -24,7 +25,7 @@ export default function Home() {
   const handlePageviewClick = () => {
     const newCount = pageviewCount + 1;
     setPageviewCount(newCount);
-    journium?.capturePageview({
+    trackPageview({
       page: 'home_manual',
       manual_pageview: true,
       pageview_count: newCount,
@@ -33,7 +34,7 @@ export default function Home() {
   };
 
   const handleAddToCartClick = () => {
-    journium?.track('add_to_cart', {
+    trackEvent('add_to_cart', {
       product_id: 'nextjs_product_456',
       product_name: 'Next.js Course',
       price: 99.99,
@@ -44,7 +45,7 @@ export default function Home() {
   };
 
   const handleNewsletterSignup = () => {
-    journium?.track('newsletter_signup', {
+    trackEvent('newsletter_signup', {
       signup_method: 'homepage_form',
       source: 'nextjs_demo',
       user_segment: 'developer'
@@ -52,7 +53,7 @@ export default function Home() {
   };
 
   const handleDownloadClick = () => {
-    journium?.track('file_download', {
+    trackEvent('file_download', {
       file_name: 'nextjs_guide.pdf',
       file_type: 'pdf',
       download_source: 'homepage',
