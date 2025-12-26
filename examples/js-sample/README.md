@@ -20,6 +20,7 @@ The demo will open at `http://localhost:3007`
 
 - **🎯 Event Tracking**: Custom events with rich metadata
 - **📄 Pageview Analytics**: SPA navigation tracking
+- **👤 User Authentication**: Login/logout with proper user identification
 - **🛍️ E-commerce Tracking**: Product views, cart additions
 - **📝 Form Analytics**: Field interactions and submissions
 - **⏱️ Session Tracking**: Real-time session duration
@@ -41,7 +42,12 @@ The demo will open at `http://localhost:3007`
    - Add-to-cart events
    - Purchase simulation
 
-4. **Contact Form**
+4. **User Authentication**
+   - Login/signup modal with form validation
+   - Proper user identification using `identify()` API
+   - Session persistence and logout functionality
+
+5. **Contact Form**
    - Field-level interaction tracking
    - Form completion analytics
    - Submission success tracking
@@ -93,6 +99,16 @@ journium.capturePageview({
     page_name: 'products',
     page_type: 'catalog'
 });
+
+// User identification (login)
+journium.identify('user_123', {
+    name: 'John Doe',
+    email: 'john@example.com',
+    plan: 'premium'
+});
+
+// Reset user identity (logout)
+journium.reset();
 ```
 
 ## 📈 Analytics Features
@@ -109,12 +125,17 @@ journium.capturePageview({
    - Form field interactions
    - Element hover tracking
 
-3. **E-commerce Events**
+3. **User Authentication Events**
+   - User login and signup tracking
+   - Identity management with `identify()` API
+   - Session reset on logout
+
+4. **E-commerce Events**
    - Product catalog browsing
    - Add-to-cart actions
    - Purchase simulations
 
-4. **Form Events**
+5. **Form Events**
    - Field focus/blur tracking
    - Form completion analytics
    - Submission success rates

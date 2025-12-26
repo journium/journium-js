@@ -44,11 +44,12 @@ export default function Home() {
     });
   };
 
-  const handleNewsletterSignup = () => {
-    trackEvent('newsletter_signup', {
-      signup_method: 'homepage_form',
+  const handleFeatureClick = () => {
+    trackEvent('feature_used', {
+      feature_name: 'demo_feature',
+      interaction_method: 'homepage_button',
       source: 'nextjs_demo',
-      user_segment: 'developer'
+      framework: 'nextjs'
     });
   };
 
@@ -95,8 +96,8 @@ export default function Home() {
                 Track Add to Cart
               </button>
               
-              <button onClick={handleNewsletterSignup} className={`${styles.button} ${styles.signup}`}>
-                Track Newsletter Signup
+              <button onClick={handleFeatureClick} className={`${styles.button} ${styles.feature}`}>
+                Track Feature Usage
               </button>
               
               <button onClick={handleDownloadClick} className={`${styles.button} ${styles.download}`}>
@@ -129,8 +130,9 @@ export default function Home() {
             <ul>
               <li><strong>Auto Route Tracking:</strong> Automatically tracks pageviews when navigating between pages</li>
               <li><strong>SSR Support:</strong> Works with server-side rendering and static generation</li>
+              <li><strong>User Authentication:</strong> Login/Signup using the identify API for proper user tracking</li>
               <li><strong>E-commerce Events:</strong> Add to cart tracking with product details</li>
-              <li><strong>User Engagement:</strong> Newsletter signups and file downloads</li>
+              <li><strong>User Engagement:</strong> Feature usage and file downloads</li>
               <li><strong>Custom Events:</strong> Button clicks with custom properties</li>
               <li><strong>Manual Pageviews:</strong> Programmatically triggered pageview events</li>
             </ul>

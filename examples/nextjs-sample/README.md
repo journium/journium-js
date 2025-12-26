@@ -5,11 +5,11 @@ This is a sample Next.js application demonstrating how to integrate the Journium
 ## Features Demonstrated
 
 - **NextJourniumProvider Setup**: Next.js-specific provider with SSR support
+- **User Authentication**: Login/signup with proper user identification using `useIdentify` and `useReset` hooks
 - **Automatic Route Tracking**: Pageviews tracked on navigation between pages
 - **Custom Event Tracking**: Various types of events with rich metadata
 - **E-commerce Tracking**: Product views, add to cart, and purchase events
 - **Form Tracking**: Form field interactions and submissions
-- **Social Media Tracking**: External link clicks
 - **Multi-page Navigation**: Demonstrates route-based event tracking
 
 ## Running the Application
@@ -42,15 +42,21 @@ This is a sample Next.js application demonstrating how to integrate the Journium
 
 ### Key Components
 
-- **_app.tsx**: Sets up `NextJourniumProvider` for the entire application
+- **_app.tsx**: Sets up `NextJourniumProvider` and `AuthProvider` for the entire application
+- **components/**: Authentication components (AuthProvider, AuthModal, Header)
 - **Individual Pages**: Each demonstrates different tracking scenarios
 
 ## Events Tracked
 
+### Authentication Events
+- Login and signup using proper user identification
+- Session persistence across page reloads
+- Logout with user identity reset
+
 ### Home Page
 - Custom button clicks
 - Add to cart events
-- Newsletter signups
+- Feature usage tracking
 - File downloads
 - Manual pageviews
 
@@ -65,6 +71,43 @@ This is a sample Next.js application demonstrating how to integrate the Journium
 - Form submission events
 - Social media link clicks
 - Documentation access tracking
+
+## User Authentication
+
+This sample demonstrates proper user identification using the Journium SDK:
+
+### Login/Signup
+- Uses the `useIdentify()` hook to properly identify users
+- Tracks authentication events (`user_logged_in`, `user_signed_up`)
+- Persists user sessions across page reloads
+
+```typescript
+import { useIdentify } from '@journium/nextjs';
+
+const identify = useIdentify();
+
+// When user logs in
+identify('user_123', {
+  name: 'John Doe',
+  email: 'john@example.com',
+  company: 'Acme Inc',
+  framework: 'nextjs'
+});
+```
+
+### Logout
+- Uses the `useReset()` hook to clear user identity
+- Tracks logout events
+- Generates new anonymous distinct ID
+
+```typescript
+import { useReset } from '@journium/nextjs';
+
+const reset = useReset();
+
+// When user logs out
+reset();
+```
 
 ## Configuration
 

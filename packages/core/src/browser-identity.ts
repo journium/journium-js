@@ -5,6 +5,7 @@ export interface BrowserIdentity {
   $device_id: string;
   $session_id: string;
   session_timestamp: number;
+  $user_state: 'anonymous' | 'identified';
 }
 
 export interface UserAgentInfo {
@@ -51,10 +52,15 @@ export class BrowserIdentityManager {
             $device_id: parsedIdentity.$device_id,
             $session_id: generateUuidv7(),
             session_timestamp: now,
+            $user_state: parsedIdentity.$user_state || 'anonymous',
           };
         } else {
           // Session still valid
           this.identity = parsedIdentity;
+          // Ensure $user_state exists for backward compatibility
+          if (!this.identity.$user_state) {
+            this.identity.$user_state = 'anonymous';
+          }
         }
       } else {
         // First time, create all new IDs
@@ -64,6 +70,7 @@ export class BrowserIdentityManager {
           $device_id: newId,
           $session_id: newId,
           session_timestamp: Date.now(),
+          $user_state: 'anonymous',
         };
       }
 
@@ -78,6 +85,7 @@ export class BrowserIdentityManager {
         $device_id: newId,
         $session_id: newId,
         session_timestamp: Date.now(),
+        $user_state: 'anonymous',
       };
     }
   }
@@ -111,6 +119,36 @@ export class BrowserIdentityManager {
       ...this.identity,
       $session_id: generateUuidv7(),
       session_timestamp: Date.now(),
+    };
+    
+    this.saveIdentity();
+  }
+
+  public identify(distinctId: string, attributes: Record<string, any> = {}): { previousDistinctId: string | null } {
+    if (!this.identity) return { previousDistinctId: null };
+    
+    const previousDistinctId = this.identity.distinct_id;
+    
+    // Update the distinct ID and mark user as identified
+    this.identity = {
+      ...this.identity,
+      distinct_id: distinctId,
+      $user_state: 'identified',
+    };
+    
+    this.saveIdentity();
+    
+    return { previousDistinctId };
+  }
+
+  public reset(): void {
+    if (!this.identity) return;
+    
+    // Generate new distinct ID but keep device ID
+    this.identity = {
+      ...this.identity,
+      distinct_id: generateUuidv7(),
+      $user_state: 'anonymous',
     };
     
     this.saveIdentity();

@@ -107,6 +107,67 @@ function EcommerceComponent() {
 }
 ```
 
+### useIdentify - User Identification
+
+Use this hook to identify users when they log in or sign up. This should be used instead of tracking user login as a custom event.
+
+```jsx
+import { useIdentify } from '@journium/react';
+
+function LoginForm() {
+  const identify = useIdentify();
+
+  const handleLogin = async (email, password) => {
+    try {
+      const user = await loginUser(email, password);
+      
+      // Identify the user after successful login
+      identify(user.id, {
+        name: user.name,
+        email: user.email,
+      });
+      
+      // Redirect to dashboard or show success
+    } catch (error) {
+      // Handle login error
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      {/* Login form fields */}
+    </form>
+  );
+}
+```
+
+### useReset - User Logout
+
+Use this hook to reset user identity when they log out:
+
+```jsx
+import { useReset } from '@journium/react';
+
+function LogoutButton() {
+  const reset = useReset();
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      
+      // Reset user identity after successful logout
+      reset();
+      
+      // Redirect to home or login page
+    } catch (error) {
+      // Handle logout error
+    }
+  };
+
+  return <button onClick={handleLogout}>Log Out</button>;
+}
+```
+
 ### useTrackPageview - Manual Pageview Tracking
 
 For tracking custom pageviews beyond automatic route tracking:
@@ -409,6 +470,8 @@ function TypedComponent() {
 | Hook | Purpose | Usage |
 |------|---------|-------|
 | `useTrackEvent()` | Track custom events | `trackEvent('event_name', properties)` |
+| `useIdentify()` | Identify users on login/signup | `identify(distinctId, attributes)` |
+| `useReset()` | Reset user identity on logout | `reset()` |
 | `useTrackPageview()` | Manual pageview tracking | `trackPageview(properties)` |
 | `useAutoTrackPageview(deps, props)` | Automatic pageview on mount | Auto-tracks when deps change |
 | `useAutocapture()` | Control autocapture | `{ startAutocapture, stopAutocapture }` |

@@ -13,6 +13,7 @@ class JourniumDemo {
         this.pageViews = 1;
         this.sessionStart = Date.now();
         this.currentPage = 'home';
+        this.currentUser = null;
 
         this.init();
     }
@@ -22,6 +23,8 @@ class JourniumDemo {
         this.initializeJournium();
         this.setupNavigation();
         this.setupEventTracking();
+        this.setupAuthFunctionality();
+        this.checkLoginStatus();
         this.startSessionTimer();
         this.setupFormTracking();
         
@@ -333,6 +336,259 @@ class JourniumDemo {
         return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
+    // Set up authentication functionality
+    setupAuthFunctionality() {
+        // Login button
+        document.getElementById('login-btn')?.addEventListener('click', () => {
+            this.showLoginModal();
+        });
+
+        // Signup button
+        document.getElementById('signup-btn')?.addEventListener('click', () => {
+            this.showSignupModal();
+        });
+
+        // Logout button
+        document.getElementById('logout-btn')?.addEventListener('click', () => {
+            this.logout();
+        });
+
+        // Modal close buttons
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.hideAllModals();
+            });
+        });
+
+        // Switch between login and signup
+        document.getElementById('switch-to-signup')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.hideAllModals();
+            this.showSignupModal();
+        });
+
+        document.getElementById('switch-to-login')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.hideAllModals();
+            this.showLoginModal();
+        });
+
+        // Login form submission
+        document.getElementById('login-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin(e.target);
+        });
+
+        // Signup form submission
+        document.getElementById('signup-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleSignup(e.target);
+        });
+
+        // Close modals when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.hideAllModals();
+                }
+            });
+        });
+    }
+
+    // Check if user is already logged in
+    checkLoginStatus() {
+        const savedUser = localStorage.getItem('journium_demo_user');
+        if (savedUser) {
+            try {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateAuthUI();
+                
+                // Re-identify user with Journium
+                if (this.journium) {
+                    this.journium.identify(this.currentUser.id, {
+                        name: this.currentUser.name,
+                        email: this.currentUser.email,
+                        company: this.currentUser.company,
+                        login_type: 'existing_session'
+                    });
+                }
+                
+                this.log('✅ User session restored', this.currentUser);
+            } catch (error) {
+                this.log('❌ Failed to restore user session', error);
+                localStorage.removeItem('journium_demo_user');
+            }
+        }
+    }
+
+    // Show login modal
+    showLoginModal() {
+        document.getElementById('login-modal').style.display = 'flex';
+        
+        this.trackEvent('auth_modal_opened', {
+            modal_type: 'login',
+            trigger: 'login_button'
+        });
+    }
+
+    // Show signup modal
+    showSignupModal() {
+        document.getElementById('signup-modal').style.display = 'flex';
+        
+        this.trackEvent('auth_modal_opened', {
+            modal_type: 'signup',
+            trigger: 'signup_button'
+        });
+    }
+
+    // Hide all modals
+    hideAllModals() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Handle login form submission
+    handleLogin(form) {
+        const formData = new FormData(form);
+        const email = formData.get('email');
+        const password = formData.get('password');
+
+        // Simulate login (in real app, this would be an API call)
+        const user = this.simulateLogin(email, password);
+        
+        if (user) {
+            this.currentUser = user;
+            localStorage.setItem('journium_demo_user', JSON.stringify(user));
+            
+            // Identify user with Journium SDK
+            if (this.journium) {
+                this.journium.identify(user.id, {
+                    name: user.name,
+                    email: user.email,
+                    company: user.company,
+                    login_method: 'email',
+                    login_type: 'manual'
+                });
+            }
+            
+            this.updateAuthUI();
+            this.hideAllModals();
+            form.reset();
+            
+            this.trackEvent('user_logged_in', {
+                method: 'email',
+                user_id: user.id,
+                has_company: !!user.company
+            });
+            
+            this.log('✅ User logged in successfully', user);
+        } else {
+            alert('Invalid credentials. Try any email/password for demo.');
+        }
+    }
+
+    // Handle signup form submission
+    handleSignup(form) {
+        const formData = new FormData(form);
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const company = formData.get('company') || null;
+        const password = formData.get('password');
+
+        // Simulate signup (in real app, this would be an API call)
+        const user = this.simulateSignup(name, email, company, password);
+        
+        this.currentUser = user;
+        localStorage.setItem('journium_demo_user', JSON.stringify(user));
+        
+        // Identify user with Journium SDK
+        if (this.journium) {
+            this.journium.identify(user.id, {
+                name: user.name,
+                email: user.email,
+                company: user.company,
+                signup_method: 'email',
+                signup_date: user.signupDate
+            });
+        }
+        
+        this.updateAuthUI();
+        this.hideAllModals();
+        form.reset();
+        
+        this.trackEvent('user_signed_up', {
+            method: 'email',
+            user_id: user.id,
+            has_company: !!user.company,
+            signup_source: 'demo_app'
+        });
+        
+        this.log('✅ User signed up successfully', user);
+    }
+
+    // Logout user
+    logout() {
+        if (this.currentUser) {
+            this.trackEvent('user_logged_out', {
+                user_id: this.currentUser.id,
+                session_duration: this.getSessionDuration()
+            });
+        }
+        
+        // Reset user identity in Journium SDK
+        if (this.journium) {
+            this.journium.reset();
+        }
+        
+        this.currentUser = null;
+        localStorage.removeItem('journium_demo_user');
+        this.updateAuthUI();
+        
+        this.log('✅ User logged out successfully');
+    }
+
+    // Update authentication UI
+    updateAuthUI() {
+        const loggedOutEl = document.getElementById('auth-logged-out');
+        const loggedInEl = document.getElementById('auth-logged-in');
+        const userNameEl = document.getElementById('user-name');
+
+        if (this.currentUser) {
+            loggedOutEl.style.display = 'none';
+            loggedInEl.style.display = 'flex';
+            userNameEl.textContent = this.currentUser.name;
+        } else {
+            loggedOutEl.style.display = 'flex';
+            loggedInEl.style.display = 'none';
+        }
+    }
+
+    // Simulate login (replace with real API call)
+    simulateLogin(email, password) {
+        // For demo purposes, accept any email/password
+        const userId = `user_${email.split('@')[0]}_${Date.now()}`;
+        return {
+            id: userId,
+            name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ').trim() || 'Demo User',
+            email: email,
+            company: 'Demo Company',
+            loginDate: new Date().toISOString()
+        };
+    }
+
+    // Simulate signup (replace with real API call)
+    simulateSignup(name, email, company, password) {
+        const userId = `user_${email.split('@')[0]}_${Date.now()}`;
+        return {
+            id: userId,
+            name: name,
+            email: email,
+            company: company,
+            signupDate: new Date().toISOString()
+        };
+    }
+
     // Update debug information
     updateDebugInfo() {
         const debugEvents = document.getElementById('debug-events');
@@ -341,7 +597,9 @@ class JourniumDemo {
 
         if (debugEvents) debugEvents.textContent = this.eventCounts.total;
         if (debugPage) debugPage.textContent = this.currentPage;
-        if (debugSession) debugSession.textContent = 'Active';
+        if (debugSession) {
+            debugSession.textContent = this.currentUser ? `${this.currentUser.name}` : 'Anonymous';
+        }
     }
 
     // Logging utility

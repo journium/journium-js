@@ -69,7 +69,7 @@ Track custom events with optional properties.
 
 ```javascript
 // Simple event
-journium.track('user_signup');
+journium.track('feature_used');
 
 // Event with properties
 journium.track('purchase_completed', {
@@ -87,6 +87,30 @@ journium.track('video_played', {
   quality: '1080p',
   autoplay: false
 });
+```
+
+#### `journium.identify(distinctId, attributes?)`
+
+Identify a user when they log in or sign up. This method should be used instead of tracking user login as a custom event.
+
+```javascript
+// When user logs in or signs up
+journium.identify('user_12345', {
+  name: 'John Doe',
+  email: 'john@example.com'
+});
+
+// Minimal identification (just user ID)
+journium.identify('user_67890');
+```
+
+#### `journium.reset()`
+
+Reset user identity when they log out. This generates a new anonymous distinct ID and should be called on user logout.
+
+```javascript
+// When user logs out
+journium.reset();
 ```
 
 #### `journium.capturePageview(properties?)`
@@ -172,9 +196,10 @@ journium.destroy();
 
 Journium automatically includes these properties with every event:
 
-- `$device_id` - Unique device identifier
+- `$device_id` - Unique device identifier (persistent across user sessions)
 - `$session_id` - Current session ID
-- `distinct_id` - User identifier
+- `distinct_id` - User identifier (anonymous until `identify()` is called)
+- `$is_identified` - Whether the user has been identified (true/false)
 - `$current_url` - Current page URL
 - `$pathname` - URL pathname
 - `$browser` - Browser name (Chrome, Firefox, etc.)

@@ -5,11 +5,11 @@ This is a sample React application demonstrating how to integrate the Journium a
 ## Features Demonstrated
 
 - **JourniumProvider Setup**: Wrapping your app with the Journium context provider
+- **User Authentication**: Login/signup with proper user identification using `useIdentify` and `useReset` hooks
 - **Custom Event Tracking**: Button clicks with custom properties
 - **E-commerce Events**: Purchase tracking with product details  
-- **User Events**: Signup tracking with source attribution
 - **Pageview Tracking**: Both automatic and manual pageview tracking
-- **React Hooks**: Using `useTrackEvent`, `useTrackPageview`, and `useAutoTrackPageview`
+- **React Hooks**: Using `useTrackEvent`, `useTrackPageview`, `useIdentify`, `useReset`, and `useAutoTrackPageview`
 
 ## Running the Application
 
@@ -35,8 +35,9 @@ This is a sample React application demonstrating how to integrate the Journium a
 
 ### App.tsx
 - Sets up the `JourniumProvider` with configuration
+- Integrates `AuthProvider` for user authentication
 - Demonstrates various tracking hooks
-- Shows different types of events (custom, e-commerce, user)
+- Shows different types of events (custom, e-commerce, authentication)
 
 ### Key Features
 - **Auto Pageview Tracking**: Automatically tracks pageviews when component mounts
@@ -45,10 +46,48 @@ This is a sample React application demonstrating how to integrate the Journium a
 
 ## Events Tracked
 
-1. **Custom Events**: Button clicks with metadata
-2. **E-commerce Events**: Purchase completion with product details
-3. **User Events**: Signup events with attribution
+1. **Authentication Events**: Login, signup, and logout using proper user identification
+2. **Custom Events**: Button clicks with metadata
+3. **E-commerce Events**: Purchase completion with product details
+4. **Feature Usage Events**: User interaction tracking
 4. **Pageview Events**: Both automatic and manual tracking
+
+## Authentication Features
+
+This sample demonstrates proper user identification using the Journium SDK:
+
+### Login/Signup
+- Uses the `useIdentify()` hook to properly identify users
+- Tracks authentication events (`user_logged_in`, `user_signed_up`)
+- Persists user sessions in localStorage
+
+### User Identification
+```typescript
+import { useIdentify } from '@journium/react';
+
+const identify = useIdentify();
+
+// When user logs in
+identify('user_123', {
+  name: 'John Doe',
+  email: 'john@example.com',
+  company: 'Acme Inc'
+});
+```
+
+### Logout
+- Uses the `useReset()` hook to clear user identity
+- Tracks logout events
+- Generates new anonymous distinct ID
+
+```typescript
+import { useReset } from '@journium/react';
+
+const reset = useReset();
+
+// When user logs out
+reset();
+```
 
 ## Configuration
 

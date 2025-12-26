@@ -208,6 +208,48 @@ export class JourniumClient {
     }
   }
 
+  identify(distinctId: string, attributes: Record<string, any> = {}): void {
+    // Don't identify if SDK is not properly configured
+    if (!this.config || !this.config.token || !this.config.apiHost || !this.initialized) {
+      if (this.config?.debug) {
+        console.warn('Journium: identify() call rejected - SDK not ready');
+      }
+      return;
+    }
+
+    // Call identify on identity manager to get previous distinct ID
+    const { previousDistinctId } = this.identityManager.identify(distinctId, attributes);
+
+    // Track $identify event with previous distinct ID
+    const identifyProperties = {
+      ...attributes,
+      $anon_distinct_id: previousDistinctId,
+    };
+
+    this.track('$identify', identifyProperties);
+
+    if (this.config.debug) {
+      console.log('Journium: User identified', { distinctId, attributes, previousDistinctId });
+    }
+  }
+
+  reset(): void {
+    // Don't reset if SDK is not properly configured
+    if (!this.config || !this.config.token || !this.config.apiHost || !this.initialized) {
+      if (this.config?.debug) {
+        console.warn('Journium: reset() call rejected - SDK not ready');
+      }
+      return;
+    }
+
+    // Reset identity in identity manager
+    this.identityManager.reset();
+
+    if (this.config.debug) {
+      console.log('Journium: User identity reset');
+    }
+  }
+
   track(event: string, properties: Record<string, any> = {}): void {
     // Don't track if SDK is not properly configured
     if (!this.config || !this.config.token || !this.config.apiHost || !this.initialized) {
@@ -224,6 +266,7 @@ export class JourniumClient {
       $device_id: identity?.$device_id,
       distinct_id: identity?.distinct_id,
       $session_id: identity?.$session_id,
+      $is_identified: identity?.$user_state === 'identified',
       $current_url: typeof window !== 'undefined' ? window.location.href : '',
       $pathname: typeof window !== 'undefined' ? window.location.pathname : '',
       ...userAgentInfo,

@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { JourniumProvider } from '@journium/react';
+import { AuthProvider } from './components/AuthProvider';
+import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -24,16 +26,23 @@ const journiumConfig = {
 function App() {
   return (
     <JourniumProvider config={journiumConfig} /* autoCapture enabled by default */>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-        </Routes>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <div className="app">
+            <Header />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </AuthProvider>
     </JourniumProvider>
   );
 }

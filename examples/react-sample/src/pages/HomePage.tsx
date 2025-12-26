@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTrackEvent, useTrackPageview } from '@journium/react';
-import { Link } from 'react-router-dom';
 
 export function HomePage() {
   const trackEvent = useTrackEvent();
@@ -40,29 +39,21 @@ export function HomePage() {
     });
   };
 
-  const handleSignupClick = () => {
-    trackEvent('user_signup', {
-      signup_method: 'email',
-      source: 'demo_app',
-      user_type: 'trial',
+  const handleFeatureClick = () => {
+    trackEvent('feature_used', {
+      feature_name: 'demo_feature',
+      source: 'home_page',
+      interaction_type: 'button_click',
       page: 'home'
     });
   };
 
   return (
     <div className="app-content">
-      <header>
+      <div className="page-header">
         <h1>🏠 Home - Journium React SDK Demo</h1>
-        <nav style={{margin: '20px 0', display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
-          <Link to="/" className="nav-link">🏠 Home</Link>
-          <Link to="/dashboard" className="nav-link">📊 Dashboard</Link>
-          <Link to="/profile" className="nav-link">👤 Profile</Link>
-          <Link to="/settings" className="nav-link">⚙️ Settings</Link>
-          <Link to="/products" className="nav-link">🛍️ Products</Link>
-          <Link to="/analytics" className="nav-link">📈 Analytics</Link>
-        </nav>
         <p>This demo shows automatic pageview tracking on route changes. Navigate between pages to see pageview events.</p>
-      </header>
+      </div>
 
       <main>
         <section className="demo-section">
@@ -78,8 +69,8 @@ export function HomePage() {
               Track Purchase Event
             </button>
             
-            <button onClick={handleSignupClick} className="demo-button signup">
-              Track Signup Event
+            <button onClick={handleFeatureClick} className="demo-button feature">
+              Track Feature Usage
             </button>
           </div>
         </section>
@@ -121,6 +112,7 @@ export function HomePage() {
           <ul>
             <li><strong>Auto Pageview:</strong> Automatically tracked when navigating to this page</li>
             <li><strong>Custom Events:</strong> Button clicks with page context</li>
+            <li><strong>User Identification:</strong> Login/Signup properly identifies users with the identify API</li>
             <li><strong>Route Changes:</strong> Navigate to other pages to see automatic pageview tracking</li>
             <li><strong>Session Management:</strong> All events include session, device, and user IDs</li>
             <li><strong>Browser Detection:</strong> Events include browser, OS, and device type</li>

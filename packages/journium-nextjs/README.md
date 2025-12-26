@@ -90,9 +90,75 @@ The main provider component optimized for Next.js applications.
 All React hooks are available and work the same way:
 
 ```tsx
-import { useJournium } from '@journium/nextjs';
+import { useJournium, useIdentify, useReset } from '@journium/nextjs';
 
 const { track, capturePageview, startAutoCapture, stopAutoCapture, flush } = useJournium();
+
+// User identification hooks
+const identify = useIdentify();
+const reset = useReset();
+```
+
+### User Identification
+
+#### Identifying Users on Login
+
+Use the `useIdentify` hook to identify users when they log in:
+
+```tsx
+import { useIdentify } from '@journium/nextjs';
+
+function LoginPage() {
+  const identify = useIdentify();
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const user = await loginUser(email, password);
+      
+      // Identify the user after successful login
+      identify(user.id, {
+        name: user.name,
+        email: user.email
+      });
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      // Handle login error
+    }
+  };
+
+  return <LoginForm onSubmit={handleLogin} />;
+}
+```
+
+#### Resetting User Identity on Logout
+
+Use the `useReset` hook to clear user identity when they log out:
+
+```tsx
+import { useReset } from '@journium/nextjs';
+
+function LogoutButton() {
+  const reset = useReset();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      
+      // Reset user identity after successful logout
+      reset();
+      
+      // Redirect to home page
+      router.push('/');
+    } catch (error) {
+      // Handle logout error
+    }
+  };
+
+  return <button onClick={handleLogout}>Log Out</button>;
+}
 ```
 
 ### SSR Utilities
@@ -363,7 +429,7 @@ Track events in API routes for server-side analytics:
 ```tsx
 // pages/api/contact.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { init } from 'journium-js'; // Use Node.js SDK for API routes
+import { init } from '@journium/node'; // Use Node.js SDK for API routes
 
 const journium = init({
   token: process.env.JOURNIUM_TOKEN!,
@@ -385,6 +451,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Process form...
     
     res.status(200).json({ success: true });
+  }
+}
+```
+
+### User Authentication API Routes
+
+Handle user identification in authentication API routes:
+
+```tsx
+// pages/api/auth/login.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { init } from '@journium/node';
+
+const journium = init({
+  token: process.env.JOURNIUM_TOKEN!,
+  apiHost: process.env.JOURNIUM_API_HOST!
+});
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const { email, password } = req.body;
+    
+    try {
+      const user = await authenticateUser(email, password);
+      
+      // Track successful login attempt (not user identification)
+      journium.track('login_attempt', {
+        success: true,
+        method: 'email',
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+      }, user.id);
+      
+      // Note: User identification should be done on the client-side 
+      // using the identify() method after successful login
+      
+      res.status(200).json({ user, success: true });
+    } catch (error) {
+      // Track failed login attempt
+      journium.track('login_attempt', {
+        success: false,
+        method: 'email',
+        error: error.message,
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+      });
+      
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
   }
 }
 ```

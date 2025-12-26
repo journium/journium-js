@@ -152,9 +152,10 @@ const journium = init({
 });
 
 // Track server-side events
-journium.track('user_login', {
-  user_id: 'user123',
-  method: 'email',
+journium.track('api_request', {
+  endpoint: '/api/users',
+  method: 'POST',
+  response_time: 234,
   ip_address: req.ip
 }, 'user123');
 
@@ -227,6 +228,29 @@ journium.track('purchase_completed', {
 });
 ```
 
+#### `journium.identify(distinctId, attributes?)`
+
+Identify a user when they log in or sign up. This replaces the anonymous distinct ID with a known user identifier.
+
+```javascript
+// When user logs in
+journium.identify('user_12345', {
+  name: 'John Doe',
+  email: 'john@example.com',
+  plan: 'premium',
+  signup_date: '2024-01-15'
+});
+```
+
+#### `journium.reset()`
+
+Reset user identity when they log out. This generates a new anonymous distinct ID.
+
+```javascript
+// When user logs out
+journium.reset();
+```
+
 #### `journium.capturePageview(properties?)`
 
 Manually capture a pageview event.
@@ -282,9 +306,10 @@ journium?.track('feature_used', { feature: 'dark_mode' });
 
 Journium automatically includes these properties with every event:
 
-- `$device_id` - Unique device identifier
+- `$device_id` - Unique device identifier (persistent across user sessions)
 - `$session_id` - Current session identifier  
-- `distinct_id` - User identifier
+- `distinct_id` - User identifier (anonymous until `identify()` is called)
+- `$is_identified` - Whether the user has been identified (true/false)
 - `$current_url` - Current page URL
 - `$pathname` - URL pathname
 - `$browser` - Browser name

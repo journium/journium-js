@@ -15,6 +15,29 @@ export const useTrackEvent = () => {
   );
 };
 
+export const useIdentify = () => {
+  const { journium } = useJournium();
+
+  return useCallback(
+    (distinctId: string, attributes?: Record<string, any>) => {
+      if (journium) {
+        journium.identify(distinctId, attributes);
+      }
+    },
+    [journium]
+  );
+};
+
+export const useReset = () => {
+  const { journium } = useJournium();
+
+  return useCallback(() => {
+    if (journium) {
+      journium.reset();
+    }
+  }, [journium]);
+};
+
 export const useTrackPageview = () => {
   const { journium } = useJournium();
 

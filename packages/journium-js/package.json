@@ -1,6 +1,6 @@
 {
   "name": "journium-js",
-  "version": "0.1.0-alpha.7",
+  "version": "0.1.0-alpha.8",
   "license": "MIT",
   "description": "Journium JavaScript SDK for web browsers - Track events, pageviews, and user interactions with ease",
   "main": "dist/index.cjs",
@@ -26,7 +26,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/core": "workspace:*"
+     "@journium/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

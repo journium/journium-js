@@ -43,6 +43,14 @@ export class Journium {
     this.client.track(event, properties);
   }
 
+  identify(distinctId: string, attributes?: Record<string, any>): void {
+    this.client.identify(distinctId, attributes);
+  }
+
+  reset(): void {
+    this.client.reset();
+  }
+
   capturePageview(properties?: Record<string, any>): void {
     this.pageviewTracker.capturePageview(properties);
   }

@@ -1,5 +1,7 @@
 import type { AppProps } from 'next/app';
 import { NextJourniumProvider } from '@journium/nextjs';
+import { AuthProvider } from '../components/AuthProvider';
+import { Header } from '../components/Header';
 import '../styles/globals.css';
 
 // Demo configuration - optimized for immediate event visibility
@@ -17,7 +19,14 @@ const journiumConfig = {
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <NextJourniumProvider config={journiumConfig} /* autoCapture enabled by default */>
-      <Component {...pageProps} />
+      <AuthProvider>
+        <div className="app">
+          <Header />
+          <main className="main">
+            <Component {...pageProps} />
+          </main>
+        </div>
+      </AuthProvider>
     </NextJourniumProvider>
   );
 }
