@@ -71,7 +71,6 @@ export class JourniumClient {
     const localOnlyConfig = {
       apiHost: this.config.apiHost,
       token: this.config.token,
-      configEndpoint: this.config.configEndpoint,
     };
     
     if (cachedConfig) {
@@ -142,7 +141,6 @@ export class JourniumClient {
         const localOnlyConfig = {
           apiHost: this.config.apiHost,
           token: this.config.token,
-          configEndpoint: this.config.configEndpoint,
         };
         
         this.config = {
