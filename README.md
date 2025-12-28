@@ -184,7 +184,6 @@ const config = {
   flushAt: 20,                        // Number of events before auto-flush
   flushInterval: 10000,               // Auto-flush interval (ms)
   sessionTimeout: 1800000,            // Session timeout (30 minutes)
-  configEndpoint: '/configs',         // Custom config endpoint
   
   // Auto-capture settings
   autocapture: true,                  // Enable auto-capture

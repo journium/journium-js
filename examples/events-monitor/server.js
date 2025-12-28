@@ -53,7 +53,7 @@ function broadcastEvent(eventData) {
   });
 }
 
-app.get('/configs', (req, res) => {
+app.get('/v1/configs', (req, res) => {
   const ingestion_key = req.query.ingestion_key;
   
   if (!ingestion_key) {
@@ -93,7 +93,7 @@ app.get('/configs', (req, res) => {
   });
 });
 
-app.post('/ingest_event', (req, res) => {
+app.post('/v1/ingest_event', (req, res) => {
   try {
     const eventData = req.body;
     
@@ -123,5 +123,5 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`WebSocket server running on ws://localhost:${PORT}`);
-  console.log(`POST endpoint available at http://localhost:${PORT}/ingest_event`);
+  console.log(`POST endpoint available at http://localhost:${PORT}/v1/ingest_event`);
 });

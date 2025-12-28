@@ -131,8 +131,7 @@ export class JourniumClient {
       
       const remoteConfigResponse = await fetchRemoteConfig(
         this.config.apiHost,
-        this.config.token,
-        this.config.configEndpoint
+        this.config.token
       );
       
       if (remoteConfigResponse && remoteConfigResponse.success) {
@@ -182,7 +181,7 @@ export class JourniumClient {
     if (!events.length) return;
 
     try {
-      const response = await fetch(`${this.config.apiHost}/ingest_event`, {
+      const response = await fetch(`${this.config.apiHost}/v1/ingest_event`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

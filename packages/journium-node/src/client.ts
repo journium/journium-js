@@ -35,7 +35,6 @@ export class JourniumNodeClient {
         const remoteConfigResponse = await fetchRemoteConfig(
           this.config.apiHost,
           this.config.token,
-          this.config.configEndpoint,
           fetch
         );
         
@@ -44,7 +43,6 @@ export class JourniumNodeClient {
           const localOnlyConfig = {
             apiHost: this.config.apiHost,
             token: this.config.token,
-            configEndpoint: this.config.configEndpoint,
           };
           
           this.config = {

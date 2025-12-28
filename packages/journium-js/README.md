@@ -248,7 +248,6 @@ journium.track('feature_used', {
   flushAt: 20,                        // Send events after N events queued
   flushInterval: 10000,               // Send events every N milliseconds
   sessionTimeout: 1800000,            // Session timeout (30 minutes)
-  configEndpoint: '/configs',         // Custom config endpoint
   autocapture: true                   // Default: true - set false to disable auto-capture
 }
 ```

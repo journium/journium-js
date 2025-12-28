@@ -48,7 +48,6 @@ export interface JourniumConfig {
   flushAt?: number;
   flushInterval?: number;
   autocapture?: boolean | AutocaptureConfig;
-  configEndpoint?: string;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
 }
 

@@ -1,0 +1,31 @@
+{
+  "name": "journium-release-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Release automation scripts for Journium packages",
+  "scripts": {
+    "release": "node release.js",
+    "release:patch": "node release.js patch",
+    "release:minor": "node release.js minor",
+    "release:major": "node release.js major",
+    "release:prerelease": "node release.js prerelease",
+    "release:dry-run": "node release.js patch --dry-run",
+    "bump-versions": "node bump-versions.js",
+    "publish": "node publish.js",
+    "setup": "node setup.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "journium",
+    "release",
+    "automation",
+    "npm",
+    "publishing",
+    "versioning"
+  ],
+  "author": "Journium Team",
+  "license": "MIT"
+}
