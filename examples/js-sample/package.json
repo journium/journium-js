@@ -1,7 +1,7 @@
 {
   "name": "journium-js-sample",
   "version": "1.0.0",
-  "description": "Vanilla JavaScript sample demonstrating journium-js SDK",
+  "description": "Vanilla JavaScript sample demonstrating @journium/js SDK",
   "main": "index.js",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "echo 'No build step needed for vanilla JS'"
   },
   "dependencies": {
-    "journium-js": "workspace:*"
+    "@journium/js": "workspace:*"
   },
   "devDependencies": {
     "http-server": "^14.1.1"

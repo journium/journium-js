@@ -8,17 +8,27 @@
 
 The official React SDK for Journium providing hooks, providers, and components for seamless analytics integration in React applications.
 
-## 🚀 Quick Start
+## Installation
 
-### Installation
-
+### npm
 ```bash
 npm install @journium/react
 ```
 
-### Basic Setup
+### pnpm
+```bash
+pnpm add @journium/react
+```
 
-Wrap your app with the `JourniumProvider`:
+### yarn
+```bash
+yarn add @journium/react
+```
+
+## Basic Setup
+
+### Initialize Journium
+Wrap your app with the `JourniumProvider` to enable analytics throughout your React application.
 
 ```jsx
 import React from 'react';
@@ -29,13 +39,8 @@ function Root() {
   return (
     <JourniumProvider
       config={{
-        token: "your-journium-token",
-        apiHost: "https://your-journium-instance.com",
-        debug: true, // Optional: Enable debug logging
-        flushAt: 5,  // Optional: Send events after 5 events
-        flushInterval: 10000 // Optional: Send events every 10 seconds
+        publishableKey: 'your-journium-publishable-key'
       }}
-      autoCapture={true} // Enables auto-pageview and click tracking
     >
       <App />
     </JourniumProvider>
@@ -45,9 +50,8 @@ function Root() {
 export default Root;
 ```
 
-### Track Custom Events
-
-Use the `useTrackEvent` hook to track custom events:
+### Track a Custom Event
+Use the `useTrackEvent` hook to track custom events from any component.
 
 ```jsx
 import React from 'react';
@@ -62,75 +66,29 @@ function SignupButton() {
       source: 'landing_page',
       plan: 'free'
     });
-    // Your signup logic
   };
 
   return <button onClick={handleSignup}>Sign Up</button>;
 }
 ```
 
-## 📖 Tracking Hooks
-
-### useTrackEvent - Track Custom Events
-
-The primary hook for tracking custom business events:
+### Identify a User
+Use the `useIdentify` hook to identify users when they log in or sign up.
 
 ```jsx
-import { useTrackEvent } from '@journium/react';
-
-function EcommerceComponent() {
-  const trackEvent = useTrackEvent();
-
-  const handlePurchase = () => {
-    trackEvent('purchase_completed', {
-      product_id: 'prod_123',
-      price: 29.99,
-      currency: 'USD',
-      category: 'electronics'
-    });
-  };
-
-  const handleAddToCart = () => {
-    trackEvent('product_added_to_cart', {
-      product_id: 'prod_123',
-      quantity: 1,
-      source: 'product_page'
-    });
-  };
-
-  return (
-    <div>
-      <button onClick={handleAddToCart}>Add to Cart</button>
-      <button onClick={handlePurchase}>Buy Now</button>
-    </div>
-  );
-}
-```
-
-### useIdentify - User Identification
-
-Use this hook to identify users when they log in or sign up. This should be used instead of tracking user login as a custom event.
-
-```jsx
+import React from 'react';
 import { useIdentify } from '@journium/react';
 
 function LoginForm() {
   const identify = useIdentify();
 
   const handleLogin = async (email, password) => {
-    try {
-      const user = await loginUser(email, password);
-      
-      // Identify the user after successful login
-      identify(user.id, {
-        name: user.name,
-        email: user.email,
-      });
-      
-      // Redirect to dashboard or show success
-    } catch (error) {
-      // Handle login error
-    }
+    const user = await loginUser(email, password);
+    
+    identify(user.id, {
+      name: user.name,
+      email: user.email
+    });
   };
 
   return (
@@ -141,62 +99,157 @@ function LoginForm() {
 }
 ```
 
-### useReset - User Logout
-
-Use this hook to reset user identity when they log out:
+### Reset User Identity
+Use the `useReset` hook to reset user identity when they log out.
 
 ```jsx
+import React from 'react';
 import { useReset } from '@journium/react';
 
 function LogoutButton() {
   const reset = useReset();
 
   const handleLogout = async () => {
-    try {
-      await logoutUser();
-      
-      // Reset user identity after successful logout
-      reset();
-      
-      // Redirect to home or login page
-    } catch (error) {
-      // Handle logout error
-    }
+    await logoutUser();
+    reset();
   };
 
   return <button onClick={handleLogout}>Log Out</button>;
 }
 ```
 
-### useTrackPageview - Manual Pageview Tracking
+## Advanced Setup
 
-For tracking custom pageviews beyond automatic route tracking:
+You can override default configurations and control autocapture:
+
+```jsx
+import React from 'react';
+import { JourniumProvider } from '@journium/react';
+import App from './App';
+
+function Root() {
+  return (
+    <JourniumProvider
+      config={{
+        publishableKey: 'your-journium-publishable-key',
+        apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
+        config: {
+          debug: true,                    // Enable debug logging
+          flushAt: 5,                    // Send events after N events
+          flushInterval: 10000,          // Send events every N milliseconds
+          sessionTimeout: 1800000,       // Session timeout (30 minutes)
+          autocapture: {                 // Configure automatic event capture
+            captureClicks: true,         // Track click events
+            captureFormSubmits: true,    // Track form submissions
+            captureFormChanges: false,   // Track form field changes
+            ignoreClasses: ['no-track', 'sensitive'], // CSS classes to ignore
+            ignoreElements: ['input[type="password"]'] // Elements to ignore
+          }
+        }
+      }}
+    >
+      <App />
+    </JourniumProvider>
+  );
+}
+
+export default Root;
+```
+
+## API Reference
+
+### `<JourniumProvider>`
+Provider component to initialize Journium throughout your React app.
+
+```jsx
+<JourniumProvider
+  config={{
+    publishableKey: 'your-journium-publishable-key',
+    apiHost: 'https://events.journium.app', // Optional
+    config: { /* optional local config */ }
+  }}
+>
+  <App />
+</JourniumProvider>
+```
+
+### `useTrackEvent()`
+Hook for tracking custom events with optional properties.
+
+```jsx
+import { useTrackEvent } from '@journium/react';
+
+function Component() {
+  const trackEvent = useTrackEvent();
+
+  const handlePurchase = () => {
+    trackEvent('purchase_completed', {
+      product_id: 'prod_123',
+      price: 29.99,
+      currency: 'USD'
+    });
+  };
+
+  return <button onClick={handlePurchase}>Buy Now</button>;
+}
+```
+
+### `useIdentify()`
+Hook for identifying users on login or signup.
+
+```jsx
+import { useIdentify } from '@journium/react';
+
+function Component() {
+  const identify = useIdentify();
+
+  const handleLogin = (userId, userAttributes) => {
+    identify(userId, userAttributes);
+  };
+
+  return <LoginForm onLogin={handleLogin} />;
+}
+```
+
+### `useReset()`
+Hook for resetting user identity on logout.
+
+```jsx
+import { useReset } from '@journium/react';
+
+function Component() {
+  const reset = useReset();
+
+  const handleLogout = () => {
+    reset();
+  };
+
+  return <button onClick={handleLogout}>Logout</button>;
+}
+```
+
+### `useTrackPageview()`
+Hook for manual pageview tracking.
 
 ```jsx
 import { useTrackPageview } from '@journium/react';
 
-function CustomPageTracker() {
+function Component() {
   const trackPageview = useTrackPageview();
 
   const handleSpecialPageview = () => {
     trackPageview({
       page_type: 'modal',
-      content_type: 'pricing_calculator',
-      user_segment: 'premium'
+      content_type: 'pricing_calculator'
     });
   };
 
-  return (
-    <button onClick={handleSpecialPageview}>
-      Track Modal View
-    </button>
-  );
+  return <button onClick={handleSpecialPageview}>Track Modal View</button>;
 }
 ```
 
-### useAutoTrackPageview - Automatic Pageview on Mount
-
-Automatically track pageviews when components mount or dependencies change:
+### `useAutoTrackPageview()`
+Hook for automatic pageview tracking when components mount or dependencies change.
 
 ```jsx
 import { useAutoTrackPageview } from '@journium/react';
@@ -211,205 +264,27 @@ function ProductPage({ productId, category }) {
 
   return <div>Product {productId}</div>;
 }
-
-function BlogPost({ postId }) {
-  // Track pageview for blog posts
-  useAutoTrackPageview([postId], {
-    page_type: 'blog_post',
-    post_id: postId,
-    content_type: 'article'
-  });
-
-  return <article>Blog post content</article>;
-}
 ```
 
-## 🔧 Advanced Usage
-
-### Form Tracking
-
-Track form interactions and submissions:
+### `useAutocapture()`
+Hook for controlling automatic event capture.
 
 ```jsx
-import { useTrackEvent } from '@journium/react';
-
-function ContactForm() {
-  const trackEvent = useTrackEvent();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    trackEvent('form_submitted', {
-      form_name: 'contact',
-      form_type: 'lead_generation',
-      fields_completed: ['name', 'email', 'company']
-    });
-    
-    // Submit form logic
-  };
-
-  const handleFieldChange = (fieldName) => {
-    trackEvent('form_field_completed', {
-      form_name: 'contact',
-      field_name: fieldName
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input 
-        name="email" 
-        onChange={() => handleFieldChange('email')}
-        placeholder="Email"
-      />
-      <input 
-        name="company" 
-        onChange={() => handleFieldChange('company')}
-        placeholder="Company"
-      />
-      <button type="submit">Send Message</button>
-    </form>
-  );
-}
-```
-
-### User Journey Tracking
-
-Track multi-step user flows:
-
-```jsx
-import { useTrackEvent, useTrackPageview } from '@journium/react';
-
-function OnboardingFlow({ step }) {
-  const trackEvent = useTrackEvent();
-  const trackPageview = useTrackPageview();
-
-  useEffect(() => {
-    // Track onboarding step pageview
-    trackPageview({
-      page_type: 'onboarding',
-      step: step,
-      flow: 'user_setup'
-    });
-  }, [step, trackPageview]);
-
-  const handleStepComplete = () => {
-    trackEvent('onboarding_step_completed', {
-      step: step,
-      time_spent: Date.now() - stepStartTime,
-      completed_successfully: true
-    });
-  };
-
-  const handleSkipStep = () => {
-    trackEvent('onboarding_step_skipped', {
-      step: step,
-      reason: 'user_choice'
-    });
-  };
-
-  return (
-    <div>
-      <h2>Step {step}</h2>
-      <button onClick={handleStepComplete}>Complete Step</button>
-      <button onClick={handleSkipStep}>Skip</button>
-    </div>
-  );
-}
-```
-
-### Feature Usage Tracking
-
-Create reusable tracking patterns:
-
-```jsx
-import { useTrackEvent } from '@journium/react';
-
-// Custom hook for feature tracking
-function useFeatureTracking() {
-  const trackEvent = useTrackEvent();
-
-  const trackFeatureUsed = (featureName, context = {}) => {
-    trackEvent('feature_used', {
-      feature_name: featureName,
-      timestamp: new Date().toISOString(),
-      ...context
-    });
-  };
-
-  const trackFeatureDiscovered = (featureName, discoveryMethod) => {
-    trackEvent('feature_discovered', {
-      feature_name: featureName,
-      discovery_method: discoveryMethod
-    });
-  };
-
-  return { trackFeatureUsed, trackFeatureDiscovered };
-}
-
-// Usage in components
-function AdvancedFeature() {
-  const { trackFeatureUsed, trackFeatureDiscovered } = useFeatureTracking();
-
-  const handleFeatureClick = () => {
-    trackFeatureUsed('advanced_search', {
-      search_type: 'filters',
-      filter_count: 3
-    });
-  };
-
-  return (
-    <div>
-      <button onClick={handleFeatureClick}>
-        Use Advanced Search
-      </button>
-    </div>
-  );
-}
-```
-
-## 🔒 Privacy & GDPR Compliance
-
-### User Consent Management
-
-Control tracking based on user consent:
-
-```jsx
-import { useState, useEffect } from 'react';
 import { useAutocapture } from '@journium/react';
 
 function ConsentBanner() {
   const { startAutocapture, stopAutocapture } = useAutocapture();
-  const [hasConsent, setHasConsent] = useState(null);
-
-  useEffect(() => {
-    const savedConsent = localStorage.getItem('tracking_consent');
-    if (savedConsent === 'true') {
-      setHasConsent(true);
-      startAutocapture();
-    } else if (savedConsent === 'false') {
-      setHasConsent(false);
-      stopAutocapture();
-    }
-  }, [startAutocapture, stopAutocapture]);
 
   const handleAccept = () => {
-    setHasConsent(true);
-    localStorage.setItem('tracking_consent', 'true');
     startAutocapture();
   };
 
   const handleDecline = () => {
-    setHasConsent(false);
-    localStorage.setItem('tracking_consent', 'false');
     stopAutocapture();
   };
 
-  if (hasConsent !== null) return null;
-
   return (
-    <div className="consent-banner">
-      <p>We use analytics to improve your experience.</p>
+    <div>
       <button onClick={handleAccept}>Accept</button>
       <button onClick={handleDecline}>Decline</button>
     </div>
@@ -417,94 +292,20 @@ function ConsentBanner() {
 }
 ```
 
-### Excluding Sensitive Data
-
-Configure autocapture to ignore sensitive elements:
+### `useJournium()`
+Hook for direct access to the Journium instance for advanced use cases.
 
 ```jsx
-<JourniumProvider
-  config={{
-    token: "your-token",
-    apiHost: "https://api.journium.com",
-    autocapture: {
-      captureClicks: true,
-      captureFormSubmits: true,
-      captureFormChanges: false,
-      ignoreClasses: ['no-track', 'sensitive', 'pii'],
-      ignoreElements: ['input[type="password"]', '.credit-card']
-    }
-  }}
->
-  <App />
-</JourniumProvider>
-```
+import { useJournium } from '@journium/react';
 
-## 📱 TypeScript Support
+function Component() {
+  const { journium } = useJournium();
 
-Full TypeScript support with complete type definitions:
-
-```typescript
-import { useTrackEvent, JourniumConfig } from '@journium/react';
-
-interface PurchaseEventProperties {
-  product_id: string;
-  category: string;
-  price: number;
-  currency: string;
-}
-
-function TypedComponent() {
-  const trackEvent = useTrackEvent();
-
-  const handlePurchase = (productData: PurchaseEventProperties) => {
-    // Fully typed event tracking
-    trackEvent('product_purchased', productData);
+  const handleAdvancedTracking = () => {
+    journium?.track('custom_event', { advanced: true });
+    journium?.flush();
   };
 
-  return <button onClick={handlePurchase}>Purchase</button>;
+  return <button onClick={handleAdvancedTracking}>Advanced Track</button>;
 }
 ```
-
-## 🔗 Available Hooks
-
-| Hook | Purpose | Usage |
-|------|---------|-------|
-| `useTrackEvent()` | Track custom events | `trackEvent('event_name', properties)` |
-| `useIdentify()` | Identify users on login/signup | `identify(distinctId, attributes)` |
-| `useReset()` | Reset user identity on logout | `reset()` |
-| `useTrackPageview()` | Manual pageview tracking | `trackPageview(properties)` |
-| `useAutoTrackPageview(deps, props)` | Automatic pageview on mount | Auto-tracks when deps change |
-| `useAutocapture()` | Control autocapture | `{ startAutocapture, stopAutocapture }` |
-| `useJournium()` | Direct Journium instance access | Advanced use cases only |
-
-## 🔗 Related Packages
-
-Part of the Journium JavaScript SDK ecosystem:
-
-- **[journium-js](https://npmjs.com/package/journium-js)** - Core JavaScript SDK for web browsers
-- **[@journium/nextjs](https://npmjs.com/package/@journium/nextjs)** - Next.js integration with SSR support
-- **[@journium/node](https://npmjs.com/package/@journium/node)** - Node.js server-side tracking
-- **[@journium/core](https://npmjs.com/package/@journium/core)** - Core utilities and types
-
-## 📖 Documentation
-
-For complete documentation, guides, and examples:
-
-- **[Documentation](https://docs.journium.app)** - Complete guides and API reference
-- **[React Guide](https://docs.journium.app/react)** - React-specific documentation
-- **[Examples](https://docs.journium.app/examples/react)** - React code examples and patterns
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](https://github.com/journium/journium-js/blob/main/CONTRIBUTING.md).
-
-## 📄 License
-
-MIT License - see [LICENSE](https://github.com/journium/journium-js/blob/main/LICENSE) file for details.
-
-## 🆘 Support
-
-- **📚 Docs**: [docs.journium.app](https://docs.journium.app)
-- **🐛 Issues**: [GitHub Issues](https://github.com/journium/journium-js/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/journium/journium-js/discussions)
-- **📧 Email**: support@journium.com

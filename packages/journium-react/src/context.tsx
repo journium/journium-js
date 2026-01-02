@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Journium } from 'journium-js';
+import { Journium } from '@journium/js';
 import { JourniumConfig } from '@journium/core';
 
 interface JourniumContextValue {
@@ -11,21 +11,22 @@ const JourniumContext = createContext<JourniumContextValue>({ journium: null });
 interface JourniumProviderProps {
   children: ReactNode;
   config: JourniumConfig;
-  autoCapture?: boolean;
 }
 
 export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   children,
   config,
-  autoCapture = true,
 }) => {
   const [journium, setJournium] = useState<Journium | null>(null);
 
   useEffect(() => {
     const journiumInstance = new Journium(config);
     
-    if (autoCapture) {
-      journiumInstance.startAutoCapture();
+    // Check if autocapture is enabled (defaults to true if not specified)
+    const autocaptureEnabled = config.config?.autocapture !== false;
+    
+    if (autocaptureEnabled) {
+      journiumInstance.startAutocapture();
     }
     
     setJournium(journiumInstance);
@@ -34,10 +35,10 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
       journiumInstance.destroy();
       setJournium(null);
     };
-  }, [config, autoCapture]);
+  }, [config]);
 
-  // Note: All pageview tracking is handled by startAutoCapture() when autoCapture=true
-  // When autoCapture=false, users should call capturePageview() manually as needed
+  // Note: All pageview tracking is handled by startAutocapture() when autocapture=true
+  // When autocapture=false, users should call capturePageview() manually as needed
 
   return (
     <JourniumContext.Provider value={{ journium }}>

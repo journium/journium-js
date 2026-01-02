@@ -22,13 +22,13 @@ export class BrowserIdentityManager {
   private sessionTimeout: number = DEFAULT_SESSION_TIMEOUT;
   private storageKey: string;
 
-  constructor(sessionTimeout?: number, token?: string) {
+  constructor(sessionTimeout?: number, publishableKey?: string) {
     if (sessionTimeout) {
       this.sessionTimeout = sessionTimeout;
     }
     
-    // Generate storage key with token pattern: jrnm_<token>_journium
-    this.storageKey = token ? `jrnm_${token}_journium` : '__journium_identity';
+    // Generate storage key with publishableKey pattern: jrnm_<publishableKey>_journium
+    this.storageKey = publishableKey ? `jrnm_${publishableKey}_journium` : '__journium_identity';
     
     this.loadOrCreateIdentity();
   }

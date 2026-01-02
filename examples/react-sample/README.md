@@ -95,17 +95,19 @@ The sample uses these Journium configuration options:
 
 ```typescript
 const journiumConfig = {
-  token: 'demo-api-key',        // Your API key
-  apiHost: 'https://api.journium.io',  // API endpoint
-  debug: true,                   // Enable console logging
-  flushAt: 10,                   // Batch size for events
-  flushInterval: 30000           // Flush interval in milliseconds
+  publishableKey: 'demo-publishable-key',     // Your publishable key
+  apiHost: 'https://api.journium.io',         // API endpoint (optional)
+  config: {
+    debug: true,                              // Enable console logging
+    flushAt: 10,                             // Batch size for events
+    flushInterval: 30000                     // Flush interval in milliseconds
+  }
 };
 ```
 
 ## Next Steps
 
-- Replace the demo API key with your actual Journium API key
+- Replace the demo publishable key with your actual Journium publishable key
 - Customize event properties to match your application's needs
 - Add more event tracking throughout your application
 - Review the console output to understand what events are being sent

@@ -5,7 +5,6 @@ export {
   useReset,
   useTrackPageview, 
   useAutoTrackPageview,
-  useAutocapture,
-  useAutoTrackClicks 
+  useAutocapture
 } from './hooks';
-export * from 'journium-js';
+export * from '@journium/js';

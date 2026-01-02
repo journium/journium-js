@@ -1,25 +1,39 @@
-import { JourniumEvent, JourniumConfig, ConfigResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumLocalConfig, ConfigResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs } from '@journium/core';
 import fetch from 'node-fetch';
 
 export class JourniumNodeClient {
   private config!: JourniumConfig;
+  private effectiveConfig!: JourniumLocalConfig;
   private queue: JourniumEvent[] = [];
   private flushTimer: NodeJS.Timeout | null = null;
   private initialized: boolean = false;
 
   constructor(config: JourniumConfig) {
     // Validate required configuration
-    if (!config.token) {
-      console.error('Journium: token is required but not provided. SDK will not function.');
-      return;
-    }
-    
-    if (!config.apiHost) {
-      console.error('Journium: apiHost is required but not provided. SDK will not function.');
+    if (!config.publishableKey) {
+      console.error('Journium: publishableKey is required but not provided. SDK will not function.');
       return;
     }
 
-    this.config = config;
+    // Set default apiHost if not provided
+    this.config = {
+      ...config,
+      apiHost: config.apiHost || 'https://events.journium.app'
+    };
+
+    // Generate default values
+    const defaultConfig: JourniumLocalConfig = {
+      debug: false,
+      flushAt: 20,
+      flushInterval: 10000,
+      sessionTimeout: 30 * 60 * 1000, // 30 minutes
+    };
+
+    // Initialize effective config with local config taking precedence over defaults
+    this.effectiveConfig = { ...defaultConfig };
+    if (this.config.config) {
+      this.effectiveConfig = mergeConfigs(this.config.config, defaultConfig);
+    }
 
     // Initialize asynchronously to fetch remote config
     this.initialize();
@@ -27,68 +41,51 @@ export class JourniumNodeClient {
 
   private async initialize(): Promise<void> {
     try {
-      if (this.config.token) {
-        if (this.config.debug) {
+      if (this.config.publishableKey) {
+        if (this.effectiveConfig.debug) {
           console.log('Journium: Fetching remote configuration...');
         }
         
         const remoteConfigResponse = await fetchRemoteConfig(
-          this.config.apiHost,
-          this.config.token,
+          this.config.apiHost!,
+          this.config.publishableKey,
           fetch
         );
         
         if (remoteConfigResponse && remoteConfigResponse.success) {
-          // Preserve apiHost and token, merge everything else from remote
-          const localOnlyConfig = {
-            apiHost: this.config.apiHost,
-            token: this.config.token,
-          };
-          
-          this.config = {
-            ...localOnlyConfig,
-            ...remoteConfigResponse.config,
-          };
-          
-          if (this.config.debug) {
-            console.log('Journium: Remote configuration applied:', remoteConfigResponse.config);
+          // Update effective config: local config (if provided) overrides remote config
+          if (!this.config.config) {
+            // No local config provided, use remote config
+            this.effectiveConfig = mergeConfigs(undefined, remoteConfigResponse.config);
+          } else {
+            // Local config provided, merge it over remote config
+            this.effectiveConfig = mergeConfigs(this.config.config, remoteConfigResponse.config);
           }
-        } else {
-          // Fallback to minimal defaults if remote config fails
-          this.config = {
-            ...this.config,
-            debug: this.config.debug ?? false,
-            flushAt: this.config.flushAt ?? 20,
-            flushInterval: this.config.flushInterval ?? 10000,
-          };
+          
+          if (this.effectiveConfig.debug) {
+            console.log('Journium: Remote configuration applied:', remoteConfigResponse.config);
+            console.log('Journium: Effective configuration:', this.effectiveConfig);
+          }
         }
       }
       
       this.initialized = true;
       
       // Start flush timer after configuration is finalized
-      if (this.config.flushInterval && this.config.flushInterval > 0) {
+      if (this.effectiveConfig.flushInterval && this.effectiveConfig.flushInterval > 0) {
         this.startFlushTimer();
       }
       
-      if (this.config.debug) {
-        console.log('Journium: Node client initialized with config:', this.config);
+      if (this.effectiveConfig.debug) {
+        console.log('Journium: Node client initialized with effective config:', this.effectiveConfig);
       }
     } catch (error) {
-      console.warn('Journium: Failed to fetch remote config, using local config:', error);
-      
-      // Fallback to defaults
-      this.config = {
-        ...this.config,
-        debug: this.config.debug ?? false,
-        flushAt: this.config.flushAt ?? 20,
-        flushInterval: this.config.flushInterval ?? 10000,
-      };
+      console.warn('Journium: Failed to fetch remote config, using local/default config:', error);
       
       this.initialized = true;
       
-      // Start with local config
-      if (this.config.flushInterval && this.config.flushInterval > 0) {
+      // Start with effective config (already set in constructor)
+      if (this.effectiveConfig.flushInterval && this.effectiveConfig.flushInterval > 0) {
         this.startFlushTimer();
       }
     }
@@ -101,11 +98,11 @@ export class JourniumNodeClient {
 
     this.flushTimer = setInterval(() => {
       this.flush().catch(error => {
-        if (this.config.debug) {
+        if (this.effectiveConfig.debug) {
           console.error('Journium: Auto-flush failed', error);
         }
       });
-    }, this.config.flushInterval);
+    }, this.effectiveConfig.flushInterval);
   }
 
   private async sendEvents(events: JourniumEvent[]): Promise<void> {
@@ -116,7 +113,7 @@ export class JourniumNodeClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.token}`,
+          'Authorization': `Bearer ${this.config.publishableKey}`,
         },
         body: JSON.stringify({
           events,
@@ -127,11 +124,11 @@ export class JourniumNodeClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      if (this.config.debug) {
+      if (this.effectiveConfig.debug) {
         console.log('Journium: Successfully sent events', events);
       }
     } catch (error) {
-      if (this.config.debug) {
+      if (this.effectiveConfig.debug) {
         console.error('Journium: Failed to send events', error);
       }
       throw error;
@@ -140,12 +137,12 @@ export class JourniumNodeClient {
 
   track(event: string, properties: Record<string, any> = {}, distinctId?: string): void {
     // Don't track if SDK is not properly configured
-    if (!this.config || !this.config.token || !this.config.apiHost) {
+    if (!this.config || !this.config.publishableKey) {
       return;
     }
     const journiumEvent: JourniumEvent = {
       uuid: generateUuidv7(),
-      ingestion_key: this.config.token,
+      ingestion_key: this.config.publishableKey,
       client_timestamp: getCurrentTimestamp(),
       event,
       properties,
@@ -154,13 +151,13 @@ export class JourniumNodeClient {
 
     this.queue.push(journiumEvent);
 
-    if (this.config.debug) {
+    if (this.effectiveConfig.debug) {
       console.log('Journium: Event tracked', journiumEvent);
     }
 
-    if (this.queue.length >= this.config.flushAt!) {
+    if (this.queue.length >= this.effectiveConfig.flushAt!) {
       this.flush().catch(error => {
-        if (this.config.debug) {
+        if (this.effectiveConfig.debug) {
           console.error('Journium: Auto-flush failed', error);
         }
       });
@@ -183,7 +180,7 @@ export class JourniumNodeClient {
 
   async flush(): Promise<void> {
     // Don't flush if SDK is not properly configured
-    if (!this.config || !this.config.token || !this.config.apiHost) {
+    if (!this.config || !this.config.publishableKey) {
       return;
     }
     

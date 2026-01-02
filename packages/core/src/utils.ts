@@ -43,11 +43,11 @@ export const isNode = (): boolean => {
 
 export const fetchRemoteConfig = async (
   apiHost: string,
-  token: string,
+  publishableKey: string,
   fetchFn?: any
 ): Promise<any> => {
   const endpoint = '/v1/configs';
-  const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(token)}`;
+  const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(publishableKey)}`;
   
   try {
     let fetch = fetchFn;
@@ -82,26 +82,34 @@ export const fetchRemoteConfig = async (
 };
 
 export const mergeConfigs = (localConfig: any, remoteConfig: any): any => {
+  if (!remoteConfig && !localConfig) {
+    return {};
+  }
+  
   if (!remoteConfig) {
     return localConfig;
   }
   
-  // Deep merge remote config into local config
-  // Remote config takes precedence over local config
-  const merged = { ...localConfig };
+  if (!localConfig) {
+    return remoteConfig;
+  }
+  
+  // Deep merge local config into remote config
+  // Local config takes precedence over remote config
+  const merged = { ...remoteConfig };
   
   // Handle primitive values
-  Object.keys(remoteConfig).forEach(key => {
-    if (remoteConfig[key] !== undefined && remoteConfig[key] !== null) {
-      if (typeof remoteConfig[key] === 'object' && !Array.isArray(remoteConfig[key])) {
-        // Deep merge objects
+  Object.keys(localConfig).forEach(key => {
+    if (localConfig[key] !== undefined && localConfig[key] !== null) {
+      if (typeof localConfig[key] === 'object' && !Array.isArray(localConfig[key])) {
+        // Deep merge objects - local config overrides remote
         merged[key] = {
           ...(merged[key] || {}),
-          ...remoteConfig[key]
+          ...localConfig[key]
         };
       } else {
-        // Override primitive values and arrays
-        merged[key] = remoteConfig[key];
+        // Override primitive values and arrays with local config
+        merged[key] = localConfig[key];
       }
     }
   });

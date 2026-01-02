@@ -15,11 +15,11 @@ export class Journium {
     this.client = new JourniumClient(config);
     this.pageviewTracker = new PageviewTracker(this.client);
     
-    const autocaptureConfig = this.resolveAutocaptureConfig(config.autocapture);
+    const autocaptureConfig = this.resolveAutocaptureConfig(config.config?.autocapture);
     this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureConfig);
     
-    // Store resolved autocapture state for startAutoCapture method
-    this.autocaptureEnabled = config.autocapture !== false;
+    // Store resolved autocapture state for startAutocapture method
+    this.autocaptureEnabled = config.config?.autocapture !== false;
   }
 
   private resolveAutocaptureConfig(autocapture?: boolean | AutocaptureConfig): AutocaptureConfig {
@@ -55,36 +55,26 @@ export class Journium {
     this.pageviewTracker.capturePageview(properties);
   }
 
-  startAutoCapture(): void {
-    this.pageviewTracker.startAutoCapture();
+  startAutocapture(): void {
+    this.pageviewTracker.startAutocapture();
     
     if (this.autocaptureEnabled) {
       this.autocaptureTracker.start();
     }
   }
 
-  stopAutoCapture(): void {
-    this.pageviewTracker.stopAutoCapture();
+  stopAutocapture(): void {
+    this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
   }
 
-  // Aliases for consistency (deprecated - use startAutoCapture)
-  /** @deprecated Use startAutoCapture() instead */
-  startAutocapture(): void {
-    this.startAutoCapture();
-  }
-
-  /** @deprecated Use stopAutoCapture() instead */
-  stopAutocapture(): void {
-    this.stopAutoCapture();
-  }
 
   async flush(): Promise<void> {
     return this.client.flush();
   }
 
   destroy(): void {
-    this.pageviewTracker.stopAutoCapture();
+    this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
     this.client.destroy();
   }
