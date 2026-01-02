@@ -11,7 +11,7 @@ This server is specifically designed to work with the Journium SDK examples:
 
 ## Features
 
-- **POST API**: `/ingest_event` endpoint to receive JSON events from Journium SDK
+- **POST API**: `/v1/ingest_event` endpoint to receive JSON events from Journium SDK
 - **WebSocket Broadcasting**: Real-time event distribution to connected clients
 - **Web UI**: Built-in dashboard to monitor events with timestamps and formatting
 - **Test Interface**: Send test events directly from the UI
@@ -51,10 +51,10 @@ Once both the events monitor and a demo application are running:
 ## API Usage
 
 ### Ingest Events (Used by Journium SDK)
-The Journium SDK automatically sends POST requests to the `/ingest_event` endpoint:
+The Journium SDK automatically sends POST requests to the `/v1/ingest_event` endpoint:
 
 ```bash
-curl -X POST http://localhost:3006/ingest_event \
+curl -X POST http://localhost:3006/v1/ingest_event \
   -H "Content-Type: application/json" \
   -d '{"event": "button_clicked", "properties": {"button_text": "Track Event", "click_count": 1}}'
 ```
@@ -166,11 +166,13 @@ The React sample is already configured to use this events monitor:
 ```typescript
 // examples/react-sample/src/App.tsx
 const journiumConfig = {
-  token: 'demo-api-key',
+  publishableKey: 'demo-publishable-key',
   apiHost: 'http://localhost:3006',  // Points to events monitor
-  debug: true,
-  flushAt: 10,
-  flushInterval: 30000
+  config: {
+    debug: true,
+    flushAt: 10,
+    flushInterval: 30000
+  }
 };
 ```
 
@@ -180,11 +182,13 @@ To configure the Next.js sample to use this monitor, update the configuration:
 ```typescript
 // examples/nextjs-sample/pages/_app.tsx
 const journiumConfig = {
-  token: 'demo-api-key',
+  publishableKey: 'demo-publishable-key',
   apiHost: 'http://localhost:3006',  // Add this line
-  debug: true,
-  flushAt: 10,
-  flushInterval: 30000
+  config: {
+    debug: true,
+    flushAt: 10,
+    flushInterval: 30000
+  }
 };
 ```
 
@@ -232,7 +236,7 @@ The server logs all incoming events and WebSocket connections:
 ```
 Server running on http://localhost:3006
 WebSocket server running on ws://localhost:3006
-POST endpoint available at http://localhost:3006/ingest_event
+POST endpoint available at http://localhost:3006/v1/ingest_event
 Event received: { event: 'button_clicked', properties: {...} }
 New WebSocket client connected
 ```
@@ -272,12 +276,12 @@ Send test events using the built-in UI or curl:
 
 ```bash
 # Test the endpoint directly
-curl -X POST http://localhost:3006/ingest_event \
+curl -X POST http://localhost:3006/v1/ingest_event \
   -H "Content-Type: application/json" \
   -d '{"event": "test_event", "properties": {"source": "manual_test"}}'
 
 # Simulate Journium SDK event format
-curl -X POST http://localhost:3006/ingest_event \
+curl -X POST http://localhost:3006/v1/ingest_event \
   -H "Content-Type: application/json" \
   -d '{
     "event": "user_signup",

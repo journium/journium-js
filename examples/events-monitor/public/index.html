@@ -173,7 +173,7 @@
             </div>
             <div class="events-list" id="eventsList">
                 <div class="no-events">
-                    No events received yet. Send a POST request to /ingest_event to see events here.
+                    No events received yet. Send a POST request to /v1/ingest_event to see events here.
                 </div>
             </div>
         </div>
@@ -258,7 +258,7 @@
 
         function clearEvents() {
             const eventsList = document.getElementById('eventsList');
-            eventsList.innerHTML = '<div class="no-events">Events cleared. Send a POST request to /ingest_event to see new events here.</div>';
+            eventsList.innerHTML = '<div class="no-events">Events cleared. Send a POST request to /v1/ingest_event to see new events here.</div>';
             eventCount = 0;
             document.getElementById('eventCount').textContent = '0';
             document.getElementById('lastEventTime').textContent = 'Never';
@@ -268,7 +268,7 @@
             const testData = document.getElementById('testData').value;
             try {
                 const data = JSON.parse(testData);
-                const response = await fetch('/ingest_event', {
+                const response = await fetch('/v1/ingest_event', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

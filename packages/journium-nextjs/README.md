@@ -1,26 +1,37 @@
 # @journium/nextjs
 
-[![npm version](https://badge.fury.io/js/%40journium%2Fnextjs.svg)](https://badge.fury.io/js/@journium/nextjs)
+[![npm version](https://badge.fury.io/js/%40journium%2Fnextjs.svg)](https://badge.fury.io/js/@journium%2Fnextjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
-**Next.js integration for Journium - SSR-ready analytics with automatic route tracking**
+**Next.js integration for Journium - Track events, pageviews, and user interactions in Next.js applications**
 
-The official Next.js SDK for Journium providing SSR/SSG-compatible analytics, automatic route change tracking, and server-side utilities for Next.js applications.
+The official Next.js SDK for Journium providing SSR support, automatic route tracking, and React hooks optimized for Next.js applications.
 
-## 🚀 Quick Start
+## Installation
 
-### Installation
-
+### npm
 ```bash
 npm install @journium/nextjs
 ```
 
-### Basic Setup
+### pnpm
+```bash
+pnpm add @journium/nextjs
+```
 
-Wrap your app with the `NextJourniumProvider` in `pages/_app.tsx`:
+### yarn
+```bash
+yarn add @journium/nextjs
+```
+
+## Basic Setup
+
+### Initialize Journium
+Wrap your app with the `NextJourniumProvider` in your `_app.tsx` to enable analytics throughout your Next.js application.
 
 ```tsx
+// pages/_app.tsx
 import type { AppProps } from 'next/app';
 import { NextJourniumProvider } from '@journium/nextjs';
 
@@ -28,11 +39,8 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <NextJourniumProvider
       config={{
-        token: 'your-journium-token',
-        apiHost: 'https://your-journium-instance.com'
+        publishableKey: 'your-journium-publishable-key'
       }}
-      autoCapture={true}
-      trackRouteChanges={true}
     >
       <Component {...pageProps} />
     </NextJourniumProvider>
@@ -40,21 +48,20 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
-### Using the Hook
-
-Track events anywhere in your components (same as React):
+### Track a Custom Event
+Use the `useTrackEvent` hook to track custom events from any component or page.
 
 ```tsx
-import { useJournium } from '@journium/nextjs';
+import { useTrackEvent } from '@journium/nextjs';
 
 function ProductPage() {
-  const { track } = useJournium();
+  const trackEvent = useTrackEvent();
 
   const handlePurchase = () => {
-    track('purchase_completed', {
+    trackEvent('purchase_started', {
       product_id: 'prod_123',
-      amount: 29.99,
-      currency: 'USD'
+      page: 'product_detail',
+      value: 29.99
     });
   };
 
@@ -62,48 +69,8 @@ function ProductPage() {
 }
 ```
 
-## 📖 API Reference
-
-### NextJourniumProvider
-
-The main provider component optimized for Next.js applications.
-
-```tsx
-<NextJourniumProvider
-  config={{
-    token: "your-token",              // Required: Your project token
-    apiHost: "https://api.journium.com", // Required: API endpoint
-    debug: false,                     // Optional: Enable debug mode
-    flushAt: 20,                     // Optional: Flush after N events
-    flushInterval: 10000,            // Optional: Flush interval (ms)
-    sessionTimeout: 1800000          // Optional: Session timeout (30m)
-  }}
-  autoCapture={true}                 // Optional: Enable auto-capture
-  trackRouteChanges={true}           // Optional: Track Next.js route changes
->
-  <YourApp />
-</NextJourniumProvider>
-```
-
-### Hook Usage
-
-All React hooks are available and work the same way:
-
-```tsx
-import { useJournium, useIdentify, useReset } from '@journium/nextjs';
-
-const { track, capturePageview, startAutoCapture, stopAutoCapture, flush } = useJournium();
-
-// User identification hooks
-const identify = useIdentify();
-const reset = useReset();
-```
-
-### User Identification
-
-#### Identifying Users on Login
-
-Use the `useIdentify` hook to identify users when they log in:
+### Identify a User
+Use the `useIdentify` hook to identify users when they log in or sign up.
 
 ```tsx
 import { useIdentify } from '@journium/nextjs';
@@ -111,575 +78,235 @@ import { useIdentify } from '@journium/nextjs';
 function LoginPage() {
   const identify = useIdentify();
 
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      const user = await loginUser(email, password);
-      
-      // Identify the user after successful login
-      identify(user.id, {
-        name: user.name,
-        email: user.email
-      });
-      
-      // Redirect to dashboard
-      router.push('/dashboard');
-    } catch (error) {
-      // Handle login error
-    }
+  const handleLogin = async (credentials) => {
+    const user = await authenticateUser(credentials);
+    
+    identify(user.id, {
+      name: user.name,
+      email: user.email,
+      plan: user.plan
+    });
   };
 
-  return <LoginForm onSubmit={handleLogin} />;
+  return (
+    <LoginForm onSubmit={handleLogin} />
+  );
 }
 ```
 
-#### Resetting User Identity on Logout
-
-Use the `useReset` hook to clear user identity when they log out:
+### Reset User Identity
+Use the `useReset` hook to reset user identity when they log out.
 
 ```tsx
 import { useReset } from '@journium/nextjs';
 
-function LogoutButton() {
+function Header() {
   const reset = useReset();
-  const router = useRouter();
 
   const handleLogout = async () => {
-    try {
-      await logoutUser();
-      
-      // Reset user identity after successful logout
-      reset();
-      
-      // Redirect to home page
-      router.push('/');
-    } catch (error) {
-      // Handle logout error
-    }
+    await logoutUser();
+    reset();
+    router.push('/');
   };
 
-  return <button onClick={handleLogout}>Log Out</button>;
+  return <button onClick={handleLogout}>Sign Out</button>;
 }
 ```
 
-### SSR Utilities
+## Advanced Setup
 
-#### `isServerSide()`
-
-Check if code is running on the server:
-
-```tsx
-import { isServerSide } from '@journium/nextjs';
-
-function MyComponent() {
-  if (isServerSide()) {
-    // Server-side logic
-    console.log('Running on server');
-  } else {
-    // Client-side logic
-    console.log('Running in browser');
-  }
-}
-```
-
-#### `getPagePropsForSSR(context)`
-
-Extract page properties during SSR for server-side tracking:
-
-```tsx
-import { GetServerSideProps } from 'next';
-import { getPagePropsForSSR } from '@journium/nextjs';
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const pageProps = getPagePropsForSSR(context);
-  
-  // pageProps contains:
-  // {
-  //   $current_url: 'https://example.com/page',
-  //   $host: 'example.com', 
-  //   $pathname: '/page',
-  //   $search: 'utm_source=google',
-  //   $referrer: 'https://google.com'
-  // }
-
-  return {
-    props: {
-      journiumPageProps: pageProps
-    }
-  };
-};
-```
-
-## 🔧 Next.js Specific Features
-
-### Automatic Route Tracking
-
-The provider automatically tracks Next.js route changes:
-
-```tsx
-<NextJourniumProvider
-  config={{ /* your config */ }}
-  trackRouteChanges={true} // Enabled by default
->
-  <App />
-</NextJourniumProvider>
-```
-
-This tracks:
-- Page navigation via `next/link`
-- Programmatic navigation via `router.push()`
-- Back/forward button navigation
-- Direct URL changes
-
-### Environment Variables
-
-Set up environment variables for different environments:
-
-```bash
-# .env.local
-NEXT_PUBLIC_JOURNIUM_TOKEN=your_token_here
-NEXT_PUBLIC_JOURNIUM_API_HOST=https://your-api.journium.com
-```
+You can override default configurations and control route tracking:
 
 ```tsx
 // pages/_app.tsx
+import type { AppProps } from 'next/app';
+import { NextJourniumProvider } from '@journium/nextjs';
+
+const journiumConfig = {
+  publishableKey: 'your-journium-publishable-key',
+  apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
+  config: {
+    debug: process.env.NODE_ENV === 'development',
+    flushAt: 10,                   // Send events after N events
+    flushInterval: 5000,           // Send events every N milliseconds  
+    sessionTimeout: 1800000,       // Session timeout (30 minutes)
+    autocapture: {                 // Configure automatic event capture
+      captureClicks: true,         // Track click events
+      captureFormSubmits: true,    // Track form submissions
+      captureFormChanges: false,   // Track form field changes
+      ignoreClasses: ['no-track'], // CSS classes to ignore
+      ignoreElements: ['input[type="password"]'] // Elements to ignore
+    }
+  }
+};
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <NextJourniumProvider 
+      config={journiumConfig}
+      trackRouteChanges={true} // Optional: Track Next.js route changes (default: true)
+    >
+      <Component {...pageProps} />
+    </NextJourniumProvider>
+  );
+}
+```
+
+## API Reference
+
+### `<NextJourniumProvider>`
+Provider component to initialize Journium throughout your Next.js app with SSR support.
+
+```tsx
 <NextJourniumProvider
   config={{
-    token: process.env.NEXT_PUBLIC_JOURNIUM_TOKEN!,
-    apiHost: process.env.NEXT_PUBLIC_JOURNIUM_API_HOST!,
-    debug: process.env.NODE_ENV === 'development'
+    publishableKey: 'your-journium-publishable-key',
+    apiHost: 'https://events.journium.app', // Optional
+    config: { /* optional local config */ }
   }}
+  trackRouteChanges={true} // Optional: automatic route tracking
 >
   <Component {...pageProps} />
 </NextJourniumProvider>
 ```
 
-### Server-Side Rendering (SSR)
-
-Track events during SSR for better analytics coverage:
+### `useTrackEvent()`
+Hook for tracking custom events with optional properties.
 
 ```tsx
-// pages/product/[id].tsx
-import { GetServerSideProps } from 'next';
-import { getPagePropsForSSR } from '@journium/nextjs';
+import { useTrackEvent } from '@journium/nextjs';
 
-interface Props {
-  product: Product;
-  journiumPageProps: any;
-}
+function Component() {
+  const trackEvent = useTrackEvent();
 
-export default function ProductPage({ product, journiumPageProps }: Props) {
-  const { track } = useJournium();
-
-  useEffect(() => {
-    // Track page view with SSR data
-    track('product_viewed', {
-      product_id: product.id,
-      ...journiumPageProps
+  const handleSignup = () => {
+    trackEvent('user_signup', {
+      method: 'email',
+      source: 'landing_page',
+      plan: 'free'
     });
-  }, []);
-
-  return <div>{/* Your component */}</div>;
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const product = await getProduct(context.params?.id);
-  const journiumPageProps = getPagePropsForSSR(context);
-
-  return {
-    props: {
-      product,
-      journiumPageProps
-    }
   };
-};
+
+  return <button onClick={handleSignup}>Sign Up</button>;
+}
 ```
 
-### Static Site Generation (SSG)
-
-Works with static generation and incremental static regeneration:
+### `useIdentify()`
+Hook for identifying users on login or signup.
 
 ```tsx
-// pages/blog/[slug].tsx
-import { GetStaticProps, GetStaticPaths } from 'next';
-import { getPagePropsForSSR } from '@journium/nextjs';
+import { useIdentify } from '@journium/nextjs';
 
-export default function BlogPost({ post }: { post: Post }) {
-  const { track } = useJournium();
+function Component() {
+  const identify = useIdentify();
 
-  useEffect(() => {
-    track('blog_post_viewed', {
-      post_id: post.id,
-      post_title: post.title,
-      post_category: post.category
-    });
-  }, []);
+  const handleUserLogin = (userId, userAttributes) => {
+    identify(userId, userAttributes);
+  };
 
-  return <article>{/* Your blog post */}</article>;
+  return <AuthForm onLogin={handleUserLogin} />;
 }
-
-export const getStaticProps: GetStaticProps = async (context) => {
-  const post = await getPost(context.params?.slug);
-  
-  return {
-    props: { post },
-    revalidate: 60 // ISR
-  };
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await getAllPosts();
-  
-  return {
-    paths: posts.map(post => ({ params: { slug: post.slug } })),
-    fallback: 'blocking'
-  };
-};
 ```
 
-## 🛍️ E-commerce Examples
-
-### Product Tracking
+### `useReset()`
+Hook for resetting user identity on logout.
 
 ```tsx
-// pages/product/[id].tsx
+import { useReset } from '@journium/nextjs';
+
+function Component() {
+  const reset = useReset();
+
+  const handleLogout = () => {
+    reset();
+  };
+
+  return <button onClick={handleLogout}>Logout</button>;
+}
+```
+
+### `useTrackPageview()`
+Hook for manual pageview tracking beyond automatic route tracking.
+
+```tsx
+import { useTrackPageview } from '@journium/nextjs';
+
+function Component() {
+  const trackPageview = useTrackPageview();
+
+  const handleModalView = () => {
+    trackPageview({
+      page_type: 'modal',
+      modal_name: 'checkout',
+      step: 'payment'
+    });
+  };
+
+  return <button onClick={handleModalView}>Open Checkout</button>;
+}
+```
+
+### `useAutoTrackPageview()`
+Hook for automatic pageview tracking when components mount or dependencies change.
+
+```tsx
+import { useAutoTrackPageview } from '@journium/nextjs';
+
+function ProductPage({ productId }) {
+  // Tracks pageview when component mounts or productId changes
+  useAutoTrackPageview([productId], {
+    page_type: 'product',
+    product_id: productId,
+    framework: 'nextjs'
+  });
+
+  return <div>Product {productId}</div>;
+}
+```
+
+### `useJournium()`
+Hook for direct access to the Journium instance for advanced use cases.
+
+```tsx
 import { useJournium } from '@journium/nextjs';
 
-function ProductPage({ product }: { product: Product }) {
-  const { track } = useJournium();
+function Component() {
+  const { journium } = useJournium();
 
-  const handleAddToCart = () => {
-    track('product_added_to_cart', {
-      product_id: product.id,
-      product_name: product.name,
-      price: product.price,
-      currency: 'USD',
-      category: product.category
-    });
+  const handleComplexTracking = () => {
+    journium?.track('custom_event', { complex: true });
+    journium?.capturePageview({ manual: true });
+    journium?.startAutocapture();
   };
 
-  const handlePurchase = async () => {
-    const order = await createOrder(product);
-    
-    track('purchase_completed', {
-      order_id: order.id,
-      revenue: order.total,
-      currency: 'USD',
-      products: [{
-        product_id: product.id,
-        quantity: 1,
-        price: product.price
-      }]
-    });
-  };
-
-  return (
-    <div>
-      <h1>{product.name}</h1>
-      <p>${product.price}</p>
-      <button onClick={handleAddToCart}>Add to Cart</button>
-      <button onClick={handlePurchase}>Buy Now</button>
-    </div>
-  );
+  return <button onClick={handleComplexTracking}>Complex Track</button>;
 }
 ```
 
-### Checkout Flow
+### Server-Side Rendering (SSR) Support
+
+The Next.js SDK automatically handles SSR scenarios and provides utilities for server-side tracking:
 
 ```tsx
-// pages/checkout.tsx
-import { useJournium } from '@journium/nextjs';
-
-function CheckoutPage() {
-  const { track } = useJournium();
-
-  const handleStepCompleted = (step: string) => {
-    track('checkout_step_completed', {
-      step_name: step,
-      step_number: getStepNumber(step)
-    });
-  };
-
-  const handleOrderCompleted = (order: Order) => {
-    track('order_completed', {
-      order_id: order.id,
-      revenue: order.total,
-      tax: order.tax,
-      shipping: order.shipping,
-      products: order.items.map(item => ({
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price: item.price
-      }))
-    });
-  };
-
-  return (
-    <CheckoutForm 
-      onStepCompleted={handleStepCompleted}
-      onOrderCompleted={handleOrderCompleted}
-    />
-  );
-}
-```
-
-## 🌐 API Routes Integration
-
-Track events in API routes for server-side analytics:
-
-```tsx
-// pages/api/contact.ts
+// pages/api/track.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { init } from '@journium/node'; // Use Node.js SDK for API routes
 
-const journium = init({
-  token: process.env.JOURNIUM_TOKEN!,
-  apiHost: process.env.JOURNIUM_API_HOST!
-});
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const { name, email, message } = req.body;
-    
-    // Track form submission on server
-    journium.track('contact_form_submitted', {
-      user_email: email,
-      message_length: message.length,
-      source: 'api_route',
-      ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    });
-
-    // Process form...
-    
-    res.status(200).json({ success: true });
-  }
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Server-side tracking logic
+  // Note: Use @journium/node for server-side tracking
+  res.status(200).json({ success: true });
 }
 ```
 
-### User Authentication API Routes
+### Route Change Tracking
 
-Handle user identification in authentication API routes:
-
-```tsx
-// pages/api/auth/login.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { init } from '@journium/node';
-
-const journium = init({
-  token: process.env.JOURNIUM_TOKEN!,
-  apiHost: process.env.JOURNIUM_API_HOST!
-});
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const { email, password } = req.body;
-    
-    try {
-      const user = await authenticateUser(email, password);
-      
-      // Track successful login attempt (not user identification)
-      journium.track('login_attempt', {
-        success: true,
-        method: 'email',
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
-      }, user.id);
-      
-      // Note: User identification should be done on the client-side 
-      // using the identify() method after successful login
-      
-      res.status(200).json({ user, success: true });
-    } catch (error) {
-      // Track failed login attempt
-      journium.track('login_attempt', {
-        success: false,
-        method: 'email',
-        error: error.message,
-        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
-      });
-      
-      res.status(401).json({ error: 'Invalid credentials' });
-    }
-  }
-}
-```
-
-## 🔒 Privacy & GDPR Compliance
-
-### Conditional Loading
-
-```tsx
-// pages/_app.tsx
-import { useState, useEffect } from 'react';
-import { NextJourniumProvider } from '@journium/nextjs';
-
-export default function App({ Component, pageProps }: AppProps) {
-  const [hasConsent, setHasConsent] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const consent = localStorage.getItem('analytics_consent');
-    setHasConsent(consent === 'true');
-  }, []);
-
-  if (hasConsent === null) {
-    return <LoadingComponent />;
-  }
-
-  if (!hasConsent) {
-    return (
-      <div>
-        <ConsentBanner onAccept={() => setHasConsent(true)} />
-        <Component {...pageProps} />
-      </div>
-    );
-  }
-
-  return (
-    <NextJourniumProvider
-      config={{
-        token: process.env.NEXT_PUBLIC_JOURNIUM_TOKEN!,
-        apiHost: process.env.NEXT_PUBLIC_JOURNIUM_API_HOST!
-      }}
-    >
-      <Component {...pageProps} />
-    </NextJourniumProvider>
-  );
-}
-```
-
-### Data Exclusion
+Automatic pageview tracking for Next.js route changes is enabled by default. Customize with:
 
 ```tsx
 <NextJourniumProvider
-  config={{
-    token: "your-token",
-    apiHost: "https://api.journium.com",
-    autocapture: {
-      captureClicks: true,
-      captureFormSubmits: true,
-      captureFormChanges: false,
-      ignoreClasses: ['no-track', 'sensitive', 'gdpr-exclude'],
-      ignoreElements: [
-        'input[type="password"]',
-        'input[type="email"]',
-        '[data-private]',
-        '.payment-form'
-      ]
-    }
-  }}
+  config={journiumConfig}
+  trackRouteChanges={false} // Disable automatic route tracking
 >
-  <App />
+  <Component {...pageProps} />
 </NextJourniumProvider>
 ```
-
-## ⚡ Performance Optimization
-
-### Code Splitting
-
-```tsx
-// pages/_app.tsx
-import dynamic from 'next/dynamic';
-
-const NextJourniumProvider = dynamic(
-  () => import('@journium/nextjs').then(mod => mod.NextJourniumProvider),
-  { ssr: false } // Load only on client-side
-);
-
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <NextJourniumProvider
-      config={{
-        token: process.env.NEXT_PUBLIC_JOURNIUM_TOKEN!,
-        apiHost: process.env.NEXT_PUBLIC_JOURNIUM_API_HOST!
-      }}
-    >
-      <Component {...pageProps} />
-    </NextJourniumProvider>
-  );
-}
-```
-
-### Conditional Loading by Environment
-
-```tsx
-// pages/_app.tsx
-export default function App({ Component, pageProps }: AppProps) {
-  const shouldLoadAnalytics = process.env.NODE_ENV === 'production' || 
-                             process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true';
-
-  if (!shouldLoadAnalytics) {
-    return <Component {...pageProps} />;
-  }
-
-  return (
-    <NextJourniumProvider
-      config={{
-        token: process.env.NEXT_PUBLIC_JOURNIUM_TOKEN!,
-        apiHost: process.env.NEXT_PUBLIC_JOURNIUM_API_HOST!,
-        debug: process.env.NODE_ENV === 'development'
-      }}
-    >
-      <Component {...pageProps} />
-    </NextJourniumProvider>
-  );
-}
-```
-
-## 📱 TypeScript Support
-
-Full TypeScript support with Next.js-specific types:
-
-```typescript
-import { NextPage } from 'next';
-import { useJournium } from '@journium/nextjs';
-
-interface PageProps {
-  product: Product;
-}
-
-const ProductPage: NextPage<PageProps> = ({ product }) => {
-  const { track } = useJournium();
-
-  const handleEvent = () => {
-    track('product_interaction', {
-      product_id: product.id,
-      interaction_type: 'click',
-      timestamp: new Date().toISOString()
-    });
-  };
-
-  return <div onClick={handleEvent}>{product.name}</div>;
-};
-
-export default ProductPage;
-```
-
-## 🔗 Related Packages
-
-Part of the Journium JavaScript SDK ecosystem:
-
-- **[journium-js](https://npmjs.com/package/journium-js)** - Core JavaScript SDK for web browsers
-- **[@journium/react](https://npmjs.com/package/@journium/react)** - React integration with hooks and providers
-- **[@journium/node](https://npmjs.com/package/@journium/node)** - Node.js server-side tracking
-- **[@journium/core](https://npmjs.com/package/@journium/core)** - Core utilities and types
-
-## 📖 Documentation
-
-For complete documentation, guides, and examples:
-
-- **[Documentation](https://docs.journium.app)** - Complete guides and API reference
-- **[Next.js Guide](https://docs.journium.app/nextjs)** - Next.js-specific documentation
-- **[Examples](https://docs.journium.app/examples/nextjs)** - Next.js code examples and patterns
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](https://github.com/journium/journium-js/blob/main/CONTRIBUTING.md).
-
-## 📄 License
-
-MIT License - see [LICENSE](https://github.com/journium/journium-js/blob/main/LICENSE) file for details.
-
-## 🆘 Support
-
-- **📚 Docs**: [docs.journium.app](https://docs.journium.app)
-- **🐛 Issues**: [GitHub Issues](https://github.com/journium/journium-js/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/journium/journium-js/discussions)
-- **📧 Email**: support@journium.com

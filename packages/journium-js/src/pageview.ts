@@ -30,7 +30,7 @@ export class PageviewTracker {
     this.lastUrl = currentUrl;
   }
 
-  startAutoCapture(): void {
+  startAutocapture(): void {
     this.capturePageview();
 
     if (typeof window !== 'undefined') {
@@ -56,7 +56,7 @@ export class PageviewTracker {
     }
   }
 
-  stopAutoCapture(): void {
+  stopAutocapture(): void {
     if (typeof window !== 'undefined') {
       // Restore original methods
       if (this.originalPushState) {

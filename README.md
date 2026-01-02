@@ -1,6 +1,6 @@
 # Journium JavaScript SDK
 
-[![npm version](https://badge.fury.io/js/journium-js.svg)](https://badge.fury.io/js/journium-js)
+[![npm version](https://badge.fury.io/js/@journium%2Fjs.svg)](https://badge.fury.io/js/@journium%2Fjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![Documentation](https://img.shields.io/badge/docs-docs.journium.app-blue.svg)](https://docs.journium.app)
@@ -26,7 +26,7 @@ This monorepo contains multiple packages optimized for different environments:
 
 | Package | Description | Use Case |
 |---------|-------------|----------|
-| **`journium-js`** | Core browser SDK | Vanilla JavaScript, SPAs |
+| **`@journium/js`** | Core browser SDK | Vanilla JavaScript, SPAs |
 | **`@journium/react`** | React integration | React applications with hooks |
 | **`@journium/nextjs`** | Next.js integration | Next.js apps with SSR support |
 | **`@journium/node`** | Node.js server SDK | Server-side tracking |
@@ -38,7 +38,7 @@ Choose the package that fits your environment:
 
 ```bash
 # For vanilla JavaScript/browser
-npm install journium-js
+npm install @journium/js
 
 # For React applications
 npm install @journium/react
@@ -52,305 +52,83 @@ npm install @journium/node
 
 ## ⚡ Quick Start
 
+Choose your environment and get started in minutes:
+
 ### Browser (Vanilla JavaScript)
-
-```javascript
-import { init } from 'journium-js';
-
-// Initialize with your configuration
-const journium = init({
-  token: 'your-journium-token',
-  apiHost: 'https://your-journium-instance.com'
-});
-
-// Track a pageview (usually automatic)
-journium.capturePageview();
-
-// Track custom events
-journium.track('button_clicked', {
-  button_name: 'signup',
-  page: 'homepage',
-  user_type: 'visitor'
-});
-
-// Start auto-capture (tracks clicks, pageviews automatically)
-journium.startAutoCapture();
+```bash
+npm install @journium/js
 ```
+See **[@journium/js documentation](packages/journium-js/README.md)** for complete setup instructions.
 
-### React
-
-```jsx
-import React from 'react';
-import { JourniumProvider, useJournium } from '@journium/react';
-
-// Wrap your app with the provider
-function App() {
-  return (
-    <JourniumProvider 
-      config={{ 
-        token: 'your-journium-token',
-        apiHost: 'https://your-journium-instance.com'
-      }}
-      autoCapture={true}
-    >
-      <HomePage />
-    </JourniumProvider>
-  );
-}
-
-// Use the hook in components
-function HomePage() {
-  const { journium } = useJournium();
-  
-  const handleSignup = () => {
-    journium?.track('user_signup', {
-      method: 'email',
-      source: 'homepage_cta'
-    });
-  };
-  
-  return (
-    <div>
-      <h1>Welcome to My App</h1>
-      <button onClick={handleSignup}>Sign Up</button>
-    </div>
-  );
-}
+### React Applications
+```bash
+npm install @journium/react
 ```
+See **[@journium/react documentation](packages/journium-react/README.md)** for hooks and providers.
 
-### Next.js
-
-```jsx
-// pages/_app.tsx
-import type { AppProps } from 'next/app';
-import { NextJourniumProvider } from '@journium/nextjs';
-
-const journiumConfig = {
-  token: 'your-journium-token',
-  apiHost: 'https://your-journium-instance.com',
-  debug: process.env.NODE_ENV === 'development'
-};
-
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <NextJourniumProvider config={journiumConfig} autoCapture={true}>
-      <Component {...pageProps} />
-    </NextJourniumProvider>
-  );
-}
+### Next.js Applications
+```bash
+npm install @journium/nextjs
 ```
+See **[@journium/nextjs documentation](packages/journium-nextjs/README.md)** for SSR setup.
 
-### Node.js
-
-```javascript
-import { init } from '@journium/node';
-
-// Initialize the client
-const journium = init({
-  token: 'your-journium-token',
-  apiHost: 'https://your-journium-instance.com'
-});
-
-// Track server-side events
-journium.track('api_request', {
-  endpoint: '/api/users',
-  method: 'POST',
-  response_time: 234,
-  ip_address: req.ip
-}, 'user123');
-
-// Track pageviews
-journium.trackPageview('https://example.com/dashboard', {
-  user_id: 'user123',
-  plan: 'premium'
-}, 'user123');
-
-// Make sure to flush before process exits
-await journium.flush();
+### Node.js Servers
+```bash
+npm install @journium/node
 ```
+See **[@journium/node documentation](packages/journium-node/README.md)** for server-side tracking.
 
-## 🔧 Configuration Options
+## 🔧 Configuration
 
-### Core Configuration
+All Journium SDKs share common configuration options. Each package README contains detailed configuration examples:
 
-```javascript
-const config = {
-  // Required
-  token: 'your-journium-token',        // Your Journium project token
-  apiHost: 'https://api.journium.com', // Your Journium API endpoint
-  
-  // Optional
-  debug: false,                        // Enable debug logging
-  flushAt: 20,                        // Number of events before auto-flush
-  flushInterval: 10000,               // Auto-flush interval (ms)
-  sessionTimeout: 1800000,            // Session timeout (30 minutes)
-  configEndpoint: '/configs',         // Custom config endpoint
-  
-  // Auto-capture settings
-  autocapture: true,                  // Enable auto-capture
-  // OR configure specific auto-capture options:
-  autocapture: {
-    captureClicks: true,              // Auto-track click events
-    captureFormSubmits: true,         // Auto-track form submissions
-    captureFormChanges: false,        // Auto-track form field changes
-    captureTextSelection: false,      // Auto-track text selections
-    captureContentText: true,         // Include element text in events
-    ignoreClasses: ['no-track'],      // CSS classes to ignore
-    ignoreElements: ['input[type="password"]'] // Elements to ignore
-  }
-};
-```
+- **Core Options**: `publishableKey`, `apiHost`, debug settings
+- **Auto-capture**: Click tracking, form interactions, pageviews
+- **Privacy**: Data filtering and exclusion rules
+- **Performance**: Batching, caching, and flush intervals
 
-### Environment-Specific Options
-
-**React/Next.js only:**
-```jsx
-<JourniumProvider 
-  config={journiumConfig}
-  autoCapture={true}          // Start auto-capture immediately
->
-```
+For detailed configuration guides, see the individual package documentation.
 
 ## 📖 API Reference
 
-### Core Methods
+All Journium SDKs provide consistent core methods:
 
-#### `journium.track(eventName, properties, distinctId?)`
+- **`track()`** - Track custom events with properties
+- **`identify()`** - Identify users on login/signup  
+- **`reset()`** - Reset user identity on logout
+- **`capturePageview()`** - Manual pageview tracking
+- **`startAutocapture()`** / **`stopAutocapture()`** - Control auto-tracking
+- **`flush()`** - Send queued events immediately
+- **`destroy()`** - Clean up the client
 
-Track a custom event with optional properties.
+### Framework-Specific APIs
 
-```javascript
-journium.track('purchase_completed', {
-  product_id: 'prod_123',
-  amount: 29.99,
-  currency: 'USD',
-  category: 'digital'
-});
-```
+- **React**: `useJournium()`, `useTrackEvent()`, `useIdentify()`, `useReset()`
+- **Next.js**: All React hooks plus SSR support and automatic route tracking
+- **Node.js**: Server-side methods with `distinctId` parameter
 
-#### `journium.identify(distinctId, attributes?)`
-
-Identify a user when they log in or sign up. This replaces the anonymous distinct ID with a known user identifier.
-
-```javascript
-// When user logs in
-journium.identify('user_12345', {
-  name: 'John Doe',
-  email: 'john@example.com',
-  plan: 'premium',
-  signup_date: '2024-01-15'
-});
-```
-
-#### `journium.reset()`
-
-Reset user identity when they log out. This generates a new anonymous distinct ID.
-
-```javascript
-// When user logs out
-journium.reset();
-```
-
-#### `journium.capturePageview(properties?)`
-
-Manually capture a pageview event.
-
-```javascript
-journium.capturePageview({
-  section: 'pricing',
-  experiment_variant: 'v2'
-});
-```
-
-#### `journium.startAutoCapture()` / `journium.stopAutoCapture()`
-
-Control automatic event capture.
-
-```javascript
-journium.startAutoCapture();  // Start auto-tracking
-journium.stopAutoCapture();   // Stop auto-tracking
-```
-
-#### `journium.flush()`
-
-Manually flush queued events to the server.
-
-```javascript
-await journium.flush();
-```
-
-#### `journium.destroy()`
-
-Clean up the client and flush remaining events.
-
-```javascript
-journium.destroy();
-```
-
-### React Hooks
-
-#### `useJournium()`
-
-Access the Journium instance in React components.
-
-```jsx
-const { journium } = useJournium();
-
-// Track events
-journium?.track('feature_used', { feature: 'dark_mode' });
-```
+See individual package documentation for detailed API references and examples.
 
 ## 🏗️ Event Properties
 
-### Automatic Properties
+Journium automatically enriches events with device, session, and context information. You can add custom properties to track business-specific data.
 
-Journium automatically includes these properties with every event:
+**Automatic Properties**: Device ID, session ID, browser info, URL, platform details  
+**Custom Properties**: Business metrics, user attributes, feature flags, A/B test variants
 
-- `$device_id` - Unique device identifier (persistent across user sessions)
-- `$session_id` - Current session identifier  
-- `distinct_id` - User identifier (anonymous until `identify()` is called)
-- `$is_identified` - Whether the user has been identified (true/false)
-- `$current_url` - Current page URL
-- `$pathname` - URL pathname
-- `$browser` - Browser name
-- `$os` - Operating system
-- `$device_type` - Device type (desktop/mobile/tablet)
-- `$lib_version` - SDK version
-- `$platform` - Platform (web/server)
-
-### Custom Properties
-
-Add your own properties to any event:
-
-```javascript
-journium.track('video_played', {
-  video_id: 'intro-2024',
-  video_length: 120,
-  quality: '1080p',
-  autoplay: false,
-  user_plan: 'premium'
-});
-```
+See package documentation for complete property lists and examples.
 
 ## 🔒 Privacy & Security
 
-Journium is designed with privacy in mind:
+Journium is built with privacy-first principles:
 
-- **No PII by default**: We don't automatically collect personally identifiable information
-- **Configurable tracking**: Disable auto-capture or exclude sensitive elements
-- **Secure transmission**: All data is sent over HTTPS
-- **User consent**: Easy integration with consent management platforms
-- **Data minimization**: Only collect what you need
+- **No PII by default** - No automatic collection of personally identifiable information
+- **Configurable tracking** - Granular control over what data is collected
+- **Secure transmission** - All data sent over HTTPS with proper encryption
+- **User consent integration** - Compatible with consent management platforms
+- **Data minimization** - Collect only what you need for your use case
 
-### Excluding Sensitive Data
-
-```javascript
-// Exclude elements with specific classes
-autocapture: {
-  ignoreClasses: ['sensitive', 'pii'],
-  ignoreElements: ['input[type="password"]', '.credit-card']
-}
-```
+Configure privacy settings and data exclusion rules in each package's documentation.
 
 ## 🛠️ Development
 
@@ -392,7 +170,7 @@ pnpm dev
 ```
 journium-js/
 ├── packages/
-│   ├── journium-js/         # Core browser SDK
+│   ├── journium-js/         # Core browser SDK (@journium/js)
 │   ├── journium-react/      # React integration
 │   ├── journium-nextjs/     # Next.js integration
 │   ├── journium-node/       # Node.js SDK
@@ -413,7 +191,7 @@ We use Jest for testing across all packages:
 pnpm test
 
 # Run tests for specific package
-pnpm --filter journium-js test
+pnpm --filter @journium/js test
 
 # Run tests in watch mode
 pnpm test:watch

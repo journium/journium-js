@@ -38,17 +38,20 @@ class JourniumDemo {
             // Initialize Journium with minimal configuration
             // Only include required local configs - remote config will handle the rest
             this.journium = window.Journium.init({
-                token: 'client_abcdef1234567890abcdef1234567890',
-                apiHost: 'http://localhost:3006', // Events monitor endpoint
+                publishableKey: 'client_abcdef1234567890abcdef1234567890',
+                // apiHost defaults to 'https://events.journium.app'
+                apiHost: 'http://localhost:3006', // For demo: Events monitor endpoint
                 //apiHost: 'https://ingestion.bhushan-685.workers.dev',
-                debug: true,  // Always set locally - never configured remotely
-                flushAt: 1,   // Demo: send events immediately
-                flushInterval: 1000,  // Demo: flush every 1 second
-                // autocapture: true by default - set to false to disable
+                config: {
+                    debug: true,  // Always set locally - never configured remotely
+                    flushAt: 1,   // Demo: send events immediately
+                    flushInterval: 1000,  // Demo: flush every 1 second
+                    // autocapture: true by default - set to false to disable
+                }
             });
 
             // Start auto-capture for automatic tracking
-            this.journium.startAutoCapture();
+            this.journium.startAutocapture();
 
             this.log('✅ Journium SDK initialized successfully');
             this.updateDebugInfo();

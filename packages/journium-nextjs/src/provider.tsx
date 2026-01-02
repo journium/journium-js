@@ -6,7 +6,6 @@ import { JourniumConfig } from '@journium/core';
 interface NextJourniumProviderProps {
   children: ReactNode;
   config: JourniumConfig;
-  autoCapture?: boolean;
   trackRouteChanges?: boolean;
 }
 
@@ -36,11 +35,10 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
 export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
   children,
   config,
-  autoCapture = true, // Made consistent with React provider
   trackRouteChanges = true,
 }) => {
   return (
-    <BaseJourniumProvider config={config} autoCapture={autoCapture}>
+    <BaseJourniumProvider config={config}>
       <RouteChangeTracker trackRouteChanges={trackRouteChanges} />
       {children}
     </BaseJourniumProvider>

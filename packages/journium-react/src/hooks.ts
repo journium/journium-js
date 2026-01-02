@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from 'react';
 import { useJournium } from './context';
-import { AutocaptureConfig } from '@journium/core';
 
 export const useTrackEvent = () => {
   const { journium } = useJournium();
@@ -80,20 +79,3 @@ export const useAutocapture = () => {
   return { startAutocapture, stopAutocapture };
 };
 
-export const useAutoTrackClicks = (
-  enabled: boolean = true,
-  config?: Partial<AutocaptureConfig>
-) => {
-  const { journium } = useJournium();
-
-  useEffect(() => {
-    if (journium && enabled) {
-      // Use startAutoCapture for consistency (includes both pageview + clicks)
-      journium.startAutoCapture();
-      return () => {
-        journium.stopAutoCapture();
-      };
-    }
-    return undefined;
-  }, [journium, enabled]);
-};

@@ -15,4 +15,16 @@ module.exports = {
     '^@journium/(.*)$': '<rootDir>/packages/$1/src',
     '^journium-js$': '<rootDir>/packages/journium-js/src',
   },
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        module: 'commonjs',
+        target: 'es2020',
+      }
+    }
+  }
 };

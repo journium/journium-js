@@ -209,11 +209,13 @@ Both examples use the same configuration structure:
 
 ```typescript
 const journiumConfig = {
-  token: 'demo-api-key',        // Replace with your API key
-  apiHost: 'https://api.journium.io',  // API endpoint
-  debug: true,                   // Enable console logging
-  flushAt: 10,                   // Batch size for events
-  flushInterval: 30000           // Flush interval in milliseconds
+  publishableKey: 'demo-publishable-key',  // Replace with your publishable key
+  apiHost: 'https://api.journium.io',      // API endpoint
+  config: {
+    debug: true,                   // Enable console logging
+    flushAt: 10,                   // Batch size for events
+    flushInterval: 30000           // Flush interval in milliseconds
+  }
 };
 ```
 
@@ -226,7 +228,7 @@ const journiumConfig = {
 
 ## Next Steps
 
-1. **Replace API Key**: Update the `apiKey` in both examples with your actual Journium API key
+1. **Replace Publishable Key**: Update the `publishableKey` in both examples with your actual Journium publishable key
 2. **Customize Events**: Modify event names and properties to match your application's needs
 3. **Add User Identification**: Implement user identification for personalized tracking
 4. **Set Up Funnels**: Create conversion funnels based on your business goals
@@ -240,6 +242,6 @@ For complete API documentation, visit: [Journium Documentation](https://docs.jou
 
 If you encounter any issues or have questions:
 1. Check the browser console for debug information
-2. Verify your API key is correct
+2. Verify your publishable key is correct
 3. Ensure all dependencies are properly installed
 4. Review the example code for proper integration patterns

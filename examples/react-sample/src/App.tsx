@@ -12,15 +12,18 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import './App.css';
 
 // Demo configuration - optimized for immediate event visibility
-// For production, remove flushAt and flushInterval to use remote config
+// For production, remove config object to use remote config
 const journiumConfig = {
-  token: 'client_abcdef1234567890abcdef1234567890',
-  apiHost: 'http://localhost:3006',
+  publishableKey: 'client_abcdef1234567890abcdef1234567890',
+  // apiHost defaults to 'https://events.journium.app'
+  apiHost: 'http://localhost:3006', // For demo: Events monitor endpoint
   //apiHost: 'https://ingestion.bhushan-685.workers.dev',
-  debug: true,  // Always set locally - never configured remotely
-  flushAt: 5,   // Send events immediately for demo purposes
-  flushInterval: 1000,  // Also flush every 1 second for demo
-  // autocapture: true by default - set to false to disable button/form tracking
+  config: {
+    debug: true,  // Always set locally - never configured remotely
+    flushAt: 5,   // Send events immediately for demo purposes
+    flushInterval: 1000,  // Also flush every 1 second for demo
+    // autocapture: true by default - set to false to disable button/form tracking
+  }
 };
 
 function App() {

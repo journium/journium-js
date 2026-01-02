@@ -41,15 +41,27 @@ export interface ConfigResponse {
   timestamp: string;
 }
 
-export interface JourniumConfig {
-  token: string;
-  apiHost: string;
+export interface JourniumLocalConfig {
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
   autocapture?: boolean | AutocaptureConfig;
-  configEndpoint?: string;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
+  sampling?: {
+    enabled?: boolean;
+    rate?: number;
+  };
+  features?: {
+    enableGeolocation?: boolean;
+    enableSessionRecording?: boolean;
+    enablePerformanceTracking?: boolean;
+  };
+}
+
+export interface JourniumConfig {
+  publishableKey: string;
+  apiHost?: string;
+  config?: JourniumLocalConfig;
 }
 
 export interface PageviewProperties {

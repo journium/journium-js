@@ -77,13 +77,15 @@ js-sample/
 ```javascript
 // Initialize Journium
 const journium = window.Journium.init({
-    token: 'demo-js-token',
-    apiHost: 'http://localhost:3006',
-    debug: true,
-    autocapture: {
-        captureClicks: true,
-        captureFormSubmits: true,
-        ignoreClasses: ['no-track']
+    publishableKey: 'demo-js-publishable-key',
+    apiHost: 'http://localhost:3006', // Optional: defaults to 'https://events.journium.app'
+    config: {
+        debug: true,
+        autocapture: {
+            captureClicks: true,
+            captureFormSubmits: true,
+            ignoreClasses: ['no-track']
+        }
     }
 });
 
@@ -184,11 +186,13 @@ Edit the Journium configuration in `app.js`:
 
 ```javascript
 const journium = window.Journium.init({
-    token: 'your-actual-token',          // Replace with your token
-    apiHost: 'https://your-api.host',    // Replace with your API host
-    debug: false,                        // Disable for production
-    flushAt: 20,                        // Events before auto-flush
-    flushInterval: 30000,               // Flush interval in ms
+    publishableKey: 'your-actual-publishable-key',  // Replace with your publishable key
+    apiHost: 'https://your-api.host',               // Optional: replace with your API host
+    config: {
+        debug: false,                               // Disable for production
+        flushAt: 20,                               // Events before auto-flush
+        flushInterval: 30000,                      // Flush interval in ms
+    }
 });
 ```
 
@@ -214,13 +218,13 @@ To see events being tracked:
 ### Common Issues
 
 1. **SDK Not Loading**
-   - Check `node_modules/journium-js/dist/index.umd.js` exists
+   - Check `node_modules/@journium/js/dist/index.umd.js` exists
    - Verify script tag in `index.html`
    - Check browser console for errors
 
 2. **Events Not Tracking**
    - Verify API host is accessible
-   - Check token configuration
+   - Check publishable key configuration
    - Monitor browser network requests
 
 3. **Development Server Issues**
@@ -246,12 +250,12 @@ To deploy this demo:
 
 1. **Static Hosting**: Upload all files to your web server
 2. **CDN Integration**: Use CDN links instead of local files
-3. **Production Config**: Update token and API host
+3. **Production Config**: Update publishableKey and API host
 4. **SSL Certificate**: Ensure HTTPS for production
 
 ### Production Checklist
 
-- [ ] Replace demo token with production token
+- [ ] Replace demo publishable key with production publishable key
 - [ ] Update API host to production endpoint
 - [ ] Disable debug mode
 - [ ] Optimize images and assets
@@ -262,7 +266,7 @@ To deploy this demo:
 - **[Journium Documentation](https://docs.journium.app)** - Complete guides
 - **[JavaScript SDK](https://docs.journium.app/javascript)** - SDK documentation  
 - **[GitHub Repository](https://github.com/journium/journium-js)** - Source code
-- **[npm Package](https://npmjs.com/package/journium-js)** - Package details
+- **[npm Package](https://npmjs.com/package/@journium/js)** - Package details
 
 ## 🤝 Contributing
 

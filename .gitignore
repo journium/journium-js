@@ -46,3 +46,15 @@ temp/
 
 .next/
 build/
+
+.env
+.env.local
+.env.production
+*.pem
+*.key
+npm-token.txt
+auth-tokens.*
+
+# Temporary files
+scripts/tmp/
+scripts/.temp/
