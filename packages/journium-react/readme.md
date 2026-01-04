@@ -27,6 +27,19 @@ yarn add @journium/react
 
 ## Basic Setup
 
+### Environment Variables
+First, create a `.env.local` file in your project root:
+
+**Note:** For CRA projects, use `REACT_APP_` prefix:
+```env
+REACT_APP_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
+**Note:** For Vite projects, use `VITE_` prefix:
+```env
+VITE_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
 ### Initialize Journium
 Wrap your app with the `JourniumProvider` to enable analytics throughout your React application.
 
@@ -39,7 +52,7 @@ function Root() {
   return (
     <JourniumProvider
       config={{
-        publishableKey: 'your-journium-publishable-key'
+        publishableKey: process.env.REACT_APP_JOURNIUM_PUBLISHABLE_KEY!
       }}
     >
       <App />
@@ -49,6 +62,34 @@ function Root() {
 
 export default Root;
 ```
+
+**Vite Example:**
+```jsx
+// main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { JourniumProvider } from '@journium/react';
+import App from './App';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <JourniumProvider
+      config={{
+        publishableKey: import.meta.env.VITE_JOURNIUM_PUBLISHABLE_KEY!
+      }}
+    >
+      <App />
+    </JourniumProvider>
+  </React.StrictMode>
+);
+```
+
+**Vite .env file:**
+```env
+VITE_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
+**For Next.js applications, use the dedicated [`@journium/nextjs`](../journium-nextjs) package instead.**
 
 ### Track a Custom Event
 Use the `useTrackEvent` hook to track custom events from any component.
@@ -119,9 +160,9 @@ function LogoutButton() {
 ```
 
 ## Advanced Setup
-
 You can override default configurations and control autocapture:
 
+**React/CRA Example:**
 ```jsx
 import React from 'react';
 import { JourniumProvider } from '@journium/react';
@@ -131,19 +172,56 @@ function Root() {
   return (
     <JourniumProvider
       config={{
-        publishableKey: 'your-journium-publishable-key',
-        apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
-        config: {
-          debug: true,                    // Enable debug logging
+        publishableKey: process.env.REACT_APP_JOURNIUM_PUBLISHABLE_KEY!,
+        apiHost: 'https://events.journium.app',
+        options: {
+          debug: process.env.REACT_APP_JOURNIUM_DEBUG === 'true',
           flushAt: 5,                    // Send events after N events
           flushInterval: 10000,          // Send events every N milliseconds
           sessionTimeout: 1800000,       // Session timeout (30 minutes)
+          autoTrackPageviews: true,      // Automatically track pageview events (default: true)
           autocapture: {                 // Configure automatic event capture
             captureClicks: true,         // Track click events
             captureFormSubmits: true,    // Track form submissions
             captureFormChanges: false,   // Track form field changes
             ignoreClasses: ['no-track', 'sensitive'], // CSS classes to ignore
             ignoreElements: ['input[type="password"]'] // Elements to ignore
+          }
+        }
+      }}
+    >
+      <App />
+    </JourniumProvider>
+  );
+}
+
+export default Root;
+```
+
+**Vite Example:**
+```jsx
+import React from 'react';
+import { JourniumProvider } from '@journium/react';
+import App from './App';
+
+function Root() {
+  return (
+    <JourniumProvider
+      config={{
+        publishableKey: import.meta.env.VITE_JOURNIUM_PUBLISHABLE_KEY!,
+        apiHost: 'https://events.journium.app',
+        options: {
+          debug: import.meta.env.VITE_JOURNIUM_DEBUG === 'true',
+          flushAt: 5,
+          flushInterval: 10000,
+          sessionTimeout: 1800000,
+          autoTrackPageviews: true,
+          autocapture: {
+            captureClicks: true,
+            captureFormSubmits: true,
+            captureFormChanges: false,
+            ignoreClasses: ['no-track', 'sensitive'],
+            ignoreElements: ['input[type="password"]']
           }
         }
       }}
@@ -164,9 +242,9 @@ Provider component to initialize Journium throughout your React app.
 ```jsx
 <JourniumProvider
   config={{
-    publishableKey: 'your-journium-publishable-key',
+    publishableKey: process.env.REACT_APP_JOURNIUM_PUBLISHABLE_KEY!,
     apiHost: 'https://events.journium.app', // Optional
-    config: { /* optional local config */ }
+    options: { /* optional local options */ }
   }}
 >
   <App />

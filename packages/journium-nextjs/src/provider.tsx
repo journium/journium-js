@@ -6,17 +6,19 @@ import { JourniumConfig } from '@journium/core';
 interface NextJourniumProviderProps {
   children: ReactNode;
   config: JourniumConfig;
-  trackRouteChanges?: boolean;
 }
 
-const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({ 
-  trackRouteChanges 
-}) => {
+const RouteChangeTracker: React.FC = () => {
   const router = useRouter();
-  const { journium } = useJournium();
+  const { journium, effectiveOptions } = useJournium();
 
   useEffect(() => {
-    if (!trackRouteChanges || !journium) return;
+    if (!journium || !effectiveOptions) return;
+
+    // Check if automatic pageview tracking is enabled (defaults to true)
+    const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+    
+    if (!autoTrackPageviews) return;
 
     const handleRouteChange = () => {
       journium.capturePageview();
@@ -27,7 +29,7 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.events, journium, trackRouteChanges]);
+  }, [router.events, journium, effectiveOptions]);
 
   return null;
 };
@@ -35,11 +37,10 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
 export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
   children,
   config,
-  trackRouteChanges = true,
 }) => {
   return (
     <BaseJourniumProvider config={config}>
-      <RouteChangeTracker trackRouteChanges={trackRouteChanges} />
+      <RouteChangeTracker />
       {children}
     </BaseJourniumProvider>
   );

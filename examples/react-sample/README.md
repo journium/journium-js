@@ -97,7 +97,7 @@ The sample uses these Journium configuration options:
 const journiumConfig = {
   publishableKey: 'demo-publishable-key',     // Your publishable key
   apiHost: 'https://api.journium.io',         // API endpoint (optional)
-  config: {
+  options: {
     debug: true,                              // Enable console logging
     flushAt: 10,                             // Batch size for events
     flushInterval: 30000                     // Flush interval in milliseconds

@@ -4,11 +4,11 @@ export interface JourniumEvent {
   client_timestamp: string;
   event: string;
   properties: Record<string, any>;
-  distinct_id?: string;
-  session_id?: string;
+  // distinct_id?: string;
+  // session_id?: string;
 }
 
-export interface AutocaptureConfig {
+export interface AutocaptureOptions {
   captureClicks?: boolean;
   captureFormSubmits?: boolean;
   captureFormChanges?: boolean;
@@ -18,11 +18,12 @@ export interface AutocaptureConfig {
   captureContentText?: boolean;
 }
 
-export interface RemoteConfig {
+export interface RemoteOptions {
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
-  autocapture?: boolean | AutocaptureConfig;
+  autocapture?: boolean | AutocaptureOptions;
+  autoTrackPageviews?: boolean;
   sessionTimeout?: number;
   sampling?: {
     enabled?: boolean;
@@ -35,17 +36,18 @@ export interface RemoteConfig {
   };
 }
 
-export interface ConfigResponse {
+export interface OptionsResponse {
   success: boolean;
-  config: RemoteConfig;
+  config: RemoteOptions;
   timestamp: string;
 }
 
-export interface JourniumLocalConfig {
+export interface JourniumLocalOptions {
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
-  autocapture?: boolean | AutocaptureConfig;
+  autocapture?: boolean | AutocaptureOptions;
+  autoTrackPageviews?: boolean;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
   sampling?: {
     enabled?: boolean;
@@ -61,7 +63,7 @@ export interface JourniumLocalConfig {
 export interface JourniumConfig {
   publishableKey: string;
   apiHost?: string;
-  config?: JourniumLocalConfig;
+  options?: JourniumLocalOptions;
 }
 
 export interface PageviewProperties {

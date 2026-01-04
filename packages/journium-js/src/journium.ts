@@ -1,4 +1,4 @@
-import { JourniumConfig, AutocaptureConfig } from '@journium/core';
+import { JourniumConfig, AutocaptureOptions } from '@journium/core';
 import { JourniumClient } from './client';
 import { PageviewTracker } from './pageview';
 import { AutocaptureTracker } from './autocapture';
@@ -15,14 +15,14 @@ export class Journium {
     this.client = new JourniumClient(config);
     this.pageviewTracker = new PageviewTracker(this.client);
     
-    const autocaptureConfig = this.resolveAutocaptureConfig(config.config?.autocapture);
-    this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureConfig);
+    const autocaptureOptions = this.resolveAutocaptureOptions(config.options?.autocapture);
+    this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureOptions);
     
     // Store resolved autocapture state for startAutocapture method
-    this.autocaptureEnabled = config.config?.autocapture !== false;
+    this.autocaptureEnabled = config.options?.autocapture !== false;
   }
 
-  private resolveAutocaptureConfig(autocapture?: boolean | AutocaptureConfig): AutocaptureConfig {
+  private resolveAutocaptureOptions(autocapture?: boolean | AutocaptureOptions): AutocaptureOptions {
     if (autocapture === false) {
       return {
         captureClicks: false,
@@ -56,7 +56,13 @@ export class Journium {
   }
 
   startAutocapture(): void {
-    this.pageviewTracker.startAutocapture();
+    // Check if automatic pageview tracking is enabled (defaults to true)
+    const effectiveOptions = this.client.getEffectiveOptions();
+    const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+    
+    if (autoTrackPageviews) {
+      this.pageviewTracker.startAutocapture();
+    }
     
     if (this.autocaptureEnabled) {
       this.autocaptureTracker.start();
@@ -71,6 +77,10 @@ export class Journium {
 
   async flush(): Promise<void> {
     return this.client.flush();
+  }
+
+  getEffectiveOptions() {
+    return this.client.getEffectiveOptions();
   }
 
   destroy(): void {

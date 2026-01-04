@@ -1,7 +1,7 @@
 import { JourniumClient } from './client';
 import { isBrowser } from '@journium/core';
 
-export interface AutocaptureConfig {
+export interface AutocaptureOptions {
   captureClicks?: boolean;
   captureFormSubmits?: boolean;
   captureFormChanges?: boolean;
@@ -18,13 +18,13 @@ export interface AutocaptureEvent {
 
 export class AutocaptureTracker {
   private client: JourniumClient;
-  private config: AutocaptureConfig;
+  private options: AutocaptureOptions;
   private listeners: Map<string, EventListener> = new Map();
   private isActive: boolean = false;
 
-  constructor(client: JourniumClient, config: AutocaptureConfig = {}) {
+  constructor(client: JourniumClient, options: AutocaptureOptions = {}) {
     this.client = client;
-    this.config = {
+    this.options = {
       captureClicks: true,
       captureFormSubmits: true,
       captureFormChanges: true,
@@ -32,7 +32,7 @@ export class AutocaptureTracker {
       ignoreClasses: ['journium-ignore'],
       ignoreElements: ['script', 'style', 'noscript'],
       captureContentText: true,
-      ...config,
+      ...options,
     };
   }
 
@@ -43,19 +43,19 @@ export class AutocaptureTracker {
 
     this.isActive = true;
 
-    if (this.config.captureClicks) {
+    if (this.options.captureClicks) {
       this.addClickListener();
     }
 
-    if (this.config.captureFormSubmits) {
+    if (this.options.captureFormSubmits) {
       this.addFormSubmitListener();
     }
 
-    if (this.config.captureFormChanges) {
+    if (this.options.captureFormChanges) {
       this.addFormChangeListener();
     }
 
-    if (this.config.captureTextSelection) {
+    if (this.options.captureTextSelection) {
       this.addTextSelectionListener();
     }
   }
@@ -163,19 +163,19 @@ export class AutocaptureTracker {
     }
 
     // Check if element should be ignored by tag name
-    if (this.config.ignoreElements?.includes(element.tagName.toLowerCase())) {
+    if (this.options.ignoreElements?.includes(element.tagName.toLowerCase())) {
       return true;
     }
 
     // Check if element has ignore classes
-    if (this.config.ignoreClasses?.some(cls => element.classList.contains(cls))) {
+    if (this.options.ignoreClasses?.some(cls => element.classList.contains(cls))) {
       return true;
     }
 
     // Check parent elements for ignore classes
     let parent = element.parentElement;
     while (parent) {
-      if (this.config.ignoreClasses?.some(cls => parent!.classList.contains(cls))) {
+      if (this.options.ignoreClasses?.some(cls => parent!.classList.contains(cls))) {
         return true;
       }
       parent = parent.parentElement;
@@ -214,7 +214,7 @@ export class AutocaptureTracker {
     });
 
     // Element content
-    if (this.config.captureContentText) {
+    if (this.options.captureContentText) {
       const text = this.getElementText(element);
       if (text) {
         properties.$element_text = text.substring(0, 200); // Limit text length

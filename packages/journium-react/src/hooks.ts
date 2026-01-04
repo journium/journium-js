@@ -58,7 +58,7 @@ export const useAutoTrackPageview = (
 
   useEffect(() => {
     trackPageview(properties);
-  }, dependencies);
+  }, [trackPageview, properties, ...dependencies]);
 };
 
 export const useAutocapture = () => {

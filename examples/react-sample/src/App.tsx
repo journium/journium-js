@@ -18,7 +18,7 @@ const journiumConfig = {
   // apiHost defaults to 'https://events.journium.app'
   apiHost: 'http://localhost:3006', // For demo: Events monitor endpoint
   //apiHost: 'https://ingestion.bhushan-685.workers.dev',
-  config: {
+  options: {
     debug: true,  // Always set locally - never configured remotely
     flushAt: 5,   // Send events immediately for demo purposes
     flushInterval: 1000,  // Also flush every 1 second for demo

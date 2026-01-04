@@ -27,9 +27,17 @@ yarn add @journium/nextjs
 
 ## Basic Setup
 
+### Environment Variables
+First, create a `.env.local` file in your project root:
+
+```env
+NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
 ### Initialize Journium
 Wrap your app with the `NextJourniumProvider` in your `_app.tsx` to enable analytics throughout your Next.js application.
 
+**Pages Router (_app.tsx):**
 ```tsx
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
@@ -39,11 +47,37 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <NextJourniumProvider
       config={{
-        publishableKey: 'your-journium-publishable-key'
+        publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!
       }}
     >
       <Component {...pageProps} />
     </NextJourniumProvider>
+  );
+}
+```
+
+**App Router (layout.tsx):**
+```tsx
+// app/layout.tsx
+import { NextJourniumProvider } from '@journium/nextjs';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <NextJourniumProvider
+          config={{
+            publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!
+          }}
+        >
+          {children}
+        </NextJourniumProvider>
+      </body>
+    </html>
   );
 }
 ```
@@ -117,19 +151,21 @@ function Header() {
 
 You can override default configurations and control route tracking:
 
+**Pages Router:**
 ```tsx
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
 import { NextJourniumProvider } from '@journium/nextjs';
 
 const journiumConfig = {
-  publishableKey: 'your-journium-publishable-key',
-  apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
-  config: {
-    debug: process.env.NODE_ENV === 'development',
+  publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
+  apiHost: 'https://events.journium.app',
+  options: {
+    debug: process.env.NEXT_PUBLIC_JOURNIUM_DEBUG === 'true',
     flushAt: 10,                   // Send events after N events
     flushInterval: 5000,           // Send events every N milliseconds  
     sessionTimeout: 1800000,       // Session timeout (30 minutes)
+    autoTrackPageviews: true,      // Automatically track route changes (default: true)
     autocapture: {                 // Configure automatic event capture
       captureClicks: true,         // Track click events
       captureFormSubmits: true,    // Track form submissions
@@ -142,12 +178,50 @@ const journiumConfig = {
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <NextJourniumProvider 
-      config={journiumConfig}
-      trackRouteChanges={true} // Optional: Track Next.js route changes (default: true)
-    >
+    <NextJourniumProvider config={journiumConfig}>
       <Component {...pageProps} />
     </NextJourniumProvider>
+  );
+}
+```
+
+**App Router:**
+```tsx
+// app/layout.tsx
+import { NextJourniumProvider } from '@journium/nextjs';
+
+const journiumConfig = {
+  publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
+  apiHost: 'https://events.journium.app',
+  options: {
+    debug: process.env.NEXT_PUBLIC_JOURNIUM_DEBUG === 'true',
+    flushAt: 10,
+    flushInterval: 5000,
+    sessionTimeout: 1800000,
+    autoTrackPageviews: true,
+    autocapture: {
+      captureClicks: true,
+      captureFormSubmits: true,
+      captureFormChanges: false,
+      ignoreClasses: ['no-track'],
+      ignoreElements: ['input[type="password"]']
+    }
+  }
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <NextJourniumProvider config={journiumConfig}>
+          {children}
+        </NextJourniumProvider>
+      </body>
+    </html>
   );
 }
 ```
@@ -160,11 +234,13 @@ Provider component to initialize Journium throughout your Next.js app with SSR s
 ```tsx
 <NextJourniumProvider
   config={{
-    publishableKey: 'your-journium-publishable-key',
+    publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
     apiHost: 'https://events.journium.app', // Optional
-    config: { /* optional local config */ }
+    options: { 
+      autoTrackPageviews: true, // Optional: Automatically track Next.js route changes (default: true)
+      /* other optional local options */ 
+    }
   }}
-  trackRouteChanges={true} // Optional: automatic route tracking
 >
   <Component {...pageProps} />
 </NextJourniumProvider>
@@ -304,8 +380,12 @@ Automatic pageview tracking for Next.js route changes is enabled by default. Cus
 
 ```tsx
 <NextJourniumProvider
-  config={journiumConfig}
-  trackRouteChanges={false} // Disable automatic route tracking
+  config={{
+    publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
+    options: {
+      autoTrackPageviews: false // Disable automatic route tracking
+    }
+  }}
 >
   <Component {...pageProps} />
 </NextJourniumProvider>

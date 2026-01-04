@@ -1,13 +1,13 @@
-import { JourniumEvent, JourniumConfig, JourniumLocalConfig, ConfigResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteConfig, mergeConfigs, BrowserIdentityManager } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumLocalOptions, OptionsResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager } from '@journium/core';
 
 export class JourniumClient {
   private config!: JourniumConfig;
-  private effectiveConfig!: JourniumLocalConfig;
+  private effectiveOptions!: JourniumLocalOptions;
   private queue: JourniumEvent[] = [];
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private initialized: boolean = false;
   private identityManager!: BrowserIdentityManager;
-  private configStorageKey!: string;
+  private optionsStorageKey!: string;
 
   constructor(config: JourniumConfig) {
     // Validate required configuration
@@ -22,71 +22,71 @@ export class JourniumClient {
       apiHost: config.apiHost || 'https://events.journium.app'
     };
 
-    // Generate storage key for config caching
-    this.configStorageKey = `jrnm_${config.publishableKey}_config`;
+    // Generate storage key for options caching
+    this.optionsStorageKey = `jrnm_${config.publishableKey}_options`;
 
     // Generate default values
-    const defaultConfig: JourniumLocalConfig = {
+    const defaultOptions: JourniumLocalOptions = {
       debug: false,
       flushAt: 20,
       flushInterval: 10000,
       sessionTimeout: 30 * 60 * 1000, // 30 minutes
     };
 
-    // Initialize effective config with local config taking precedence over defaults
-    this.effectiveConfig = { ...defaultConfig };
-    if (this.config.config) {
-      this.effectiveConfig = mergeConfigs(this.config.config, defaultConfig);
+    // Initialize effective options with local options taking precedence over defaults
+    this.effectiveOptions = { ...defaultOptions };
+    if (this.config.options) {
+      this.effectiveOptions = mergeOptions(defaultOptions, this.config.options);
     }
 
     // Initialize identity manager
-    this.identityManager = new BrowserIdentityManager(this.effectiveConfig.sessionTimeout, this.config.publishableKey);
+    this.identityManager = new BrowserIdentityManager(this.effectiveOptions.sessionTimeout, this.config.publishableKey);
 
     // Initialize synchronously with cached config, fetch fresh config in background
     this.initializeSync();
-    this.fetchRemoteConfigAsync();
+    this.fetchRemoteOptionsAsync();
   }
 
-  private loadCachedConfig(): any | null {
+  private loadCachedOptions(): any | null {
     if (typeof window === 'undefined' || !window.localStorage) {
       return null;
     }
     
     try {
-      const cached = window.localStorage.getItem(this.configStorageKey);
+      const cached = window.localStorage.getItem(this.optionsStorageKey);
       return cached ? JSON.parse(cached) : null;
     } catch (error) {
-      if (this.effectiveConfig?.debug) {
+      if (this.effectiveOptions?.debug) {
         console.warn('Journium: Failed to load cached config:', error);
       }
       return null;
     }
   }
 
-  private saveCachedConfig(config: any): void {
+  private saveCachedOptions(options: any): void {
     if (typeof window === 'undefined' || !window.localStorage) {
       return;
     }
     
     try {
-      window.localStorage.setItem(this.configStorageKey, JSON.stringify(config));
+      window.localStorage.setItem(this.optionsStorageKey, JSON.stringify(options));
     } catch (error) {
-      if (this.effectiveConfig?.debug) {
+      if (this.effectiveOptions?.debug) {
         console.warn('Journium: Failed to save config to cache:', error);
       }
     }
   }
 
   private initializeSync(): void {
-    // Step 1: Load cached remote config from localStorage (synchronous)
-    const cachedRemoteConfig = this.loadCachedConfig();
+    // Step 1: Load cached remote options from localStorage (synchronous)
+    const cachedRemoteOptions = this.loadCachedOptions();
     
-    // Step 2: If no local config provided, use cached remote config
-    if (!this.config.config && cachedRemoteConfig) {
-      this.effectiveConfig = mergeConfigs(undefined, cachedRemoteConfig);
+    // Step 2: If no local options provided, use cached remote options
+    if (!this.config.options && cachedRemoteOptions) {
+      this.effectiveOptions = cachedRemoteOptions;
       
-      if (this.effectiveConfig.debug) {
-        console.log('Journium: Using cached remote configuration:', cachedRemoteConfig);
+      if (this.effectiveOptions.debug) {
+        console.log('Journium: Using cached remote options:', cachedRemoteOptions);
       }
     }
     
@@ -94,59 +94,59 @@ export class JourniumClient {
     this.initialized = true;
     
     // Step 4: Start flush timer immediately
-    if (this.effectiveConfig.flushInterval && this.effectiveConfig.flushInterval > 0) {
+    if (this.effectiveOptions.flushInterval && this.effectiveOptions.flushInterval > 0) {
       this.startFlushTimer();
     }
     
-    if (this.effectiveConfig.debug) {
-      console.log('Journium: Client initialized with effective config:', this.effectiveConfig);
+    if (this.effectiveOptions.debug) {
+      console.log('Journium: Client initialized with effective options:', this.effectiveOptions);
     }
   }
 
-  private async fetchRemoteConfigAsync(): Promise<void> {
+  private async fetchRemoteOptionsAsync(): Promise<void> {
     // Fetch fresh config in background
     if (this.config.publishableKey) {
-      await this.fetchAndCacheRemoteConfig();
+      await this.fetchAndCacheRemoteOptions();
     }
   }
 
-  private async fetchAndCacheRemoteConfig(): Promise<void> {
+  private async fetchAndCacheRemoteOptions(): Promise<void> {
     try {
-      if (this.effectiveConfig.debug) {
+      if (this.effectiveOptions.debug) {
         console.log('Journium: Fetching remote configuration in background...');
       }
       
-      const remoteConfigResponse = await fetchRemoteConfig(
+      const remoteOptionsResponse = await fetchRemoteOptions(
         this.config.apiHost!,
         this.config.publishableKey
       );
       
-      if (remoteConfigResponse && remoteConfigResponse.success) {
+      if (remoteOptionsResponse && remoteOptionsResponse.success) {
         // Save remote config to cache for next session
-        this.saveCachedConfig(remoteConfigResponse.config);
+        this.saveCachedOptions(remoteOptionsResponse.config);
         
-        // Update effective config: local config (if provided) overrides fresh remote config
-        if (!this.config.config) {
-          // No local config provided, use fresh remote config
-          this.effectiveConfig = mergeConfigs(undefined, remoteConfigResponse.config);
+        // Update effective options: local options (if provided) overrides fresh remote options
+        if (!this.config.options) {
+          // No local options provided, use fresh remote options
+          this.effectiveOptions = remoteOptionsResponse.config;
         } else {
-          // Local config provided, merge it over fresh remote config
-          this.effectiveConfig = mergeConfigs(this.config.config, remoteConfigResponse.config);
+          // Local options provided, merge it over fresh remote options
+          this.effectiveOptions = mergeOptions(remoteOptionsResponse.config, this.config.options);
         }
         
-        // Update session timeout if provided in fresh effective config
-        if (this.effectiveConfig.sessionTimeout) {
-          this.identityManager.updateSessionTimeout(this.effectiveConfig.sessionTimeout);
+        // Update session timeout if provided in fresh effective options
+        if (this.effectiveOptions.sessionTimeout) {
+          this.identityManager.updateSessionTimeout(this.effectiveOptions.sessionTimeout);
         }
         
-        if (this.effectiveConfig.debug) {
-          console.log('Journium: Background remote configuration applied:', remoteConfigResponse.config);
-          console.log('Journium: New effective configuration:', this.effectiveConfig);
+        if (this.effectiveOptions.debug) {
+          console.log('Journium: Background remote options applied:', remoteOptionsResponse.config);
+          console.log('Journium: New effective options:', this.effectiveOptions);
         }
       }
     } catch (error) {
-      if (this.effectiveConfig.debug) {
-        console.warn('Journium: Background remote config fetch failed:', error);
+      if (this.effectiveOptions.debug) {
+        console.warn('Journium: Background remote options fetch failed:', error);
       }
     }
   }
@@ -159,7 +159,7 @@ export class JourniumClient {
     // Use universal setInterval (works in both browser and Node.js)
     this.flushTimer = setInterval(() => {
       this.flush();
-    }, this.effectiveConfig.flushInterval!);
+    }, this.effectiveOptions.flushInterval!);
   }
 
   private async sendEvents(events: JourniumEvent[]): Promise<void> {
@@ -181,11 +181,11 @@ export class JourniumClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      if (this.effectiveConfig.debug) {
+      if (this.effectiveOptions.debug) {
         console.log('Journium: Successfully sent events', events);
       }
     } catch (error) {
-      if (this.effectiveConfig.debug) {
+      if (this.effectiveOptions.debug) {
         console.error('Journium: Failed to send events', error);
       }
       throw error;
@@ -195,7 +195,7 @@ export class JourniumClient {
   identify(distinctId: string, attributes: Record<string, any> = {}): void {
     // Don't identify if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
-      if (this.effectiveConfig?.debug) {
+      if (this.effectiveOptions?.debug) {
         console.warn('Journium: identify() call rejected - SDK not ready');
       }
       return;
@@ -212,7 +212,7 @@ export class JourniumClient {
 
     this.track('$identify', identifyProperties);
 
-    if (this.effectiveConfig.debug) {
+    if (this.effectiveOptions.debug) {
       console.log('Journium: User identified', { distinctId, attributes, previousDistinctId });
     }
   }
@@ -220,7 +220,7 @@ export class JourniumClient {
   reset(): void {
     // Don't reset if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
-      if (this.effectiveConfig?.debug) {
+      if (this.effectiveOptions?.debug) {
         console.warn('Journium: reset() call rejected - SDK not ready');
       }
       return;
@@ -229,7 +229,7 @@ export class JourniumClient {
     // Reset identity in identity manager
     this.identityManager.reset();
 
-    if (this.effectiveConfig.debug) {
+    if (this.effectiveOptions.debug) {
       console.log('Journium: User identity reset');
     }
   }
@@ -237,7 +237,7 @@ export class JourniumClient {
   track(event: string, properties: Record<string, any> = {}): void {
     // Don't track if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
-      if (this.effectiveConfig?.debug) {
+      if (this.effectiveOptions?.debug) {
         console.warn('Journium: track() call rejected - SDK not ready');
       }
       return;
@@ -269,11 +269,11 @@ export class JourniumClient {
 
     this.queue.push(journiumEvent);
 
-    if (this.effectiveConfig.debug) {
+    if (this.effectiveOptions.debug) {
       console.log('Journium: Event tracked', journiumEvent);
     }
 
-    if (this.queue.length >= this.effectiveConfig.flushAt!) {
+    if (this.queue.length >= this.effectiveOptions.flushAt!) {
       this.flush();
     }
   }
@@ -303,5 +303,9 @@ export class JourniumClient {
       this.flushTimer = null;
     }
     this.flush();
+  }
+
+  getEffectiveOptions(): JourniumLocalOptions {
+    return this.effectiveOptions;
   }
 }

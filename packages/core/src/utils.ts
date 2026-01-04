@@ -41,7 +41,7 @@ export const isNode = (): boolean => {
   return typeof process !== 'undefined' && !!process.versions?.node;
 };
 
-export const fetchRemoteConfig = async (
+export const fetchRemoteOptions = async (
   apiHost: string,
   publishableKey: string,
   fetchFn?: any
@@ -70,46 +70,46 @@ export const fetchRemoteConfig = async (
     });
     
     if (!response.ok) {
-      throw new Error(`Config fetch failed: ${response.status} ${response.statusText}`);
+      throw new Error(`Options fetch failed: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
     return data;
   } catch (error) {
-    console.warn('Failed to fetch remote config:', error);
+    console.warn('Failed to fetch remote options:', error);
     return null;
   }
 };
 
-export const mergeConfigs = (localConfig: any, remoteConfig: any): any => {
-  if (!remoteConfig && !localConfig) {
+export const mergeOptions = (localOptions: any, remoteOptions: any): any => {
+  if (!remoteOptions && !localOptions) {
     return {};
   }
   
-  if (!remoteConfig) {
-    return localConfig;
+  if (!remoteOptions) {
+    return localOptions;
   }
   
-  if (!localConfig) {
-    return remoteConfig;
+  if (!localOptions) {
+    return remoteOptions;
   }
   
-  // Deep merge local config into remote config
-  // Local config takes precedence over remote config
-  const merged = { ...remoteConfig };
+  // Deep merge local options into remote options
+  // Local options takes precedence over remote options
+  const merged = { ...remoteOptions };
   
   // Handle primitive values
-  Object.keys(localConfig).forEach(key => {
-    if (localConfig[key] !== undefined && localConfig[key] !== null) {
-      if (typeof localConfig[key] === 'object' && !Array.isArray(localConfig[key])) {
-        // Deep merge objects - local config overrides remote
+  Object.keys(localOptions).forEach(key => {
+    if (localOptions[key] !== undefined && localOptions[key] !== null) {
+      if (typeof localOptions[key] === 'object' && !Array.isArray(localOptions[key])) {
+        // Deep merge objects - local options overrides remote
         merged[key] = {
           ...(merged[key] || {}),
-          ...localConfig[key]
+          ...localOptions[key]
         };
       } else {
-        // Override primitive values and arrays with local config
-        merged[key] = localConfig[key];
+        // Override primitive values and arrays with local options
+        merged[key] = localOptions[key];
       }
     }
   });

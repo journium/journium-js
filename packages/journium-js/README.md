@@ -77,11 +77,12 @@ import { init } from '@journium/js';
 const journium = init({
   publishableKey: 'your-journium-publishable-key',
   apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
-  config: {
+  options: {
     debug: true,                    // Enable debug logging
     flushAt: 10,                   // Send events after N events
     flushInterval: 5000,           // Send events every N milliseconds
     sessionTimeout: 1800000,       // Session timeout (30 minutes)
+    autoTrackPageviews: true,        // Track pageview events (default: true)
     autocapture: {                 // Configure automatic event capture
       captureClicks: true,         // Track click events
       captureFormSubmits: true,    // Track form submissions
@@ -105,7 +106,7 @@ Initialize the Journium SDK with your configuration.
 const journium = init({
   publishableKey: 'your-journium-publishable-key',
   apiHost: 'https://events.journium.app', // Optional
-  config: { /* optional local config */ }
+  options: { /* optional local config */ }
 });
 ```
 
