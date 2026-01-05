@@ -29,7 +29,6 @@ This monorepo contains multiple packages optimized for different environments:
 | **`@journium/js`** | Core browser SDK | Vanilla JavaScript, SPAs |
 | **`@journium/react`** | React integration | React applications with hooks |
 | **`@journium/nextjs`** | Next.js integration | Next.js apps with SSR support |
-| **`@journium/node`** | Node.js server SDK | Server-side tracking |
 | **`@journium/core`** | Core SDK functionality | Identity, events, types & utilities |
 
 ## 🚀 Installation
@@ -45,9 +44,6 @@ npm install @journium/react
 
 # For Next.js applications  
 npm install @journium/nextjs
-
-# For Node.js servers
-npm install @journium/node
 ```
 
 ## ⚡ Quick Start
@@ -72,11 +68,6 @@ npm install @journium/nextjs
 ```
 See **[@journium/nextjs documentation](packages/journium-nextjs/README.md)** for SSR setup.
 
-### Node.js Servers
-```bash
-npm install @journium/node
-```
-See **[@journium/node documentation](packages/journium-node/README.md)** for server-side tracking.
 
 ## 🔧 Configuration
 
@@ -173,7 +164,6 @@ journium-js/
 │   ├── journium-js/         # Core browser SDK (@journium/js)
 │   ├── journium-react/      # React integration
 │   ├── journium-nextjs/     # Next.js integration
-│   ├── journium-node/       # Node.js SDK
 │   └── core/                # Core SDK functionality
 ├── examples/
 │   ├── react-sample/        # React example app
