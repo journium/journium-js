@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "description": "Journium JavaScript SDK monorepo - Analytics SDK for web, React, Next.js, and Node.js",
+  "description": "Journium JavaScript SDK monorepo - Analytics SDK for web, React, and Next.js",
   "homepage": "https://github.com/journium/journium-js",
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
@@ -20,7 +20,6 @@
     "typescript",
     "react",
     "nextjs",
-    "nodejs",
     "monorepo"
   ],
   "author": "Journium Team",
