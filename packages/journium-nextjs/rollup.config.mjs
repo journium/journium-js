@@ -3,6 +3,16 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 
 /**
+ * Rollup configuration for @journium/nextjs package
+ * 
+ * NOTE: The "use client" directive is added as a banner to preserve it in the bundled output.
+ * This is necessary because Rollup strips module-level directives during bundling, but Next.js
+ * needs the directive to recognize client components when importing from the package.
+ * 
+ * The directive only affects React components - utility functions like `isServerSide` and
+ * `getPagePropsForSSR` can still be used in server components even though they're exported
+ * from a file with "use client" at the top.
+ * 
  * @type {import('rollup').RollupOptions[]}
  */
 const config = [
@@ -13,11 +23,13 @@ const config = [
         file: 'dist/index.js',
         format: 'esm',
         sourcemap: true,
+        banner: '"use client"',
       },
       {
         file: 'dist/index.esm.js',
         format: 'esm',
         sourcemap: true,
+        banner: '"use client"',
       },
     ],
     plugins: [
