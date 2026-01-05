@@ -181,13 +181,13 @@ importers:
   packages/journium-nextjs:
     dependencies:
       '@journium/core':
-        specifier: workspace:*
+        specifier: 1.0.2
         version: link:../core
       '@journium/js':
-        specifier: workspace:*
+        specifier: 1.0.2
         version: link:../journium-js
       '@journium/react':
-        specifier: workspace:*
+        specifier: 1.0.2
         version: link:../journium-react
     devDependencies:
       '@rollup/plugin-node-resolve':

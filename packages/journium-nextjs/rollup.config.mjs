@@ -2,7 +2,10 @@ import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import dts from 'rollup-plugin-dts';
 
-export default [
+/**
+ * @type {import('rollup').RollupOptions[]}
+ */
+const config = [
   {
     input: 'src/index.tsx',
     output: [
@@ -23,7 +26,7 @@ export default [
         tsconfig: './tsconfig.json',
       }),
     ],
-    external: ['react', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
+    external: ['react', 'next/navigation', '@journium/react', '@journium/core', 'journium-js'],
   },
   {
     input: 'src/index.tsx',
@@ -32,6 +35,8 @@ export default [
       format: 'esm',
     },
     plugins: [dts()],
-    external: ['react', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
+    external: ['react', 'next/navigation', '@journium/react', '@journium/core', 'journium-js'],
   },
 ];
+
+export default config;

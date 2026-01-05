@@ -1,35 +1,45 @@
-import React, { ReactNode, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { ReactNode, useEffect, Suspense, useMemo } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { JourniumProvider as BaseJourniumProvider, useJournium } from '@journium/react';
 import { JourniumConfig } from '@journium/core';
 
 interface NextJourniumProviderProps {
   children: ReactNode;
-  config: JourniumConfig;
+  config?: JourniumConfig;
+  trackRouteChanges?: boolean;
 }
 
-const RouteChangeTracker: React.FC = () => {
-  const router = useRouter();
-  const { analytics, effectiveOptions } = useJournium();
+/**
+ * Gets the publishable key from environment variable or throws an error if not found.
+ * This function throws an error when called if the env var is missing, which will
+ * fail the app at runtime when the component renders.
+ */
+function getPublishableKeyFromEnv(): string {
+  const key = process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY;
+  
+  if (!key) {
+    throw new Error(
+      'NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY environment variable is required. ' +
+      'Please set it in your .env.local file or environment variables. ' +
+      'Example: NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY=pk_test_your_key_here'
+    );
+  }
+  
+  return key;
+}
+
+const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({ 
+  trackRouteChanges 
+}) => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { analytics } = useJournium();
 
   useEffect(() => {
-    if (!analytics || !effectiveOptions) return;
+    if (!trackRouteChanges || !analytics) return;
 
-    // Check if automatic pageview tracking is enabled (defaults to true)
-    const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
-    
-    if (!autoTrackPageviews) return;
-
-    const handleRouteChange = () => {
-      analytics.capturePageview();
-    };
-
-    router.events.on('routeChangeComplete', handleRouteChange);
-    
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-    };
-  }, [router.events, analytics, effectiveOptions]);
+    analytics.capturePageview();
+  }, [pathname, searchParams, analytics, trackRouteChanges]);
 
   return null;
 };
@@ -37,10 +47,28 @@ const RouteChangeTracker: React.FC = () => {
 export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
   children,
   config,
+  trackRouteChanges = true,
 }) => {
+  // Build the final config: merge provided config with env var (env var as fallback)
+  const finalConfig = useMemo<JourniumConfig>(() => {
+    // Get publishableKey from config if provided and non-empty, otherwise use env var
+    const publishableKey = (config?.publishableKey && config.publishableKey.trim()) 
+      ? config.publishableKey 
+      : getPublishableKeyFromEnv();
+    
+    // Merge config with env var (config takes precedence, but env var fills in missing publishableKey)
+    return {
+      publishableKey,
+      ...(config?.apiHost && { apiHost: config.apiHost }),
+      ...(config?.options && { options: config.options }),
+    };
+  }, [config]);
+
   return (
-    <BaseJourniumProvider config={config}>
-      <RouteChangeTracker />
+    <BaseJourniumProvider config={finalConfig}>
+      <Suspense fallback={null}>
+        <RouteChangeTracker trackRouteChanges={trackRouteChanges} />
+      </Suspense>
       {children}
     </BaseJourniumProvider>
   );
