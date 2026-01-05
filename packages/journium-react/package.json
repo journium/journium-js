@@ -1,6 +1,6 @@
 {
   "name": "@journium/react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "license": "MIT",
   "description": "Journium React integration - Provider, hooks, and components for React applications",
@@ -26,7 +26,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@journium/js": "workspace:*",
+     "@journium/js": "workspace:*",
     "@journium/core": "workspace:*"
   },
   "peerDependencies": {
