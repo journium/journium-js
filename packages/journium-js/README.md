@@ -99,85 +99,148 @@ journium.startAutocapture();
 
 ## API Reference
 
-### `init(config: JourniumConfig)`
-Initialize the Journium SDK with your configuration.
+### Functions
 
-```javascript
-const journium = init({
-  publishableKey: 'your-journium-publishable-key',
-  apiHost: 'https://events.journium.app', // Optional
-  options: { /* optional local config */ }
-});
+#### `init(config: JourniumConfig)`
+Initializes and returns a new JourniumAnalytics instance.
+
+**Parameters:**
+- `config: JourniumConfig` - Configuration object for Journium
+  - `publishableKey: string` - Your Journium publishable key (required)
+  - `apiHost?: string` - Custom API endpoint (optional, defaults to 'https://events.journium.app')
+  - `options?: JourniumLocalOptions` - Local configuration options (optional)
+
+**Returns:** `JourniumAnalytics` - Analytics instance for tracking events
+
+### JourniumAnalytics Instance Methods
+
+#### `track(event: string, properties?: Record<string, unknown>): void`
+Tracks custom events with optional properties.
+
+**Parameters:**
+- `event: string` - Event name to track
+- `properties?: Record<string, unknown>` - Optional event properties
+
+#### `identify(distinctId: string, attributes?: Record<string, unknown>): void`
+Identifies a user and associates future events with their identity.
+
+**Parameters:**
+- `distinctId: string` - Unique user identifier
+- `attributes?: Record<string, unknown>` - Optional user attributes
+
+#### `reset(): void`
+Resets user identity, typically called on logout.
+
+**Returns:** `void`
+
+#### `capturePageview(properties?: Record<string, unknown>): void`
+Manually captures pageview events.
+
+**Parameters:**
+- `properties?: Record<string, unknown>` - Optional pageview properties
+
+#### `startAutocapture(): void`
+Starts automatic event capture for clicks, form interactions, and pageviews.
+
+**Returns:** `void`
+
+**Note:** Autocapture behavior is configured during initialization via the `autocapture` option.
+
+#### `stopAutocapture(): void`
+Stops automatic event capture.
+
+**Returns:** `void`
+
+#### `flush(): Promise<void>`
+Manually sends all queued events to the server immediately.
+
+**Returns:** `Promise<void>` - Promise that resolves when events are sent
+
+#### `destroy(): void`
+Cleans up the SDK, stops all tracking, and sends remaining events.
+
+**Returns:** `void`
+
+#### `getEffectiveOptions(): JourniumLocalOptions`
+Returns the effective configuration options (merged local and remote options).
+
+**Returns:** `JourniumLocalOptions` - Current effective configuration
+
+### Types
+
+#### `JourniumConfig`
+Configuration object for initializing Journium.
+
+```typescript
+interface JourniumConfig {
+  publishableKey: string;
+  apiHost?: string;
+  options?: JourniumLocalOptions;
+}
 ```
 
-### `journium.track(eventName, properties?)`
-Track custom events with optional properties.
+#### `JourniumLocalOptions`
+Local configuration options that can be set on the client.
 
-```javascript
-// Simple event
-journium.track('feature_used');
-
-// Event with properties
-journium.track('purchase_completed', {
-  product_id: 'prod_123',
-  amount: 29.99,
-  currency: 'USD'
-});
+```typescript
+interface JourniumLocalOptions {
+  debug?: boolean;                    // Enable debug logging
+  flushAt?: number;                   // Number of events before auto-flush
+  flushInterval?: number;             // Flush interval in milliseconds
+  autocapture?: boolean | AutocaptureOptions; // Auto-capture configuration
+  autoTrackPageviews?: boolean;       // Automatic pageview tracking
+  sessionTimeout?: number;            // Session timeout in milliseconds
+  sampling?: {
+    enabled?: boolean;
+    rate?: number;
+  };
+  features?: {
+    enableGeolocation?: boolean;
+    enableSessionRecording?: boolean;
+    enablePerformanceTracking?: boolean;
+  };
+}
 ```
 
-### `journium.identify(distinctId, attributes?)`
-Identify a user when they log in or sign up.
+#### `AutocaptureOptions`
+Configuration for automatic event capture.
 
-```javascript
-journium.identify('user_12345', {
-  name: 'John Doe',
-  email: 'john@example.com',
-  signup_date: '2024-01-15'
-});
+```typescript
+interface AutocaptureOptions {
+  captureClicks?: boolean;            // Capture click events
+  captureFormSubmits?: boolean;       // Capture form submissions
+  captureFormChanges?: boolean;       // Capture form field changes
+  captureTextSelection?: boolean;     // Capture text selection events
+  ignoreClasses?: string[];           // CSS classes to ignore
+  ignoreElements?: string[];          // HTML elements to ignore
+  captureContentText?: boolean;       // Capture element text content
+}
 ```
 
-### `journium.reset()`
-Reset user identity when they log out.
+### Browser Support
 
-```javascript
-journium.reset();
-```
+- ✅ Modern browsers (ES2017+)
+- ✅ Chrome 60+
+- ✅ Firefox 55+
+- ✅ Safari 11+
+- ✅ Edge 79+
 
-### `journium.capturePageview(properties?)`
-Manually capture pageview events.
+### Bundle Formats
 
-```javascript
-// Simple pageview
-journium.capturePageview();
+The package includes multiple build formats:
 
-// Pageview with custom properties
-journium.capturePageview({
-  section: 'pricing',
-  experiment_variant: 'v2'
-});
-```
+- **ESM**: `dist/index.esm.js` - For modern bundlers (webpack, Vite, Rollup)
+- **CommonJS**: `dist/index.cjs` - For Node.js environments
+- **UMD**: `dist/index.umd.js` - For browser `<script>` tags
 
-### `journium.startAutocapture()` / `journium.stopAutocapture()`
-Control automatic event capture for clicks, pageviews, and form interactions.
+#### UMD Usage
 
-```javascript
-// Start automatic capture
-journium.startAutocapture();
-
-// Stop automatic capture
-journium.stopAutocapture();
-```
-
-### `journium.flush()`
-Manually send queued events to the server.
-
-```javascript
-await journium.flush();
-```
-
-### `journium.destroy()`
-Clean up the SDK and send any remaining events.
-
-```javascript
-journium.destroy();
+```html
+<script src="node_modules/@journium/js/dist/index.umd.js"></script>
+<script>
+  const analytics = window.JourniumAnalytics.init({
+    publishableKey: 'your-publishable-key'
+  });
+  analytics.track('page_loaded');
+</script>
 ```
