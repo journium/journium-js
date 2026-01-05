@@ -3,9 +3,7 @@ export interface JourniumEvent {
   ingestion_key: string;
   client_timestamp: string;
   event: string;
-  properties: Record<string, any>;
-  // distinct_id?: string;
-  // session_id?: string;
+  properties: Record<string, unknown>;
 }
 
 export interface AutocaptureOptions {
@@ -18,7 +16,7 @@ export interface AutocaptureOptions {
   captureContentText?: boolean;
 }
 
-export interface RemoteOptions {
+export interface JourniumServerOptions {
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
@@ -34,11 +32,12 @@ export interface RemoteOptions {
     enableSessionRecording?: boolean;
     enablePerformanceTracking?: boolean;
   };
+  [key: string]: unknown;
 }
 
-export interface OptionsResponse {
+export interface ServerOptionsResponse {
   success: boolean;
-  config: RemoteOptions;
+  config: JourniumServerOptions;
   timestamp: string;
 }
 
@@ -58,6 +57,7 @@ export interface JourniumLocalOptions {
     enableSessionRecording?: boolean;
     enablePerformanceTracking?: boolean;
   };
+  [key: string]: unknown;
 }
 
 export interface JourniumConfig {
@@ -73,5 +73,5 @@ export interface PageviewProperties {
   $search?: string;
   $title?: string;
   $referrer?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }

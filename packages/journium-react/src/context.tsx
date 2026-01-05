@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Journium } from '@journium/js';
-import { JourniumConfig } from '@journium/core';
+import { JourniumAnalytics } from '@journium/js';
+import { JourniumConfig, JourniumLocalOptions } from '@journium/core';
 
 interface JourniumContextValue {
-  journium: Journium | null;
+  analytics: JourniumAnalytics | null;
   config: JourniumConfig | null;
-  effectiveOptions: any | null;
+  effectiveOptions: JourniumLocalOptions | null;
 }
 
-const JourniumContext = createContext<JourniumContextValue>({ journium: null, config: null, effectiveOptions: null });
+const JourniumContext = createContext<JourniumContextValue>({ analytics: null, config: null, effectiveOptions: null });
 
 interface JourniumProviderProps {
   children: ReactNode;
@@ -19,32 +19,32 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   children,
   config,
 }) => {
-  const [journium, setJournium] = useState<Journium | null>(null);
-  const [effectiveOptions, setEffectiveOptions] = useState<any | null>(null);
+  const [analytics, setAnalytics] = useState<JourniumAnalytics | null>(null);
+  const [effectiveOptions, setEffectiveOptions] = useState<JourniumLocalOptions | null>(null);
 
   useEffect(() => {
-    const journiumInstance = new Journium(config);
+    const analyticsInstance = new JourniumAnalytics(config);
     
     // Get effective options and check if autocapture is enabled
-    const effective = journiumInstance.getEffectiveOptions();
+    const effective = analyticsInstance.getEffectiveOptions();
     setEffectiveOptions(effective);
     const autocaptureEnabled = effective.autocapture !== false;
     
     if (autocaptureEnabled) {
-      journiumInstance.startAutocapture();
+      analyticsInstance.startAutocapture();
     }
     
-    setJournium(journiumInstance);
+    setAnalytics(analyticsInstance);
 
     return () => {
-      journiumInstance.destroy();
-      setJournium(null);
+      analyticsInstance.destroy();
+      setAnalytics(null);
       setEffectiveOptions(null);
     };
   }, [config]);
 
   return (
-    <JourniumContext.Provider value={{ journium, config, effectiveOptions }}>
+    <JourniumContext.Provider value={{ analytics, config, effectiveOptions }}>
       {children}
     </JourniumContext.Provider>
   );

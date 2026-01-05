@@ -37,7 +37,7 @@ class JourniumDemo {
         try {
             // Initialize Journium with minimal configuration
             // Only include required local configs - remote config will handle the rest
-            this.journium = window.Journium.init({
+            this.journium = window.JourniumAnalytics.init({
                 publishableKey: 'client_abcdef1234567890abcdef1234567890',
                 // apiHost defaults to 'https://events.journium.app'
                 apiHost: 'http://localhost:3006', // For demo: Events monitor endpoint

@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, JourniumLocalOptions, OptionsResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumLocalOptions, ServerOptionsResponse, generateId, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions } from '@journium/core';
 import fetch from 'node-fetch';
 
 export class JourniumNodeClient {
@@ -49,7 +49,7 @@ export class JourniumNodeClient {
         const remoteOptionsResponse = await fetchRemoteOptions(
           this.config.apiHost!,
           this.config.publishableKey,
-          fetch
+          fetch as any
         );
         
         if (remoteOptionsResponse && remoteOptionsResponse.success) {

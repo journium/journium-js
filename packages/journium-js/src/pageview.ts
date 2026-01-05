@@ -1,5 +1,5 @@
 import { PageviewProperties, getCurrentUrl, getPageTitle, getReferrer } from '@journium/core';
-import { JourniumClient } from './client';
+import { JourniumClient } from './JourniumClient';
 
 export class PageviewTracker {
   private client: JourniumClient;
@@ -12,7 +12,7 @@ export class PageviewTracker {
     this.client = client;
   }
 
-  capturePageview(customProperties: Record<string, any> = {}): void {
+  capturePageview(customProperties: Record<string, unknown> = {}): void {
     const currentUrl = getCurrentUrl();
     const url = new URL(currentUrl);
 

@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, JourniumLocalOptions, OptionsResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumLocalOptions, ServerOptionsResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager } from '@journium/core';
 
 export class JourniumClient {
   private config!: JourniumConfig;
@@ -47,7 +47,7 @@ export class JourniumClient {
     this.fetchRemoteOptionsAsync();
   }
 
-  private loadCachedOptions(): any | null {
+  private loadCachedOptions(): JourniumLocalOptions | null {
     if (typeof window === 'undefined' || !window.localStorage) {
       return null;
     }
@@ -63,7 +63,7 @@ export class JourniumClient {
     }
   }
 
-  private saveCachedOptions(options: any): void {
+  private saveCachedOptions(options: JourniumLocalOptions): void {
     if (typeof window === 'undefined' || !window.localStorage) {
       return;
     }
@@ -192,7 +192,7 @@ export class JourniumClient {
     }
   }
 
-  identify(distinctId: string, attributes: Record<string, any> = {}): void {
+  identify(distinctId: string, attributes: Record<string, unknown> = {}): void {
     // Don't identify if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
       if (this.effectiveOptions?.debug) {
@@ -234,7 +234,7 @@ export class JourniumClient {
     }
   }
 
-  track(event: string, properties: Record<string, any> = {}): void {
+  track(event: string, properties: Record<string, unknown> = {}): void {
     // Don't track if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
       if (this.effectiveOptions?.debug) {

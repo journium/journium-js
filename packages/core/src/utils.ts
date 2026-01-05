@@ -1,4 +1,5 @@
 import { uuidv7 } from 'uuidv7';
+import { ServerOptionsResponse } from './types';
 
 export const generateId = (): string => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -44,8 +45,8 @@ export const isNode = (): boolean => {
 export const fetchRemoteOptions = async (
   apiHost: string,
   publishableKey: string,
-  fetchFn?: any
-): Promise<any> => {
+  fetchFn?: typeof fetch
+): Promise<ServerOptionsResponse | null> => {
   const endpoint = '/v1/configs';
   const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(publishableKey)}`;
   
@@ -81,35 +82,39 @@ export const fetchRemoteOptions = async (
   }
 };
 
-export const mergeOptions = (localOptions: any, remoteOptions: any): any => {
+export const mergeOptions = <T extends Record<string, unknown>>(
+  localOptions: T | null | undefined,
+  remoteOptions: T | null | undefined
+): T => {
   if (!remoteOptions && !localOptions) {
-    return {};
+    return {} as T;
   }
   
   if (!remoteOptions) {
-    return localOptions;
+    return localOptions as T;
   }
   
   if (!localOptions) {
-    return remoteOptions;
+    return remoteOptions as T;
   }
   
   // Deep merge local options into remote options
   // Local options takes precedence over remote options
-  const merged = { ...remoteOptions };
+  const merged = { ...remoteOptions } as T;
   
   // Handle primitive values
   Object.keys(localOptions).forEach(key => {
-    if (localOptions[key] !== undefined && localOptions[key] !== null) {
-      if (typeof localOptions[key] === 'object' && !Array.isArray(localOptions[key])) {
+    const localValue = (localOptions as Record<string, unknown>)[key];
+    if (localValue !== undefined && localValue !== null) {
+      if (typeof localValue === 'object' && !Array.isArray(localValue)) {
         // Deep merge objects - local options overrides remote
-        merged[key] = {
-          ...(merged[key] || {}),
-          ...localOptions[key]
+        (merged as Record<string, unknown>)[key] = {
+          ...((merged as Record<string, unknown>)[key] || {}),
+          ...(localValue as Record<string, unknown>)
         };
       } else {
         // Override primitive values and arrays with local options
-        merged[key] = localOptions[key];
+        (merged as Record<string, unknown>)[key] = localValue;
       }
     }
   });

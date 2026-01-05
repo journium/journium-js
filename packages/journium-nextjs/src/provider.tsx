@@ -10,10 +10,10 @@ interface NextJourniumProviderProps {
 
 const RouteChangeTracker: React.FC = () => {
   const router = useRouter();
-  const { journium, effectiveOptions } = useJournium();
+  const { analytics, effectiveOptions } = useJournium();
 
   useEffect(() => {
-    if (!journium || !effectiveOptions) return;
+    if (!analytics || !effectiveOptions) return;
 
     // Check if automatic pageview tracking is enabled (defaults to true)
     const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
@@ -21,7 +21,7 @@ const RouteChangeTracker: React.FC = () => {
     if (!autoTrackPageviews) return;
 
     const handleRouteChange = () => {
-      journium.capturePageview();
+      analytics.capturePageview();
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
@@ -29,7 +29,7 @@ const RouteChangeTracker: React.FC = () => {
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.events, journium, effectiveOptions]);
+  }, [router.events, analytics, effectiveOptions]);
 
   return null;
 };

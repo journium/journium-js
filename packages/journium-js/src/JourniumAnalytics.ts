@@ -1,9 +1,9 @@
 import { JourniumConfig, AutocaptureOptions } from '@journium/core';
-import { JourniumClient } from './client';
+import { JourniumClient } from './JourniumClient';
 import { PageviewTracker } from './pageview';
 import { AutocaptureTracker } from './autocapture';
 
-export class Journium {
+export class JourniumAnalytics {
   private client: JourniumClient;
   private pageviewTracker: PageviewTracker;
   private autocaptureTracker: AutocaptureTracker;
@@ -39,11 +39,11 @@ export class Journium {
     return autocapture;
   }
 
-  track(event: string, properties?: Record<string, any>): void {
+  track(event: string, properties?: Record<string, unknown>): void {
     this.client.track(event, properties);
   }
 
-  identify(distinctId: string, attributes?: Record<string, any>): void {
+  identify(distinctId: string, attributes?: Record<string, unknown>): void {
     this.client.identify(distinctId, attributes);
   }
 
@@ -51,7 +51,7 @@ export class Journium {
     this.client.reset();
   }
 
-  capturePageview(properties?: Record<string, any>): void {
+  capturePageview(properties?: Record<string, unknown>): void {
     this.pageviewTracker.capturePageview(properties);
   }
 
@@ -90,8 +90,8 @@ export class Journium {
   }
 }
 
-export const init = (config: JourniumConfig): Journium => {
-  return new Journium(config);
+export const init = (config: JourniumConfig): JourniumAnalytics => {
+  return new JourniumAnalytics(config);
 };
 
-export default { init, Journium };
+export default { init, JourniumAnalytics };

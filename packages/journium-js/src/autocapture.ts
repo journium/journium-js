@@ -1,20 +1,5 @@
-import { JourniumClient } from './client';
-import { isBrowser } from '@journium/core';
-
-export interface AutocaptureOptions {
-  captureClicks?: boolean;
-  captureFormSubmits?: boolean;
-  captureFormChanges?: boolean;
-  captureTextSelection?: boolean;
-  ignoreClasses?: string[];
-  ignoreElements?: string[];
-  captureContentText?: boolean;
-}
-
-export interface AutocaptureEvent {
-  event: string;
-  properties: Record<string, any>;
-}
+import { JourniumClient } from './JourniumClient';
+import { isBrowser, AutocaptureOptions } from '@journium/core';
 
 export class AutocaptureTracker {
   private client: JourniumClient;
@@ -189,8 +174,8 @@ export class AutocaptureTracker {
     return formElements.includes(element.tagName.toLowerCase());
   }
 
-  private getElementProperties(element: HTMLElement, eventType: string): Record<string, any> {
-    const properties: Record<string, any> = {
+  private getElementProperties(element: HTMLElement, eventType: string): Record<string, unknown> {
+    const properties: Record<string, unknown> = {
       $element_tag: element.tagName.toLowerCase(),
       $element_type: this.getElementType(element),
     };
@@ -254,7 +239,7 @@ export class AutocaptureTracker {
     return properties;
   }
 
-  private getFormProperties(form: HTMLFormElement, eventType: string): Record<string, any> {
+  private getFormProperties(form: HTMLFormElement, eventType: string): Record<string, unknown> {
     const properties = this.getElementProperties(form, eventType);
 
     // Form-specific properties
@@ -276,7 +261,7 @@ export class AutocaptureTracker {
     return properties;
   }
 
-  private getInputProperties(input: HTMLInputElement, eventType: string): Record<string, any> {
+  private getInputProperties(input: HTMLInputElement, eventType: string): Record<string, unknown> {
     const properties = this.getElementProperties(input, eventType);
 
     // Input-specific properties
