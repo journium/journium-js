@@ -27,6 +27,19 @@ yarn add @journium/react
 
 ## Basic Setup
 
+### Environment Variables
+First, create a `.env.local` file in your project root:
+
+**Note:** For CRA projects, use `REACT_APP_` prefix:
+```env
+REACT_APP_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
+**Note:** For Vite projects, use `VITE_` prefix:
+```env
+VITE_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
 ### Initialize Journium
 Wrap your app with the `JourniumProvider` to enable analytics throughout your React application.
 
@@ -39,7 +52,7 @@ function Root() {
   return (
     <JourniumProvider
       config={{
-        publishableKey: 'your-journium-publishable-key'
+        publishableKey: process.env.REACT_APP_JOURNIUM_PUBLISHABLE_KEY!
       }}
     >
       <App />
@@ -49,6 +62,38 @@ function Root() {
 
 export default Root;
 ```
+
+**Vite Example:**
+```jsx
+// main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { JourniumProvider } from '@journium/react';
+import App from './App';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <JourniumProvider
+      config={{
+        publishableKey: import.meta.env.VITE_JOURNIUM_PUBLISHABLE_KEY!
+      }}
+    >
+      <App />
+    </JourniumProvider>
+  </React.StrictMode>
+);
+```
+
+**Vite .env file:**
+```env
+VITE_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
+**For Next.js applications, use the dedicated [`@journium/nextjs`](../journium-nextjs) package instead.**
+
+### API Classes and Types
+
+The main analytics class is `JourniumAnalytics`, available through the React hooks and context.
 
 ### Track a Custom Event
 Use the `useTrackEvent` hook to track custom events from any component.
@@ -119,9 +164,9 @@ function LogoutButton() {
 ```
 
 ## Advanced Setup
-
 You can override default configurations and control autocapture:
 
+**React/CRA Example:**
 ```jsx
 import React from 'react';
 import { JourniumProvider } from '@journium/react';
@@ -131,13 +176,14 @@ function Root() {
   return (
     <JourniumProvider
       config={{
-        publishableKey: 'your-journium-publishable-key',
-        apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
-        config: {
-          debug: true,                    // Enable debug logging
+        publishableKey: process.env.REACT_APP_JOURNIUM_PUBLISHABLE_KEY!,
+        apiHost: 'https://events.journium.app',
+        options: {
+          debug: process.env.REACT_APP_JOURNIUM_DEBUG === 'true',
           flushAt: 5,                    // Send events after N events
           flushInterval: 10000,          // Send events every N milliseconds
           sessionTimeout: 1800000,       // Session timeout (30 minutes)
+          autoTrackPageviews: true,      // Automatically track pageview events (default: true)
           autocapture: {                 // Configure automatic event capture
             captureClicks: true,         // Track click events
             captureFormSubmits: true,    // Track form submissions
@@ -156,156 +202,167 @@ function Root() {
 export default Root;
 ```
 
-## API Reference
-
-### `<JourniumProvider>`
-Provider component to initialize Journium throughout your React app.
-
+**Vite Example:**
 ```jsx
-<JourniumProvider
-  config={{
-    publishableKey: 'your-journium-publishable-key',
-    apiHost: 'https://events.journium.app', // Optional
-    config: { /* optional local config */ }
-  }}
->
-  <App />
-</JourniumProvider>
-```
+import React from 'react';
+import { JourniumProvider } from '@journium/react';
+import App from './App';
 
-### `useTrackEvent()`
-Hook for tracking custom events with optional properties.
-
-```jsx
-import { useTrackEvent } from '@journium/react';
-
-function Component() {
-  const trackEvent = useTrackEvent();
-
-  const handlePurchase = () => {
-    trackEvent('purchase_completed', {
-      product_id: 'prod_123',
-      price: 29.99,
-      currency: 'USD'
-    });
-  };
-
-  return <button onClick={handlePurchase}>Buy Now</button>;
-}
-```
-
-### `useIdentify()`
-Hook for identifying users on login or signup.
-
-```jsx
-import { useIdentify } from '@journium/react';
-
-function Component() {
-  const identify = useIdentify();
-
-  const handleLogin = (userId, userAttributes) => {
-    identify(userId, userAttributes);
-  };
-
-  return <LoginForm onLogin={handleLogin} />;
-}
-```
-
-### `useReset()`
-Hook for resetting user identity on logout.
-
-```jsx
-import { useReset } from '@journium/react';
-
-function Component() {
-  const reset = useReset();
-
-  const handleLogout = () => {
-    reset();
-  };
-
-  return <button onClick={handleLogout}>Logout</button>;
-}
-```
-
-### `useTrackPageview()`
-Hook for manual pageview tracking.
-
-```jsx
-import { useTrackPageview } from '@journium/react';
-
-function Component() {
-  const trackPageview = useTrackPageview();
-
-  const handleSpecialPageview = () => {
-    trackPageview({
-      page_type: 'modal',
-      content_type: 'pricing_calculator'
-    });
-  };
-
-  return <button onClick={handleSpecialPageview}>Track Modal View</button>;
-}
-```
-
-### `useAutoTrackPageview()`
-Hook for automatic pageview tracking when components mount or dependencies change.
-
-```jsx
-import { useAutoTrackPageview } from '@journium/react';
-
-function ProductPage({ productId, category }) {
-  // Tracks pageview when component mounts or productId changes
-  useAutoTrackPageview([productId], {
-    page_type: 'product_detail',
-    product_id: productId,
-    category: category
-  });
-
-  return <div>Product {productId}</div>;
-}
-```
-
-### `useAutocapture()`
-Hook for controlling automatic event capture.
-
-```jsx
-import { useAutocapture } from '@journium/react';
-
-function ConsentBanner() {
-  const { startAutocapture, stopAutocapture } = useAutocapture();
-
-  const handleAccept = () => {
-    startAutocapture();
-  };
-
-  const handleDecline = () => {
-    stopAutocapture();
-  };
-
+function Root() {
   return (
-    <div>
-      <button onClick={handleAccept}>Accept</button>
-      <button onClick={handleDecline}>Decline</button>
-    </div>
+    <JourniumProvider
+      config={{
+        publishableKey: import.meta.env.VITE_JOURNIUM_PUBLISHABLE_KEY!,
+        apiHost: 'https://events.journium.app',
+        options: {
+          debug: import.meta.env.VITE_JOURNIUM_DEBUG === 'true',
+          flushAt: 5,
+          flushInterval: 10000,
+          sessionTimeout: 1800000,
+          autoTrackPageviews: true,
+          autocapture: {
+            captureClicks: true,
+            captureFormSubmits: true,
+            captureFormChanges: false,
+            ignoreClasses: ['no-track', 'sensitive'],
+            ignoreElements: ['input[type="password"]']
+          }
+        }
+      }}
+    >
+      <App />
+    </JourniumProvider>
   );
 }
+
+export default Root;
 ```
 
-### `useJournium()`
-Hook for direct access to the Journium instance for advanced use cases.
+## API Reference
 
-```jsx
-import { useJournium } from '@journium/react';
+### Components
 
-function Component() {
-  const { journium } = useJournium();
+#### `<JourniumProvider>`
+Provider component that initializes Journium analytics throughout your React application.
 
-  const handleAdvancedTracking = () => {
-    journium?.track('custom_event', { advanced: true });
-    journium?.flush();
-  };
+**Props:**
+- `config: JourniumConfig` - Configuration object for Journium
+  - `publishableKey: string` - Your Journium publishable key (required)
+  - `apiHost?: string` - Custom API endpoint (optional, defaults to 'https://events.journium.app')
+  - `options?: JourniumLocalOptions` - Local configuration options (optional)
+- `children: ReactNode` - React children to wrap
 
-  return <button onClick={handleAdvancedTracking}>Advanced Track</button>;
+### Hooks
+
+#### `useTrackEvent()`
+Returns a function to track custom events.
+
+**Returns:** `(event: string, properties?: Record<string, unknown>) => void`
+- `event: string` - Event name to track
+- `properties?: Record<string, unknown>` - Optional event properties
+
+#### `useIdentify()`
+Returns a function to identify users.
+
+**Returns:** `(distinctId: string, attributes?: Record<string, unknown>) => void`
+- `distinctId: string` - Unique user identifier
+- `attributes?: Record<string, unknown>` - Optional user attributes
+
+#### `useReset()`
+Returns a function to reset user identity (typically on logout).
+
+**Returns:** `() => void`
+
+#### `useTrackPageview()`
+Returns a function to manually track pageview events.
+
+**Returns:** `(properties?: Record<string, unknown>) => void`
+- `properties?: Record<string, unknown>` - Optional pageview properties
+
+#### `useAutoTrackPageview()`
+Automatically tracks pageview when component mounts or dependencies change.
+
+**Parameters:**
+- `dependencies?: React.DependencyList` - Dependencies to watch for changes (defaults to empty array)
+- `properties?: Record<string, unknown>` - Optional pageview properties
+
+**Returns:** `void`
+
+#### `useAutocapture()`
+Returns functions to control automatic event capture.
+
+**Returns:** `{ startAutocapture: () => void, stopAutocapture: () => void }`
+- `startAutocapture()` - Enable automatic event capture
+- `stopAutocapture()` - Disable automatic event capture
+
+#### `useJournium()`
+Returns the Journium context for advanced use cases.
+
+**Returns:** `JourniumContextValue`
+- `analytics: JourniumAnalytics | null` - The analytics instance
+- `config: JourniumConfig | null` - The configuration object
+- `effectiveOptions: JourniumLocalOptions | null` - The effective options (merged local and remote)
+
+### Types
+
+#### `JourniumConfig`
+Configuration object for initializing Journium.
+
+```typescript
+interface JourniumConfig {
+  publishableKey: string;
+  apiHost?: string;
+  options?: JourniumLocalOptions;
 }
 ```
+
+#### `JourniumLocalOptions`
+Local configuration options that can be set on the client.
+
+```typescript
+interface JourniumLocalOptions {
+  debug?: boolean;                    // Enable debug logging
+  flushAt?: number;                   // Number of events before auto-flush
+  flushInterval?: number;             // Flush interval in milliseconds
+  autocapture?: boolean | AutocaptureOptions; // Auto-capture configuration
+  autoTrackPageviews?: boolean;       // Automatic pageview tracking
+  sessionTimeout?: number;            // Session timeout in milliseconds
+  sampling?: {
+    enabled?: boolean;
+    rate?: number;
+  };
+  features?: {
+    enableGeolocation?: boolean;
+    enableSessionRecording?: boolean;
+    enablePerformanceTracking?: boolean;
+  };
+}
+```
+
+#### `AutocaptureOptions`
+Configuration for automatic event capture.
+
+```typescript
+interface AutocaptureOptions {
+  captureClicks?: boolean;            // Capture click events
+  captureFormSubmits?: boolean;       // Capture form submissions
+  captureFormChanges?: boolean;       // Capture form field changes
+  captureTextSelection?: boolean;     // Capture text selection events
+  ignoreClasses?: string[];           // CSS classes to ignore
+  ignoreElements?: string[];          // HTML elements to ignore
+  captureContentText?: boolean;       // Capture element text content
+}
+```
+
+#### `JourniumAnalytics`
+The main analytics class instance available through hooks.
+
+**Methods:**
+- `track(event: string, properties?: Record<string, unknown>): void` - Track custom event
+- `identify(distinctId: string, attributes?: Record<string, unknown>): void` - Identify user
+- `reset(): void` - Reset user identity
+- `capturePageview(properties?: Record<string, unknown>): void` - Track pageview
+- `startAutocapture(): void` - Start automatic event capture
+- `stopAutocapture(): void` - Stop automatic event capture
+- `flush(): void` - Flush pending events immediately
+- `getEffectiveOptions(): JourniumLocalOptions` - Get effective configuration

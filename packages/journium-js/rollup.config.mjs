@@ -19,7 +19,7 @@ export default [
       {
         file: 'dist/index.umd.js',
         format: 'umd',
-        name: 'Journium',
+        name: 'JourniumAnalytics',
         sourcemap: true,
         globals: {
           '@journium/core': 'JourniumCore',

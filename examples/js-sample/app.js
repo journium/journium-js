@@ -37,12 +37,12 @@ class JourniumDemo {
         try {
             // Initialize Journium with minimal configuration
             // Only include required local configs - remote config will handle the rest
-            this.journium = window.Journium.init({
+            this.journium = window.JourniumAnalytics.init({
                 publishableKey: 'client_abcdef1234567890abcdef1234567890',
                 // apiHost defaults to 'https://events.journium.app'
                 apiHost: 'http://localhost:3006', // For demo: Events monitor endpoint
                 //apiHost: 'https://ingestion.bhushan-685.workers.dev',
-                config: {
+                options: {
                     debug: true,  // Always set locally - never configured remotely
                     flushAt: 1,   // Demo: send events immediately
                     flushInterval: 1000,  // Demo: flush every 1 second

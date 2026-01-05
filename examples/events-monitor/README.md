@@ -168,7 +168,7 @@ The React sample is already configured to use this events monitor:
 const journiumConfig = {
   publishableKey: 'demo-publishable-key',
   apiHost: 'http://localhost:3006',  // Points to events monitor
-  config: {
+  options: {
     debug: true,
     flushAt: 10,
     flushInterval: 30000
@@ -184,7 +184,7 @@ To configure the Next.js sample to use this monitor, update the configuration:
 const journiumConfig = {
   publishableKey: 'demo-publishable-key',
   apiHost: 'http://localhost:3006',  // Add this line
-  config: {
+  options: {
     debug: true,
     flushAt: 10,
     flushInterval: 30000

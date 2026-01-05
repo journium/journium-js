@@ -79,7 +79,7 @@ js-sample/
 const journium = window.Journium.init({
     publishableKey: 'demo-js-publishable-key',
     apiHost: 'http://localhost:3006', // Optional: defaults to 'https://events.journium.app'
-    config: {
+    options: {
         debug: true,
         autocapture: {
             captureClicks: true,
@@ -188,7 +188,7 @@ Edit the Journium configuration in `app.js`:
 const journium = window.Journium.init({
     publishableKey: 'your-actual-publishable-key',  // Replace with your publishable key
     apiHost: 'https://your-api.host',               // Optional: replace with your API host
-    config: {
+    options: {
         debug: false,                               // Disable for production
         flushAt: 20,                               // Events before auto-flush
         flushInterval: 30000,                      // Flush interval in ms

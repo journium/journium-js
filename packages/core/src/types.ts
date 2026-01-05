@@ -3,12 +3,10 @@ export interface JourniumEvent {
   ingestion_key: string;
   client_timestamp: string;
   event: string;
-  properties: Record<string, any>;
-  distinct_id?: string;
-  session_id?: string;
+  properties: Record<string, unknown>;
 }
 
-export interface AutocaptureConfig {
+export interface AutocaptureOptions {
   captureClicks?: boolean;
   captureFormSubmits?: boolean;
   captureFormChanges?: boolean;
@@ -18,11 +16,12 @@ export interface AutocaptureConfig {
   captureContentText?: boolean;
 }
 
-export interface RemoteConfig {
+export interface JourniumServerOptions {
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
-  autocapture?: boolean | AutocaptureConfig;
+  autocapture?: boolean | AutocaptureOptions;
+  autoTrackPageviews?: boolean;
   sessionTimeout?: number;
   sampling?: {
     enabled?: boolean;
@@ -33,19 +32,21 @@ export interface RemoteConfig {
     enableSessionRecording?: boolean;
     enablePerformanceTracking?: boolean;
   };
+  [key: string]: unknown;
 }
 
-export interface ConfigResponse {
+export interface ServerOptionsResponse {
   success: boolean;
-  config: RemoteConfig;
+  config: JourniumServerOptions;
   timestamp: string;
 }
 
-export interface JourniumLocalConfig {
+export interface JourniumLocalOptions {
   debug?: boolean;
   flushAt?: number;
   flushInterval?: number;
-  autocapture?: boolean | AutocaptureConfig;
+  autocapture?: boolean | AutocaptureOptions;
+  autoTrackPageviews?: boolean;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
   sampling?: {
     enabled?: boolean;
@@ -56,12 +57,13 @@ export interface JourniumLocalConfig {
     enableSessionRecording?: boolean;
     enablePerformanceTracking?: boolean;
   };
+  [key: string]: unknown;
 }
 
 export interface JourniumConfig {
   publishableKey: string;
   apiHost?: string;
-  config?: JourniumLocalConfig;
+  options?: JourniumLocalOptions;
 }
 
 export interface PageviewProperties {
@@ -71,5 +73,5 @@ export interface PageviewProperties {
   $search?: string;
   $title?: string;
   $referrer?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }

@@ -2,79 +2,79 @@ import { useCallback, useEffect } from 'react';
 import { useJournium } from './context';
 
 export const useTrackEvent = () => {
-  const { journium } = useJournium();
+  const { analytics } = useJournium();
 
   return useCallback(
-    (event: string, properties?: Record<string, any>) => {
-      if (journium) {
-        journium.track(event, properties);
+    (event: string, properties?: Record<string, unknown>) => {
+      if (analytics) {
+        analytics.track(event, properties);
       }
     },
-    [journium]
+    [analytics]
   );
 };
 
 export const useIdentify = () => {
-  const { journium } = useJournium();
+  const { analytics } = useJournium();
 
   return useCallback(
-    (distinctId: string, attributes?: Record<string, any>) => {
-      if (journium) {
-        journium.identify(distinctId, attributes);
+    (distinctId: string, attributes?: Record<string, unknown>) => {
+      if (analytics) {
+        analytics.identify(distinctId, attributes);
       }
     },
-    [journium]
+    [analytics]
   );
 };
 
 export const useReset = () => {
-  const { journium } = useJournium();
+  const { analytics } = useJournium();
 
   return useCallback(() => {
-    if (journium) {
-      journium.reset();
+    if (analytics) {
+      analytics.reset();
     }
-  }, [journium]);
+  }, [analytics]);
 };
 
 export const useTrackPageview = () => {
-  const { journium } = useJournium();
+  const { analytics } = useJournium();
 
   return useCallback(
-    (properties?: Record<string, any>) => {
-      if (journium) {
-        journium.capturePageview(properties);
+    (properties?: Record<string, unknown>) => {
+      if (analytics) {
+        analytics.capturePageview(properties);
       }
     },
-    [journium]
+    [analytics]
   );
 };
 
 export const useAutoTrackPageview = (
   dependencies: React.DependencyList = [],
-  properties?: Record<string, any>
+  properties?: Record<string, unknown>
 ) => {
   const trackPageview = useTrackPageview();
 
   useEffect(() => {
     trackPageview(properties);
-  }, dependencies);
+  }, [trackPageview, properties, ...dependencies]);
 };
 
 export const useAutocapture = () => {
-  const { journium } = useJournium();
+  const { analytics } = useJournium();
 
   const startAutocapture = useCallback(() => {
-    if (journium) {
-      journium.startAutocapture();
+    if (analytics) {
+      analytics.startAutocapture();
     }
-  }, [journium]);
+  }, [analytics]);
 
   const stopAutocapture = useCallback(() => {
-    if (journium) {
-      journium.stopAutocapture();
+    if (analytics) {
+      analytics.stopAutocapture();
     }
-  }, [journium]);
+  }, [analytics]);
 
   return { startAutocapture, stopAutocapture };
 };

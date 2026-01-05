@@ -1,4 +1,5 @@
 import { uuidv7 } from 'uuidv7';
+import { ServerOptionsResponse } from './types';
 
 export const generateId = (): string => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -41,11 +42,11 @@ export const isNode = (): boolean => {
   return typeof process !== 'undefined' && !!process.versions?.node;
 };
 
-export const fetchRemoteConfig = async (
+export const fetchRemoteOptions = async (
   apiHost: string,
   publishableKey: string,
-  fetchFn?: any
-): Promise<any> => {
+  fetchFn?: typeof fetch
+): Promise<ServerOptionsResponse | null> => {
   const endpoint = '/v1/configs';
   const url = `${apiHost}${endpoint}?ingestion_key=${encodeURIComponent(publishableKey)}`;
   
@@ -70,46 +71,50 @@ export const fetchRemoteConfig = async (
     });
     
     if (!response.ok) {
-      throw new Error(`Config fetch failed: ${response.status} ${response.statusText}`);
+      throw new Error(`Options fetch failed: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
     return data;
   } catch (error) {
-    console.warn('Failed to fetch remote config:', error);
+    console.warn('Failed to fetch remote options:', error);
     return null;
   }
 };
 
-export const mergeConfigs = (localConfig: any, remoteConfig: any): any => {
-  if (!remoteConfig && !localConfig) {
-    return {};
+export const mergeOptions = <T extends Record<string, unknown>>(
+  localOptions: T | null | undefined,
+  remoteOptions: T | null | undefined
+): T => {
+  if (!remoteOptions && !localOptions) {
+    return {} as T;
   }
   
-  if (!remoteConfig) {
-    return localConfig;
+  if (!remoteOptions) {
+    return localOptions as T;
   }
   
-  if (!localConfig) {
-    return remoteConfig;
+  if (!localOptions) {
+    return remoteOptions as T;
   }
   
-  // Deep merge local config into remote config
-  // Local config takes precedence over remote config
-  const merged = { ...remoteConfig };
+  // Deep merge local options into remote options
+  // Local options takes precedence over remote options
+  const merged = { ...remoteOptions } as T;
   
   // Handle primitive values
-  Object.keys(localConfig).forEach(key => {
-    if (localConfig[key] !== undefined && localConfig[key] !== null) {
-      if (typeof localConfig[key] === 'object' && !Array.isArray(localConfig[key])) {
-        // Deep merge objects - local config overrides remote
-        merged[key] = {
-          ...(merged[key] || {}),
-          ...localConfig[key]
+  Object.keys(localOptions).forEach(key => {
+    const localValue = (localOptions as Record<string, unknown>)[key];
+    if (localValue !== undefined && localValue !== null) {
+      if (typeof localValue === 'object' && !Array.isArray(localValue)) {
+        // Deep merge objects - local options overrides remote
+        (merged as Record<string, unknown>)[key] = {
+          ...((merged as Record<string, unknown>)[key] || {}),
+          ...(localValue as Record<string, unknown>)
         };
       } else {
-        // Override primitive values and arrays with local config
-        merged[key] = localConfig[key];
+        // Override primitive values and arrays with local options
+        (merged as Record<string, unknown>)[key] = localValue;
       }
     }
   });

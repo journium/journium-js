@@ -27,9 +27,17 @@ yarn add @journium/nextjs
 
 ## Basic Setup
 
+### Environment Variables
+First, create a `.env.local` file in your project root:
+
+```env
+NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY=your-actual-publishable-key-here
+```
+
 ### Initialize Journium
 Wrap your app with the `NextJourniumProvider` in your `_app.tsx` to enable analytics throughout your Next.js application.
 
+**Pages Router (_app.tsx):**
 ```tsx
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
@@ -39,11 +47,37 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <NextJourniumProvider
       config={{
-        publishableKey: 'your-journium-publishable-key'
+        publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!
       }}
     >
       <Component {...pageProps} />
     </NextJourniumProvider>
+  );
+}
+```
+
+**App Router (layout.tsx):**
+```tsx
+// app/layout.tsx
+import { NextJourniumProvider } from '@journium/nextjs';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <NextJourniumProvider
+          config={{
+            publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!
+          }}
+        >
+          {children}
+        </NextJourniumProvider>
+      </body>
+    </html>
   );
 }
 ```
@@ -117,19 +151,21 @@ function Header() {
 
 You can override default configurations and control route tracking:
 
+**Pages Router:**
 ```tsx
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
 import { NextJourniumProvider } from '@journium/nextjs';
 
 const journiumConfig = {
-  publishableKey: 'your-journium-publishable-key',
-  apiHost: 'https://your-custom-instance.com', // Optional: defaults to 'https://events.journium.app'
-  config: {
-    debug: process.env.NODE_ENV === 'development',
+  publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
+  apiHost: 'https://events.journium.app',
+  options: {
+    debug: process.env.NEXT_PUBLIC_JOURNIUM_DEBUG === 'true',
     flushAt: 10,                   // Send events after N events
     flushInterval: 5000,           // Send events every N milliseconds  
     sessionTimeout: 1800000,       // Session timeout (30 minutes)
+    autoTrackPageviews: true,      // Automatically track route changes (default: true)
     autocapture: {                 // Configure automatic event capture
       captureClicks: true,         // Track click events
       captureFormSubmits: true,    // Track form submissions
@@ -142,171 +178,208 @@ const journiumConfig = {
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <NextJourniumProvider 
-      config={journiumConfig}
-      trackRouteChanges={true} // Optional: Track Next.js route changes (default: true)
-    >
+    <NextJourniumProvider config={journiumConfig}>
       <Component {...pageProps} />
     </NextJourniumProvider>
   );
 }
 ```
 
+**App Router:**
+```tsx
+// app/layout.tsx
+import { NextJourniumProvider } from '@journium/nextjs';
+
+const journiumConfig = {
+  publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
+  apiHost: 'https://events.journium.app',
+  options: {
+    debug: process.env.NEXT_PUBLIC_JOURNIUM_DEBUG === 'true',
+    flushAt: 10,
+    flushInterval: 5000,
+    sessionTimeout: 1800000,
+    autoTrackPageviews: true,
+    autocapture: {
+      captureClicks: true,
+      captureFormSubmits: true,
+      captureFormChanges: false,
+      ignoreClasses: ['no-track'],
+      ignoreElements: ['input[type="password"]']
+    }
+  }
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <NextJourniumProvider config={journiumConfig}>
+          {children}
+        </NextJourniumProvider>
+      </body>
+    </html>
+  );
+}
+```
+
 ## API Reference
 
-### `<NextJourniumProvider>`
-Provider component to initialize Journium throughout your Next.js app with SSR support.
+### Components
 
-```tsx
+#### `<NextJourniumProvider>`
+Provider component that initializes Journium analytics with Next.js optimizations and automatic route tracking.
+
+**Props:**
+- `config: JourniumConfig` - Configuration object for Journium
+  - `publishableKey: string` - Your Journium publishable key (required)
+  - `apiHost?: string` - Custom API endpoint (optional, defaults to 'https://events.journium.app')
+  - `options?: JourniumLocalOptions` - Local configuration options (optional)
+- `children: ReactNode` - React children to wrap
+
+**Next.js Specific Features:**
+- Automatic route change detection and pageview tracking
+- SSR-compatible initialization
+- Works with both Pages Router and App Router
+
+### Hooks
+
+#### `useTrackEvent()`
+Returns a function to track custom events.
+
+**Returns:** `(event: string, properties?: Record<string, unknown>) => void`
+- `event: string` - Event name to track
+- `properties?: Record<string, unknown>` - Optional event properties
+
+#### `useIdentify()`
+Returns a function to identify users.
+
+**Returns:** `(distinctId: string, attributes?: Record<string, unknown>) => void`
+- `distinctId: string` - Unique user identifier
+- `attributes?: Record<string, unknown>` - Optional user attributes
+
+#### `useReset()`
+Returns a function to reset user identity (typically on logout).
+
+**Returns:** `() => void`
+
+#### `useTrackPageview()`
+Returns a function to manually track pageview events beyond automatic route tracking.
+
+**Returns:** `(properties?: Record<string, unknown>) => void`
+- `properties?: Record<string, unknown>` - Optional pageview properties
+
+**Note:** Automatic pageview tracking is handled by the provider for route changes. Use this for additional pageview events like modal views or SPAs within pages.
+
+#### `useAutoTrackPageview()`
+Automatically tracks pageview when component mounts or dependencies change.
+
+**Parameters:**
+- `dependencies?: React.DependencyList` - Dependencies to watch for changes (defaults to empty array)
+- `properties?: Record<string, unknown>` - Optional pageview properties
+
+**Returns:** `void`
+
+#### `useAutocapture()`
+Returns functions to control automatic event capture.
+
+**Returns:** `{ startAutocapture: () => void, stopAutocapture: () => void }`
+- `startAutocapture()` - Enable automatic event capture
+- `stopAutocapture()` - Disable automatic event capture
+
+#### `useJournium()`
+Returns the Journium context for advanced use cases.
+
+**Returns:** `JourniumContextValue`
+- `analytics: JourniumAnalytics | null` - The analytics instance
+- `config: JourniumConfig | null` - The configuration object
+- `effectiveOptions: JourniumLocalOptions | null` - The effective options (merged local and remote)
+
+### Types
+
+#### `JourniumConfig`
+Configuration object for initializing Journium.
+
+```typescript
+interface JourniumConfig {
+  publishableKey: string;
+  apiHost?: string;
+  options?: JourniumLocalOptions;
+}
+```
+
+#### `JourniumLocalOptions`
+Local configuration options that can be set on the client.
+
+```typescript
+interface JourniumLocalOptions {
+  debug?: boolean;                    // Enable debug logging
+  flushAt?: number;                   // Number of events before auto-flush
+  flushInterval?: number;             // Flush interval in milliseconds
+  autocapture?: boolean | AutocaptureOptions; // Auto-capture configuration
+  autoTrackPageviews?: boolean;       // Automatic route change tracking (default: true)
+  sessionTimeout?: number;            // Session timeout in milliseconds
+  sampling?: {
+    enabled?: boolean;
+    rate?: number;
+  };
+  features?: {
+    enableGeolocation?: boolean;
+    enableSessionRecording?: boolean;
+    enablePerformanceTracking?: boolean;
+  };
+}
+```
+
+#### `AutocaptureOptions`
+Configuration for automatic event capture.
+
+```typescript
+interface AutocaptureOptions {
+  captureClicks?: boolean;            // Capture click events
+  captureFormSubmits?: boolean;       // Capture form submissions
+  captureFormChanges?: boolean;       // Capture form field changes
+  captureTextSelection?: boolean;     // Capture text selection events
+  ignoreClasses?: string[];           // CSS classes to ignore
+  ignoreElements?: string[];          // HTML elements to ignore
+  captureContentText?: boolean;       // Capture element text content
+}
+```
+
+#### `JourniumAnalytics`
+The main analytics class instance available through hooks.
+
+**Methods:**
+- `track(event: string, properties?: Record<string, unknown>): void` - Track custom event
+- `identify(distinctId: string, attributes?: Record<string, unknown>): void` - Identify user
+- `reset(): void` - Reset user identity
+- `capturePageview(properties?: Record<string, unknown>): void` - Track pageview
+- `startAutocapture(): void` - Start automatic event capture
+- `stopAutocapture(): void` - Stop automatic event capture
+- `flush(): void` - Flush pending events immediately
+- `getEffectiveOptions(): JourniumLocalOptions` - Get effective configuration
+
+### Next.js Specific Features
+
+#### Automatic Route Tracking
+The `NextJourniumProvider` automatically tracks Next.js route changes as pageview events.
+
+**Router Compatibility:**
+- ✅ Pages Router (`useRouter` from 'next/router')
+- ✅ App Router (automatic detection)
+
+**Configuration:**
+```typescript
+// Disable automatic route tracking
 <NextJourniumProvider
   config={{
-    publishableKey: 'your-journium-publishable-key',
-    apiHost: 'https://events.journium.app', // Optional
-    config: { /* optional local config */ }
+    publishableKey: process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY!,
+    options: {
+      autoTrackPageviews: false
+    }
   }}
-  trackRouteChanges={true} // Optional: automatic route tracking
 >
-  <Component {...pageProps} />
-</NextJourniumProvider>
-```
-
-### `useTrackEvent()`
-Hook for tracking custom events with optional properties.
-
-```tsx
-import { useTrackEvent } from '@journium/nextjs';
-
-function Component() {
-  const trackEvent = useTrackEvent();
-
-  const handleSignup = () => {
-    trackEvent('user_signup', {
-      method: 'email',
-      source: 'landing_page',
-      plan: 'free'
-    });
-  };
-
-  return <button onClick={handleSignup}>Sign Up</button>;
-}
-```
-
-### `useIdentify()`
-Hook for identifying users on login or signup.
-
-```tsx
-import { useIdentify } from '@journium/nextjs';
-
-function Component() {
-  const identify = useIdentify();
-
-  const handleUserLogin = (userId, userAttributes) => {
-    identify(userId, userAttributes);
-  };
-
-  return <AuthForm onLogin={handleUserLogin} />;
-}
-```
-
-### `useReset()`
-Hook for resetting user identity on logout.
-
-```tsx
-import { useReset } from '@journium/nextjs';
-
-function Component() {
-  const reset = useReset();
-
-  const handleLogout = () => {
-    reset();
-  };
-
-  return <button onClick={handleLogout}>Logout</button>;
-}
-```
-
-### `useTrackPageview()`
-Hook for manual pageview tracking beyond automatic route tracking.
-
-```tsx
-import { useTrackPageview } from '@journium/nextjs';
-
-function Component() {
-  const trackPageview = useTrackPageview();
-
-  const handleModalView = () => {
-    trackPageview({
-      page_type: 'modal',
-      modal_name: 'checkout',
-      step: 'payment'
-    });
-  };
-
-  return <button onClick={handleModalView}>Open Checkout</button>;
-}
-```
-
-### `useAutoTrackPageview()`
-Hook for automatic pageview tracking when components mount or dependencies change.
-
-```tsx
-import { useAutoTrackPageview } from '@journium/nextjs';
-
-function ProductPage({ productId }) {
-  // Tracks pageview when component mounts or productId changes
-  useAutoTrackPageview([productId], {
-    page_type: 'product',
-    product_id: productId,
-    framework: 'nextjs'
-  });
-
-  return <div>Product {productId}</div>;
-}
-```
-
-### `useJournium()`
-Hook for direct access to the Journium instance for advanced use cases.
-
-```tsx
-import { useJournium } from '@journium/nextjs';
-
-function Component() {
-  const { journium } = useJournium();
-
-  const handleComplexTracking = () => {
-    journium?.track('custom_event', { complex: true });
-    journium?.capturePageview({ manual: true });
-    journium?.startAutocapture();
-  };
-
-  return <button onClick={handleComplexTracking}>Complex Track</button>;
-}
-```
-
-### Server-Side Rendering (SSR) Support
-
-The Next.js SDK automatically handles SSR scenarios and provides utilities for server-side tracking:
-
-```tsx
-// pages/api/track.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Server-side tracking logic
-  // Note: Use @journium/node for server-side tracking
-  res.status(200).json({ success: true });
-}
-```
-
-### Route Change Tracking
-
-Automatic pageview tracking for Next.js route changes is enabled by default. Customize with:
-
-```tsx
-<NextJourniumProvider
-  config={journiumConfig}
-  trackRouteChanges={false} // Disable automatic route tracking
->
-  <Component {...pageProps} />
-</NextJourniumProvider>
 ```

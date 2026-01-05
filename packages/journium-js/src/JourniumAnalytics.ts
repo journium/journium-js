@@ -1,9 +1,9 @@
-import { JourniumConfig, AutocaptureConfig } from '@journium/core';
-import { JourniumClient } from './client';
+import { JourniumConfig, AutocaptureOptions } from '@journium/core';
+import { JourniumClient } from './JourniumClient';
 import { PageviewTracker } from './pageview';
 import { AutocaptureTracker } from './autocapture';
 
-export class Journium {
+export class JourniumAnalytics {
   private client: JourniumClient;
   private pageviewTracker: PageviewTracker;
   private autocaptureTracker: AutocaptureTracker;
@@ -15,14 +15,14 @@ export class Journium {
     this.client = new JourniumClient(config);
     this.pageviewTracker = new PageviewTracker(this.client);
     
-    const autocaptureConfig = this.resolveAutocaptureConfig(config.config?.autocapture);
-    this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureConfig);
+    const autocaptureOptions = this.resolveAutocaptureOptions(config.options?.autocapture);
+    this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureOptions);
     
     // Store resolved autocapture state for startAutocapture method
-    this.autocaptureEnabled = config.config?.autocapture !== false;
+    this.autocaptureEnabled = config.options?.autocapture !== false;
   }
 
-  private resolveAutocaptureConfig(autocapture?: boolean | AutocaptureConfig): AutocaptureConfig {
+  private resolveAutocaptureOptions(autocapture?: boolean | AutocaptureOptions): AutocaptureOptions {
     if (autocapture === false) {
       return {
         captureClicks: false,
@@ -39,11 +39,11 @@ export class Journium {
     return autocapture;
   }
 
-  track(event: string, properties?: Record<string, any>): void {
+  track(event: string, properties?: Record<string, unknown>): void {
     this.client.track(event, properties);
   }
 
-  identify(distinctId: string, attributes?: Record<string, any>): void {
+  identify(distinctId: string, attributes?: Record<string, unknown>): void {
     this.client.identify(distinctId, attributes);
   }
 
@@ -51,12 +51,18 @@ export class Journium {
     this.client.reset();
   }
 
-  capturePageview(properties?: Record<string, any>): void {
+  capturePageview(properties?: Record<string, unknown>): void {
     this.pageviewTracker.capturePageview(properties);
   }
 
   startAutocapture(): void {
-    this.pageviewTracker.startAutocapture();
+    // Check if automatic pageview tracking is enabled (defaults to true)
+    const effectiveOptions = this.client.getEffectiveOptions();
+    const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+    
+    if (autoTrackPageviews) {
+      this.pageviewTracker.startAutocapture();
+    }
     
     if (this.autocaptureEnabled) {
       this.autocaptureTracker.start();
@@ -73,6 +79,10 @@ export class Journium {
     return this.client.flush();
   }
 
+  getEffectiveOptions() {
+    return this.client.getEffectiveOptions();
+  }
+
   destroy(): void {
     this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
@@ -80,8 +90,8 @@ export class Journium {
   }
 }
 
-export const init = (config: JourniumConfig): Journium => {
-  return new Journium(config);
+export const init = (config: JourniumConfig): JourniumAnalytics => {
+  return new JourniumAnalytics(config);
 };
 
-export default { init, Journium };
+export default { init, JourniumAnalytics };
