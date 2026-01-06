@@ -4,13 +4,18 @@
   "type": "module",
   "license": "MIT",
   "description": "Journium React integration - Provider, hooks, and components for React applications",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist"],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "homepage": "https://github.com/journium/journium-js",
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"

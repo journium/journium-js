@@ -4,12 +4,17 @@
   "license": "MIT",
   "description": "Journium JavaScript SDK for web browsers - Track events, pageviews, and user interactions with ease",
   "main": "dist/index.cjs",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist"],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "homepage": "https://github.com/journium/journium-js",
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
@@ -18,8 +23,8 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "echo 'Tests disabled due to Jest configuration issues'",
-    "test:unit": "echo 'Tests disabled due to Jest configuration issues'",
+    "test": "jest --config jest.config.cjs",
+    "test:unit": "jest --config jest.config.cjs",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
