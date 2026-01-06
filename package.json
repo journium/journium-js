@@ -42,7 +42,7 @@
     "@changesets/cli": "^2.27.1",
     "@turbo/gen": "^1.10.12",
     "@types/jest": "^29.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.1.2",
