@@ -50,7 +50,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check for changesets
+        id: has_changesets
+        run: |
+          if ls .changeset/*.md >/dev/null 2>&1; then
+            echo "has=true" >> $GITHUB_OUTPUT
+          else
+            echo "has=false" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Create Release Pull Request or Publish to npm
+        if: steps.has_changesets.outputs.has == 'true'
         id: changesets
         uses: changesets/action@v1
         with:
