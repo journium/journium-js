@@ -7,5 +7,10 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [
+    "journium-nextjs-sample",
+    "journium-events-monitor", 
+    "journium-react-sample",
+    "journium-js-sample"
+  ]
 }
