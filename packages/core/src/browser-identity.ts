@@ -124,7 +124,7 @@ export class BrowserIdentityManager {
     this.saveIdentity();
   }
 
-  public identify(distinctId: string, attributes: Record<string, unknown> = {}): { previousDistinctId: string | null } {
+  public identify(distinctId: string, _attributes: Record<string, unknown> = {}): { previousDistinctId: string | null } {
     if (!this.identity) return { previousDistinctId: null };
     
     const previousDistinctId = this.identity.distinct_id;

@@ -20,13 +20,13 @@ const config = [
     input: 'src/index.tsx',
     output: [
       {
-        file: 'dist/index.js',
-        format: 'esm',
+        file: 'dist/index.cjs',
+        format: 'cjs',
         sourcemap: true,
         banner: '"use client"',
       },
       {
-        file: 'dist/index.esm.js',
+        file: 'dist/index.mjs',
         format: 'esm',
         sourcemap: true,
         banner: '"use client"',

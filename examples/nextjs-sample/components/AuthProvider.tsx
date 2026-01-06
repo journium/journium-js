@@ -107,7 +107,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   // Simulate login (replace with real API call)
-  const simulateLogin = (email: string, password: string): User | null => {
+  const simulateLogin = (email: string, _password: string): User | null => {
     // For demo purposes, accept any email/password
     const userId = `user_${email.split('@')[0]}_${Date.now()}`;
     return {
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   // Simulate signup (replace with real API call)
-  const simulateSignup = (name: string, email: string, company?: string, password?: string): User => {
+  const simulateSignup = (name: string, email: string, company?: string, _password?: string): User => {
     const userId = `user_${email.split('@')[0]}_${Date.now()}`;
     return {
       id: userId,

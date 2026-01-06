@@ -1,7 +1,14 @@
-import { PageviewTracker } from '../pageview';
-import { JourniumClient } from '../client';
+import { PageviewTracker } from '../pageview.js';
+import { JourniumClient } from '../JourniumClient.js';
+import * as coreUtils from '@journium/core';
 
-jest.mock('../client');
+jest.mock('../JourniumClient.js');
+jest.mock('@journium/core', () => ({
+  ...jest.requireActual('@journium/core'),
+  getCurrentUrl: jest.fn(),
+  getPageTitle: jest.fn(),
+  getReferrer: jest.fn(),
+}));
 
 describe('PageviewTracker', () => {
   let mockClient: jest.Mocked<JourniumClient>;
@@ -16,25 +23,10 @@ describe('PageviewTracker', () => {
     
     pageviewTracker = new PageviewTracker(mockClient);
     
-    Object.defineProperty(window, 'location', {
-      value: {
-        href: 'https://example.com/test?param=value',
-        host: 'example.com',
-        pathname: '/test',
-        search: '?param=value',
-      },
-      writable: true,
-    });
-    
-    Object.defineProperty(document, 'title', {
-      value: 'Test Page',
-      writable: true,
-    });
-    
-    Object.defineProperty(document, 'referrer', {
-      value: 'https://google.com',
-      writable: true,
-    });
+    // Mock the core utility functions
+    (coreUtils.getCurrentUrl as jest.Mock).mockReturnValue('https://example.com/test?param=value');
+    (coreUtils.getPageTitle as jest.Mock).mockReturnValue('Test Page');
+    (coreUtils.getReferrer as jest.Mock).mockReturnValue('https://google.com');
   });
 
   afterEach(() => {
