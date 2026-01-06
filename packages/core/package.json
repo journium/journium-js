@@ -1,12 +1,14 @@
 {
   "name": "@journium/core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "description": "Core functionality and types for Journium SDK - identity, events, and configuration",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "exports": {
     ".": {
@@ -47,13 +49,13 @@
     "directory": "packages/core"
   },
   "keywords": [
-    "journium", 
-    "core", 
-    "analytics", 
-    "identity", 
-    "events", 
-    "types", 
-    "typescript", 
+    "journium",
+    "core",
+    "analytics",
+    "identity",
+    "events",
+    "types",
+    "typescript",
     "sdk"
   ],
   "author": "Journium Team",

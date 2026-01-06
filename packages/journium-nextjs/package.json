@@ -1,13 +1,15 @@
 {
   "name": "@journium/nextjs",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "license": "MIT",
   "description": "Journium Next.js integration - SSR-ready analytics for Next.js applications",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "exports": {
     ".": {
@@ -56,14 +58,14 @@
     "directory": "packages/journium-nextjs"
   },
   "keywords": [
-    "analytics", 
-    "tracking", 
-    "journium", 
-    "nextjs", 
-    "react", 
-    "ssr", 
-    "ssg", 
-    "web-analytics", 
+    "analytics",
+    "tracking",
+    "journium",
+    "nextjs",
+    "react",
+    "ssr",
+    "ssg",
+    "web-analytics",
     "typescript"
   ],
   "author": "Journium Team",
