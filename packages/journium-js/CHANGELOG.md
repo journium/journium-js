@@ -1,5 +1,12 @@
 # @journium/js
 
+## 1.0.4
+
+### Patch Changes
+
+- bb2cab6: This is sample change made. No functionality is updated, added or removed.
+- 83ae866: Refactoring
+
 ## 1.0.3
 
 ### Patch Changes

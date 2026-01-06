@@ -1,5 +1,0 @@
----
-'@journium/js': patch
----
-
-Refactoring
