@@ -5,7 +5,7 @@ Thank you for your interest in contributing to the Journium JavaScript SDK! This
 ## Development Setup
 
 1. **Prerequisites**
-   - Node.js ≥18.0.0
+   - Node.js ≥20.0.0
    - pnpm ≥8.15.0
 
 2. **Installation**
