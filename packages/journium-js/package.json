@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "rollup": "^3.0.0",
+    "rollup": "^4.55.1",
     "@rollup/plugin-typescript": "^11.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "rollup-plugin-dts": "^5.0.0",
