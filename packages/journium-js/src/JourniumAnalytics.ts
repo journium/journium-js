@@ -1,6 +1,6 @@
 import { JourniumConfig, AutocaptureOptions } from '@journium/core';
 import { JourniumClient } from './JourniumClient';
-import { PageviewTracker } from './pageview';
+import { PageviewTracker } from './PageviewTracker';
 import { AutocaptureTracker } from './autocapture';
 
 export class JourniumAnalytics {

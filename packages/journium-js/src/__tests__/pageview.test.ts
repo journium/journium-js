@@ -1,4 +1,4 @@
-import { PageviewTracker } from '../pageview.js';
+import { PageviewTracker } from '../PageviewTracker.js';
 import { JourniumClient } from '../JourniumClient.js';
 import * as coreUtils from '@journium/core';
 
