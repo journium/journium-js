@@ -37,7 +37,7 @@
     "@types/node": "^20.0.0",
     "rollup": "^3.0.0",
     "@rollup/plugin-typescript": "^11.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "rollup-plugin-dts": "^5.0.0",
     "tslib": "^2.0.0"
   },
