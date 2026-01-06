@@ -15,7 +15,13 @@
   "devDependencies": {
     "http-server": "^14.1.1"
   },
-  "keywords": ["journium", "analytics", "javascript", "vanilla-js", "tracking"],
+  "keywords": [
+    "journium",
+    "analytics",
+    "javascript",
+    "vanilla-js",
+    "tracking"
+  ],
   "author": "Journium Team",
   "license": "MIT"
 }

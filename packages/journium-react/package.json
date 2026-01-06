@@ -1,13 +1,15 @@
 {
   "name": "@journium/react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "license": "MIT",
   "description": "Journium React integration - Provider, hooks, and components for React applications",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "exports": {
     ".": {
@@ -31,7 +33,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-     "@journium/js": "workspace:*",
+    "@journium/js": "workspace:*",
     "@journium/core": "workspace:*"
   },
   "peerDependencies": {
@@ -53,14 +55,14 @@
     "directory": "packages/journium-react"
   },
   "keywords": [
-    "analytics", 
-    "tracking", 
-    "journium", 
-    "react", 
-    "hooks", 
-    "provider", 
-    "context", 
-    "web-analytics", 
+    "analytics",
+    "tracking",
+    "journium",
+    "react",
+    "hooks",
+    "provider",
+    "context",
+    "web-analytics",
     "typescript"
   ],
   "author": "Journium Team",
