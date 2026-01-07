@@ -1,6 +1,9 @@
 import { JourniumClient } from './JourniumClient';
 import { isBrowser, AutocaptureOptions } from '@journium/core';
 
+/**
+ * AutocaptureTracker is responsible for tracking user interactions and capturing them as events.
+ */
 export class AutocaptureTracker {
   private client: JourniumClient;
   private options: AutocaptureOptions;
