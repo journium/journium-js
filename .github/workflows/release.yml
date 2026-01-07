@@ -50,31 +50,52 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # ------------------------------------------------------------
+      # Step 1: Check if there are pending changesets
+      # ------------------------------------------------------------
       - name: Check for changesets
         id: has_changesets
         run: |
-          if ls .changeset/*.md >/dev/null 2>&1; then
-            echo "has=true" >> $GITHUB_OUTPUT
+          # Count changeset files (exclude README.md)
+          changeset_count=$(find .changeset -name "*.md" -not -name "README.md" | wc -l)
+          if grep -R "^---$" .changeset/*.md >/dev/null 2>&1; then
+            echo "has_changesets=true" >> $GITHUB_OUTPUT
+            echo "✅ Found changesets to process"
           else
-            echo "has=false" >> $GITHUB_OUTPUT
+            echo "has_changesets=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changesets found - skipping release"
           fi
-      
-      - name: Create Release Pull Request or Publish to npm
-        if: steps.has_changesets.outputs.has == 'true'
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          version: pnpm version
-          publish: pnpm release
-          title: 'ci: release packages'
-          commit: 'ci: release packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Log published packages
-        if: steps.changesets.outputs.published == 'true'
+      
+      # ------------------------------------------------------------
+      # Step 2: Version packages (only if changesets exist)
+      # This updates package.json + CHANGELOG.md and
+      # DELETES the consumed .changeset/*.md files
+      # ------------------------------------------------------------
+      - name: Version packages
+        if: steps.has_changesets.outputs.has_changesets == 'true'
+        run: pnpm changeset version
+          
+      # ------------------------------------------------------------
+      # Step 3: Commit version & changelog updates to main
+      # (CI is allowed to push; humans are not)
+      # ------------------------------------------------------------
+      - name: Commit version updates
+        if: steps.has_changesets.outputs.has_changesets == 'true'
         run: |
-          echo "Published packages:"
-          echo "${{ steps.changesets.outputs.publishedPackages }}"
+          git status
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "ci: version packages"
+          git push origin main
+
+      # ------------------------------------------------------------
+      # Step 4: Build & publish packages to npm
+      # ------------------------------------------------------------
+      - name: Publish packages
+        if: steps.has_changesets.outputs.has_changesets == 'true'
+        run: pnpm release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
