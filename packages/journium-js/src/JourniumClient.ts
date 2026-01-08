@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, JourniumLocalOptions, ServerOptionsResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumLocalOptions, ServerOptionsResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
 
 export class JourniumClient {
   private config!: JourniumConfig;
@@ -12,7 +12,8 @@ export class JourniumClient {
   constructor(config: JourniumConfig) {
     // Validate required configuration
     if (!config.publishableKey) {
-      console.error('Journium: publishableKey is required but not provided. SDK will not function.');
+      Logger.setDebug(true);
+      Logger.error('Journium: publishableKey is required but not provided. SDK will not function.');
       return;
     }
 
@@ -39,6 +40,9 @@ export class JourniumClient {
       this.effectiveOptions = mergeOptions(defaultOptions, this.config.options);
     }
 
+    // Initialize Logger with debug setting
+    Logger.setDebug(this.effectiveOptions.debug ?? false);
+
     // Initialize identity manager
     this.identityManager = new BrowserIdentityManager(this.effectiveOptions.sessionTimeout, this.config.publishableKey);
 
@@ -56,9 +60,7 @@ export class JourniumClient {
       const cached = window.localStorage.getItem(this.optionsStorageKey);
       return cached ? JSON.parse(cached) : null;
     } catch (error) {
-      if (this.effectiveOptions?.debug) {
-        console.warn('Journium: Failed to load cached config:', error);
-      }
+      Logger.warn('Journium: Failed to load cached config:', error);
       return null;
     }
   }
@@ -71,9 +73,7 @@ export class JourniumClient {
     try {
       window.localStorage.setItem(this.optionsStorageKey, JSON.stringify(options));
     } catch (error) {
-      if (this.effectiveOptions?.debug) {
-        console.warn('Journium: Failed to save config to cache:', error);
-      }
+      Logger.warn('Journium: Failed to save config to cache:', error);
     }
   }
 
@@ -85,9 +85,7 @@ export class JourniumClient {
     if (!this.config.options && cachedRemoteOptions) {
       this.effectiveOptions = cachedRemoteOptions;
       
-      if (this.effectiveOptions.debug) {
-        console.log('Journium: Using cached remote options:', cachedRemoteOptions);
-      }
+      Logger.log('Journium: Using cached remote options:', cachedRemoteOptions);
     }
     
     // Step 3: Mark as initialized immediately - no need to wait for remote fetch
@@ -98,9 +96,7 @@ export class JourniumClient {
       this.startFlushTimer();
     }
     
-    if (this.effectiveOptions.debug) {
-      console.log('Journium: Client initialized with effective options:', this.effectiveOptions);
-    }
+    Logger.log('Journium: Client initialized with effective options:', this.effectiveOptions);
   }
 
   private async fetchRemoteOptionsAsync(): Promise<void> {
@@ -112,9 +108,7 @@ export class JourniumClient {
 
   private async fetchAndCacheRemoteOptions(): Promise<void> {
     try {
-      if (this.effectiveOptions.debug) {
-        console.log('Journium: Fetching remote configuration in background...');
-      }
+      Logger.log('Journium: Fetching remote configuration in background...');
       
       const remoteOptionsResponse = await fetchRemoteOptions(
         this.config.apiHost!,
@@ -139,15 +133,14 @@ export class JourniumClient {
           this.identityManager.updateSessionTimeout(this.effectiveOptions.sessionTimeout);
         }
         
-        if (this.effectiveOptions.debug) {
-          console.log('Journium: Background remote options applied:', remoteOptionsResponse.config);
-          console.log('Journium: New effective options:', this.effectiveOptions);
-        }
+        Logger.log('Journium: Background remote options applied:', remoteOptionsResponse.config);
+        Logger.log('Journium: New effective options:', this.effectiveOptions);
+        
+        // Update Logger debug setting with new options
+        Logger.setDebug(this.effectiveOptions.debug ?? false);
       }
     } catch (error) {
-      if (this.effectiveOptions.debug) {
-        console.warn('Journium: Background remote options fetch failed:', error);
-      }
+      Logger.warn('Journium: Background remote options fetch failed:', error);
     }
   }
 
@@ -181,13 +174,9 @@ export class JourniumClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      if (this.effectiveOptions.debug) {
-        console.log('Journium: Successfully sent events', events);
-      }
+      Logger.log('Journium: Successfully sent events', events);
     } catch (error) {
-      if (this.effectiveOptions.debug) {
-        console.error('Journium: Failed to send events', error);
-      }
+      Logger.error('Journium: Failed to send events', error);
       throw error;
     }
   }
@@ -195,9 +184,7 @@ export class JourniumClient {
   identify(distinctId: string, attributes: Record<string, unknown> = {}): void {
     // Don't identify if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
-      if (this.effectiveOptions?.debug) {
-        console.warn('Journium: identify() call rejected - SDK not ready');
-      }
+      Logger.warn('Journium: identify() call rejected - SDK not ready');
       return;
     }
 
@@ -212,34 +199,26 @@ export class JourniumClient {
 
     this.track('$identify', identifyProperties);
 
-    if (this.effectiveOptions.debug) {
-      console.log('Journium: User identified', { distinctId, attributes, previousDistinctId });
-    }
+    Logger.log('Journium: User identified', { distinctId, attributes, previousDistinctId });
   }
 
   reset(): void {
     // Don't reset if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
-      if (this.effectiveOptions?.debug) {
-        console.warn('Journium: reset() call rejected - SDK not ready');
-      }
+      Logger.warn('Journium: reset() call rejected - SDK not ready');
       return;
     }
 
     // Reset identity in identity manager
     this.identityManager.reset();
 
-    if (this.effectiveOptions.debug) {
-      console.log('Journium: User identity reset');
-    }
+    Logger.log('Journium: User identity reset');
   }
 
   track(event: string, properties: Record<string, unknown> = {}): void {
     // Don't track if SDK is not properly configured
     if (!this.config || !this.config.publishableKey || !this.initialized) {
-      if (this.effectiveOptions?.debug) {
-        console.warn('Journium: track() call rejected - SDK not ready');
-      }
+      Logger.warn('Journium: track() call rejected - SDK not ready');
       return;
     }
     const identity = this.identityManager.getIdentity();
@@ -269,9 +248,7 @@ export class JourniumClient {
 
     this.queue.push(journiumEvent);
 
-    if (this.effectiveOptions.debug) {
-      console.log('Journium: Event tracked', journiumEvent);
-    }
+    Logger.log('Journium: Event tracked', journiumEvent);
 
     if (this.queue.length >= this.effectiveOptions.flushAt!) {
       this.flush();
