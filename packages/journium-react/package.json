@@ -1,6 +1,6 @@
 {
   "name": "@journium/react",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
   "license": "MIT",
   "description": "Journium React integration - Provider, hooks, and components for React applications",

@@ -1,5 +1,13 @@
 # @journium/js
 
+## 1.0.6
+
+### Patch Changes
+
+- bfdfb5f: Added Logger in core sdk
+- Updated dependencies [bfdfb5f]
+  - @journium/core@1.0.4
+
 ## 1.0.5
 
 ### Patch Changes

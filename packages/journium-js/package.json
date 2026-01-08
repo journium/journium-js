@@ -1,6 +1,6 @@
 {
   "name": "@journium/js",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "license": "MIT",
   "description": "Journium JavaScript SDK for web browsers - Track events, pageviews, and user interactions with ease",
   "main": "dist/index.cjs",
