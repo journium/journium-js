@@ -38,7 +38,7 @@ const config = [
         tsconfig: './tsconfig.json',
       }),
     ],
-    external: ['react', 'next/navigation', '@journium/react', '@journium/core', 'journium-js'],
+    external: ['react', 'next/navigation', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
   },
   {
     input: 'src/index.tsx',
@@ -47,7 +47,7 @@ const config = [
       format: 'esm',
     },
     plugins: [dts()],
-    external: ['react', 'next/navigation', '@journium/react', '@journium/core', 'journium-js'],
+    external: ['react', 'next/navigation', 'next/router', '@journium/react', '@journium/core', 'journium-js'],
   },
 ];
 

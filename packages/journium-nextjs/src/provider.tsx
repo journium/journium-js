@@ -3,7 +3,7 @@
  * 
  * This component is a client component because it uses:
  * - React Context API (createContext) via BaseJourniumProvider
- * - Next.js client hooks (usePathname, useSearchParams)
+ * - Next.js client hooks (usePathname, useSearchParams for App Router, or useRouter for Pages Router)
  * - React hooks (useState, useEffect, useMemo)
  * 
  * IMPORTANT: The "use client" directive is added to the bundled output via Rollup
@@ -32,12 +32,29 @@
  * }
  * ```
  * 
+ * Example usage in Pages Router:
+ * ```tsx
+ * // pages/_app.tsx
+ * import { NextJourniumProvider } from '@journium/nextjs';
+ * 
+ * export default function App({ Component, pageProps }) {
+ *   return (
+ *     <NextJourniumProvider>
+ *       <Component {...pageProps} />
+ *     </NextJourniumProvider>
+ *   );
+ * }
+ * ```
+ * 
  * NOTE: The "use client" directive is NOT in this source file to avoid Rollup warnings.
  * It is added during the build process via the Rollup banner configuration.
+ * 
+ * ROUTER DETECTION: This component automatically detects whether you're using App Router
+ * or Pages Router and uses the appropriate tracking mechanism. No configuration needed.
  */
 
-import React, { ReactNode, useEffect, Suspense, useMemo } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import React, { ReactNode, useEffect, Suspense, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import { JourniumProvider as BaseJourniumProvider, useJournium } from '@journium/react';
 import { JourniumConfig } from '@journium/core';
 
@@ -68,20 +85,112 @@ function getPublishableKeyFromEnv(): string {
 
 /**
  * Internal component that tracks route changes and automatically captures pageviews.
- * Uses Next.js navigation hooks which require client-side execution.
+ * Automatically detects and uses the appropriate Next.js router (App Router or Pages Router).
+ * Uses dynamic imports to avoid build-time errors when next/navigation is not available.
  */
 const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({ 
   trackRouteChanges 
 }) => {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const { analytics } = useJournium();
+  const [routerType, setRouterType] = useState<'app' | 'pages' | null>(null);
+
+  useEffect(() => {
+    if (!trackRouteChanges || !analytics) return;
+
+    // Detect router type by attempting to import next/navigation
+    // If it succeeds, we're using App Router; if it fails, we're using Pages Router
+    import('next/navigation')
+      .then((_navigation) => {
+        // App Router detected - use usePathname and useSearchParams
+        setRouterType('app');
+      })
+      .catch(() => {
+        // Pages Router detected - will use next/router
+        setRouterType('pages');
+      });
+  }, [trackRouteChanges, analytics]);
+
+  // App Router tracker component
+  if (routerType === 'app') {
+    return <AppRouterTracker trackRouteChanges={trackRouteChanges} />;
+  }
+
+  // Pages Router tracker component
+  if (routerType === 'pages') {
+    return <PagesRouterTracker trackRouteChanges={trackRouteChanges} />;
+  }
+
+  // Still detecting router type
+  return null;
+};
+
+/**
+ * App Router tracker - uses usePathname and useSearchParams from next/navigation
+ * Uses dynamic import to avoid build errors in Pages Router, then creates a component
+ * that properly calls the hooks at the top level.
+ */
+const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
+  const [TrackerComponent, setTrackerComponent] = useState<React.ComponentType<{ trackRouteChanges: boolean }> | null>(null);
+  const { analytics } = useJournium();
+
+  useEffect(() => {
+    if (!analytics) return;
+
+    // Dynamically import App Router hooks and create a component that uses them
+    import('next/navigation')
+      .then((nav) => {
+        // Create a component that calls hooks at the top level (required by React)
+        const TrackerImpl: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
+          const pathname = nav.usePathname();
+          const searchParams = nav.useSearchParams();
+          const { analytics } = useJournium();
+
+          useEffect(() => {
+            if (!trackRouteChanges || !analytics) return;
+            analytics.capturePageview();
+          }, [pathname, searchParams, analytics, trackRouteChanges]);
+
+          return null;
+        };
+        setTrackerComponent(() => TrackerImpl);
+      })
+      .catch(() => {
+        // Should not happen since we only render this when App Router is detected
+        console.warn('Failed to load next/navigation hooks');
+      });
+  }, [analytics]);
+
+  if (!TrackerComponent) return null;
+
+  return <TrackerComponent trackRouteChanges={trackRouteChanges} />;
+};
+
+/**
+ * Pages Router tracker - uses useRouter from next/router with route events
+ * Note: useRouter from next/router is available in both App Router and Pages Router,
+ * but router.events only works in Pages Router, so this component is only rendered
+ * when Pages Router is detected.
+ */
+const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
+  const router = useRouter();
   const { analytics } = useJournium();
 
   useEffect(() => {
     if (!trackRouteChanges || !analytics) return;
 
+    // Track initial pageview
     analytics.capturePageview();
-  }, [pathname, searchParams, analytics, trackRouteChanges]);
+
+    const handleRouteChange = () => {
+      analytics.capturePageview();
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router, analytics, trackRouteChanges]);
 
   return null;
 };
@@ -132,7 +241,9 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
  * 
  * @remarks
  * - This component uses React Context, so it must be a client component
- * - Uses Next.js navigation hooks (usePathname, useSearchParams) for route tracking
+ * - Automatically detects and supports both App Router and Pages Router
+ * - Uses Next.js navigation hooks (usePathname, useSearchParams) for App Router
+ * - Uses Next.js router events (router.events) for Pages Router
  * - Automatically reads NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY if config.publishableKey is not provided
  * - Route change tracking is wrapped in Suspense to handle Next.js navigation state
  * 
