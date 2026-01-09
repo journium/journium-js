@@ -1,5 +1,12 @@
 # @journium/nextjs
 
+## 1.0.14
+
+### Patch Changes
+
+- 1c8d92c: Added support for Next.js Pages Router
+- 1c8d92c: Added dynamic router fixes
+
 ## 1.0.13
 
 ### Patch Changes
