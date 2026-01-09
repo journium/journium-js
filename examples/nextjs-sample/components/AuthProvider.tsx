@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, startTransition } from 'react';
 import { useIdentify, useReset } from '@journium/nextjs';
 
 interface User {
@@ -36,7 +36,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
-        setUser(parsedUser);
+        startTransition(() => {
+          setUser(parsedUser);
+        });
         
         // Re-identify user with Journium
         identify(parsedUser.id, {
@@ -51,7 +53,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.removeItem('journium_nextjs_demo_user');
       }
     }
-    setIsLoading(false);
+    startTransition(() => {
+      setIsLoading(false);
+    });
   }, [identify]);
 
   const login = async (email: string, password: string): Promise<boolean> => {

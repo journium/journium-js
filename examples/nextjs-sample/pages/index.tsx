@@ -126,7 +126,7 @@ export default function Home() {
           </section>
 
           <section className={`${styles.section} ${styles.info}`}>
-            <h2>📋 What's Happening</h2>
+            <h2>📋 What&apos;s Happening</h2>
             <ul>
               <li><strong>Auto Route Tracking:</strong> Automatically tracks pageviews when navigating between pages</li>
               <li><strong>SSR Support:</strong> Works with server-side rendering and static generation</li>
@@ -137,7 +137,7 @@ export default function Home() {
               <li><strong>Manual Pageviews:</strong> Programmatically triggered pageview events</li>
             </ul>
             <p className={styles.note}>
-              <strong>Note:</strong> Check your browser's developer console to see the events being tracked.
+              <strong>Note:</strong> Check your browser&apos;s developer console to see the events being tracked.
               Navigate between pages to see automatic route tracking in action.
             </p>
           </section>
