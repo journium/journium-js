@@ -22,6 +22,11 @@ Thank you for your interest in contributing to the Journium JavaScript SDK! This
    pnpm typecheck    # Type check
    pnpm test         # Run tests
    ```
+   
+4. **Run sample apps**
+   ```bash
+   pnpm run dev      # Run all apps and local event monitor
+   ```
 
 ## Making Changes
 

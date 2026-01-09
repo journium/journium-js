@@ -54,7 +54,6 @@
  */
 
 import React, { ReactNode, useEffect, Suspense, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
 import { JourniumProvider as BaseJourniumProvider, useJournium } from '@journium/react';
 import { JourniumConfig } from '@journium/core';
 
@@ -170,29 +169,53 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
  * Note: useRouter from next/router is available in both App Router and Pages Router,
  * but router.events only works in Pages Router, so this component is only rendered
  * when Pages Router is detected.
+ * Uses dynamic import to avoid build-time errors and ensure proper module resolution.
  */
 const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
-  const router = useRouter();
+  const [TrackerComponent, setTrackerComponent] = useState<React.ComponentType<{ trackRouteChanges: boolean }> | null>(null);
   const { analytics } = useJournium();
 
   useEffect(() => {
-    if (!trackRouteChanges || !analytics) return;
+    if (!analytics) return;
 
-    // Track initial pageview
-    analytics.capturePageview();
+    // Dynamically import Pages Router hooks and create a component that uses them
+    import('next/router')
+      .then((routerModule) => {
+        // Create a component that calls hooks at the top level (required by React)
+        const TrackerImpl: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
+          const router = routerModule.useRouter();
+          const { analytics } = useJournium();
 
-    const handleRouteChange = () => {
-      analytics.capturePageview();
-    };
+          useEffect(() => {
+            if (!trackRouteChanges || !analytics) return;
 
-    router.events.on('routeChangeComplete', handleRouteChange);
+            // Track initial pageview
+            analytics.capturePageview();
 
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-    };
-  }, [router, analytics, trackRouteChanges]);
+            const handleRouteChange = () => {
+              analytics.capturePageview();
+            };
 
-  return null;
+            router.events.on('routeChangeComplete', handleRouteChange);
+
+            return () => {
+              router.events.off('routeChangeComplete', handleRouteChange);
+            };
+          }, [router, analytics, trackRouteChanges]);
+
+          return null;
+        };
+        setTrackerComponent(() => TrackerImpl);
+      })
+      .catch(() => {
+        // Should not happen since we only render this when Pages Router is detected
+        console.warn('Failed to load next/router hooks');
+      });
+  }, [analytics]);
+
+  if (!TrackerComponent) return null;
+
+  return <TrackerComponent trackRouteChanges={trackRouteChanges} />;
 };
 
 /**
