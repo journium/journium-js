@@ -8,12 +8,18 @@ export class JourniumClient {
   private initialized: boolean = false;
   private identityManager!: BrowserIdentityManager;
   private optionsStorageKey!: string;
+  private disabled: boolean = false;
 
   constructor(config: JourniumConfig) {
-    // Validate required configuration
-    if (!config.publishableKey) {
+    // Validate required configuration - put in disabled state if invalid
+    if (!config.publishableKey || config.publishableKey.trim() === '') {
+      this.disabled = true;
       Logger.setDebug(true);
-      Logger.error('Journium: publishableKey is required but not provided. SDK will not function.');
+      Logger.error('Journium: publishableKey is required but not provided or is empty. SDK will not function.');
+      // Create minimal config to prevent crashes
+      this.config = { publishableKey: '', apiHost: 'https://events.journium.app' };
+      this.effectiveOptions = { debug: true };
+      this.optionsStorageKey = 'jrnm_invalid_options';
       return;
     }
 
@@ -182,9 +188,9 @@ export class JourniumClient {
   }
 
   identify(distinctId: string, attributes: Record<string, unknown> = {}): void {
-    // Don't identify if SDK is not properly configured
-    if (!this.config || !this.config.publishableKey || !this.initialized) {
-      Logger.warn('Journium: identify() call rejected - SDK not ready');
+    // Don't identify if SDK is not properly configured or disabled
+    if (this.disabled || !this.config || !this.config.publishableKey || !this.initialized) {
+      Logger.warn('Journium: identify() call rejected - SDK not ready or disabled');
       return;
     }
 
@@ -203,9 +209,9 @@ export class JourniumClient {
   }
 
   reset(): void {
-    // Don't reset if SDK is not properly configured
-    if (!this.config || !this.config.publishableKey || !this.initialized) {
-      Logger.warn('Journium: reset() call rejected - SDK not ready');
+    // Don't reset if SDK is not properly configured or disabled
+    if (this.disabled || !this.config || !this.config.publishableKey || !this.initialized) {
+      Logger.warn('Journium: reset() call rejected - SDK not ready or disabled');
       return;
     }
 
@@ -216,9 +222,9 @@ export class JourniumClient {
   }
 
   track(event: string, properties: Record<string, unknown> = {}): void {
-    // Don't track if SDK is not properly configured
-    if (!this.config || !this.config.publishableKey || !this.initialized) {
-      Logger.warn('Journium: track() call rejected - SDK not ready');
+    // Don't track if SDK is not properly configured or disabled
+    if (this.disabled || !this.config || !this.config.publishableKey || !this.initialized) {
+      Logger.warn('Journium: track() call rejected - SDK not ready or disabled');
       return;
     }
     const identity = this.identityManager.getIdentity();
