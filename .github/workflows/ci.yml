@@ -6,9 +6,47 @@ on:
     branches-ignore:
       - main
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  check-changesets:
+    name: Check for duplicate changesets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for already consumed changesets
+        run: |
+          # Get list of changeset files being added in this PR
+          ADDED_CHANGESETS=$(git diff --name-only --diff-filter=A origin/main...HEAD -- '.changeset/*.md' | grep -v README.md || true)
+          
+          if [ -z "$ADDED_CHANGESETS" ]; then
+            echo "No new changesets in this PR"
+            exit 0
+          fi
+          
+          echo "Changesets in this PR:"
+          echo "$ADDED_CHANGESETS"
+          
+          # Check if any of these files were previously deleted in main
+          for file in $ADDED_CHANGESETS; do
+            # Check if file was ever deleted in main's history
+            if git log origin/main --diff-filter=D --name-only --pretty=format: -- "$file" | grep -q "$file"; then
+              echo "::error::Changeset '$file' was already consumed and deleted in main. This branch likely needs to be rebased or reset."
+              exit 1
+            fi
+          done
+          
+          echo "All changesets are new. OK!"
+          
   ci:
     name: CI
+    needs: check-changesets
     timeout-minutes: 15
     runs-on: ubuntu-latest
     strategy:
