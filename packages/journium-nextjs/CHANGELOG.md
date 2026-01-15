@@ -1,5 +1,11 @@
 # @journium/nextjs
 
+## 1.0.17
+
+### Patch Changes
+
+- bb95323: Fix auto-track updates for Next.js
+
 ## 1.0.16
 
 ### Patch Changes
