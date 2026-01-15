@@ -25,10 +25,12 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   useEffect(() => {
     const analyticsInstance = new JourniumAnalytics(config);
     
-    // Get effective options and check if autocapture is enabled
-    const effective = analyticsInstance.getEffectiveOptions();
-    setEffectiveOptions(effective);
-    const autocaptureEnabled = effective.autocapture !== false;
+    // Get initial effective options (may include cached remote options)
+    const initialEffective = analyticsInstance.getEffectiveOptions();
+    setEffectiveOptions(initialEffective);
+    
+    // Check if autocapture should be enabled based on initial effective options
+    const autocaptureEnabled = initialEffective.autocapture !== false;
     
     if (autocaptureEnabled) {
       analyticsInstance.startAutocapture();
@@ -36,7 +38,17 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
     
     setAnalytics(analyticsInstance);
 
+    // Listen for options changes (when remote options are fetched)
+    // Note: JourniumAnalytics already handles restarting autocapture when options change
+    // We just need to update the effectiveOptions state for consumers
+    const unsubscribe = analyticsInstance.onOptionsChange((newOptions: JourniumLocalOptions) => {
+      setEffectiveOptions(newOptions);
+    });
+
     return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
       analyticsInstance.destroy();
       setAnalytics(null);
       setEffectiveOptions(null);
