@@ -58,3 +58,6 @@ auth-tokens.*
 # Temporary files
 scripts/tmp/
 scripts/.temp/
+
+# Next.js: Ignore generated types in all sub projects and examples
+examples/**/next-env.d.ts
