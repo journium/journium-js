@@ -258,6 +258,8 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
  * @param props.children - React children to wrap with the provider
  * @param props.config - Optional Journium configuration. If not provided, will use
  *                      NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY from environment variables.
+ *                      If apiHost is not provided in config, will use NEXT_PUBLIC_JOURNIUM_API_HOST
+ *                      from environment variables if available.
  * @param props.trackRouteChanges - Whether to automatically track route changes (default: true).
  *                                 When enabled, pageviews are automatically captured when
  *                                 the route changes using Next.js App Router navigation.
@@ -268,6 +270,7 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
  * - Uses Next.js navigation hooks (usePathname, useSearchParams) for App Router
  * - Uses Next.js router events (router.events) for Pages Router
  * - Automatically reads NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY if config.publishableKey is not provided
+ * - Automatically reads NEXT_PUBLIC_JOURNIUM_API_HOST if config.apiHost is not provided
  * - Route change tracking is wrapped in Suspense to handle Next.js navigation state
  * 
  * @throws {Error} If NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY is not set and config.publishableKey is not provided
@@ -284,10 +287,17 @@ export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
       ? config.publishableKey 
       : getPublishableKeyFromEnv();
     
-    // Merge config with env var (config takes precedence, but env var fills in missing publishableKey)
+    // Get apiHost from config if provided and non-empty, otherwise use env var if available
+    const apiHost = (config?.apiHost && config.apiHost.trim())
+      ? config.apiHost
+      : (process.env.NEXT_PUBLIC_JOURNIUM_API_HOST && process.env.NEXT_PUBLIC_JOURNIUM_API_HOST.trim())
+        ? process.env.NEXT_PUBLIC_JOURNIUM_API_HOST
+        : undefined;
+    
+    // Merge config with env var (config takes precedence, but env var fills in missing values)
     return {
       publishableKey,
-      ...(config?.apiHost && { apiHost: config.apiHost }),
+      ...(apiHost && { apiHost }),
       ...(config?.options && { options: config.options }),
     };
   }, [config]);
