@@ -1,4 +1,4 @@
-import { JourniumConfig, AutocaptureOptions } from '@journium/core';
+import { JourniumConfig, AutocaptureOptions, JourniumLocalOptions } from '@journium/core';
 import { JourniumClient } from './JourniumClient';
 import { PageviewTracker } from './PageviewTracker';
 import { AutocaptureTracker } from './AutocaptureTracker';
@@ -8,18 +8,24 @@ export class JourniumAnalytics {
   private pageviewTracker: PageviewTracker;
   private autocaptureTracker: AutocaptureTracker;
   private config: JourniumConfig;
-  private autocaptureEnabled: boolean;
+  private autocaptureStarted: boolean = false;
+  private unsubscribeOptionsChange?: () => void;
 
   constructor(config: JourniumConfig) {
     this.config = config;
     this.client = new JourniumClient(config);
     this.pageviewTracker = new PageviewTracker(this.client);
     
-    const autocaptureOptions = this.resolveAutocaptureOptions(config.options?.autocapture);
-    this.autocaptureTracker = new AutocaptureTracker(this.client, autocaptureOptions);
+    // Initialize autocapture tracker with effective options (may include cached remote options)
+    // This ensures we use the correct initial state even if cached remote options exist
+    const initialEffectiveOptions = this.client.getEffectiveOptions();
+    const initialAutocaptureOptions = this.resolveAutocaptureOptions(initialEffectiveOptions.autocapture);
+    this.autocaptureTracker = new AutocaptureTracker(this.client, initialAutocaptureOptions);
     
-    // Store resolved autocapture state for startAutocapture method
-    this.autocaptureEnabled = config.options?.autocapture !== false;
+    // Listen for options changes (e.g., when fresh remote options are fetched)
+    this.unsubscribeOptionsChange = this.client.onOptionsChange((effectiveOptions) => {
+      this.handleOptionsChange(effectiveOptions);
+    });
   }
 
   private resolveAutocaptureOptions(autocapture?: boolean | AutocaptureOptions): AutocaptureOptions {
@@ -56,22 +62,62 @@ export class JourniumAnalytics {
   }
 
   startAutocapture(): void {
-    // Check if automatic pageview tracking is enabled (defaults to true)
+    // Always check effective options (which may include remote options)
     const effectiveOptions = this.client.getEffectiveOptions();
     const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+    const autocaptureEnabled = effectiveOptions.autocapture !== false;
+    
+    // Update autocapture tracker options if they've changed
+    const autocaptureOptions = this.resolveAutocaptureOptions(effectiveOptions.autocapture);
+    this.autocaptureTracker.updateOptions(autocaptureOptions);
     
     if (autoTrackPageviews) {
       this.pageviewTracker.startAutocapture();
     }
     
-    if (this.autocaptureEnabled) {
+    if (autocaptureEnabled) {
       this.autocaptureTracker.start();
     }
+    
+    this.autocaptureStarted = true;
   }
 
   stopAutocapture(): void {
     this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
+    this.autocaptureStarted = false;
+  }
+
+  /**
+   * Handle effective options change (e.g., when remote options are fetched)
+   */
+  private handleOptionsChange(effectiveOptions: JourniumLocalOptions): void {
+    // If autocapture was already started, re-evaluate with new options
+    if (this.autocaptureStarted) {
+      // Stop current autocapture
+      this.pageviewTracker.stopAutocapture();
+      this.autocaptureTracker.stop();
+      this.autocaptureStarted = false;
+      
+      // Re-evaluate if autocapture should be enabled with new options
+      const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+      const autocaptureEnabled = effectiveOptions.autocapture !== false;
+      
+      // Update autocapture tracker options
+      const autocaptureOptions = this.resolveAutocaptureOptions(effectiveOptions.autocapture);
+      this.autocaptureTracker.updateOptions(autocaptureOptions);
+      
+      // Restart only if still enabled
+      if (autoTrackPageviews) {
+        this.pageviewTracker.startAutocapture();
+      }
+      
+      if (autocaptureEnabled) {
+        this.autocaptureTracker.start();
+      }
+      
+      this.autocaptureStarted = autoTrackPageviews || autocaptureEnabled;
+    }
   }
 
 
@@ -83,9 +129,19 @@ export class JourniumAnalytics {
     return this.client.getEffectiveOptions();
   }
 
+  /**
+   * Register a callback to be notified when effective options change
+   */
+  onOptionsChange(callback: (options: JourniumLocalOptions) => void): () => void {
+    return this.client.onOptionsChange(callback);
+  }
+
   destroy(): void {
     this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
+    if (this.unsubscribeOptionsChange) {
+      this.unsubscribeOptionsChange();
+    }
     this.client.destroy();
   }
 }
