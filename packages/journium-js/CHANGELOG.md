@@ -1,5 +1,11 @@
 # @journium/js
 
+## 1.0.7
+
+### Patch Changes
+
+- 75b2e5f: Remote config changes for autocapture settings (autoTrackPageviews, captureClicks, captureFormSubmits, etc.) were not applied after SDK initialization. This fix ensures remote config changes are respected immediately, restoring the intended remote control functionality.
+
 ## 1.0.6
 
 ### Patch Changes
