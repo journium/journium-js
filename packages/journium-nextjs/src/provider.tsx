@@ -86,15 +86,19 @@ function getPublishableKeyFromEnv(): string {
  * Internal component that tracks route changes and automatically captures pageviews.
  * Automatically detects and uses the appropriate Next.js router (App Router or Pages Router).
  * Uses dynamic imports to avoid build-time errors when next/navigation is not available.
+ * Respects autoTrackPageviews setting from effective options.
  */
 const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({ 
   trackRouteChanges 
 }) => {
-  const { analytics } = useJournium();
+  const { analytics, effectiveOptions } = useJournium();
   const [routerType, setRouterType] = useState<'app' | 'pages' | null>(null);
 
+  // Check if autoTrackPageviews is enabled (defaults to true if not set)
+  const autoTrackPageviewsEnabled = effectiveOptions?.autoTrackPageviews !== false;
+
   useEffect(() => {
-    if (!trackRouteChanges || !analytics) return;
+    if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
 
     // Detect router type by attempting to import next/navigation
     // If it succeeds, we're using App Router; if it fails, we're using Pages Router
@@ -107,7 +111,12 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
         // Pages Router detected - will use next/router
         setRouterType('pages');
       });
-  }, [trackRouteChanges, analytics]);
+  }, [trackRouteChanges, analytics, autoTrackPageviewsEnabled]);
+
+  // Don't track if autoTrackPageviews is disabled
+  if (!autoTrackPageviewsEnabled) {
+    return null;
+  }
 
   // App Router tracker component
   if (routerType === 'app') {
@@ -127,10 +136,11 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
  * App Router tracker - uses usePathname and useSearchParams from next/navigation
  * Uses dynamic import to avoid build errors in Pages Router, then creates a component
  * that properly calls the hooks at the top level.
+ * Respects autoTrackPageviews setting from effective options.
  */
 const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
   const [TrackerComponent, setTrackerComponent] = useState<React.ComponentType<{ trackRouteChanges: boolean }> | null>(null);
-  const { analytics } = useJournium();
+  const { analytics, effectiveOptions } = useJournium();
 
   useEffect(() => {
     if (!analytics) return;
@@ -142,12 +152,15 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
         const TrackerImpl: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
           const pathname = nav.usePathname();
           const searchParams = nav.useSearchParams();
-          const { analytics } = useJournium();
+          const { analytics, effectiveOptions } = useJournium();
+
+          // Check if autoTrackPageviews is enabled (defaults to true if not set)
+          const autoTrackPageviewsEnabled = effectiveOptions?.autoTrackPageviews !== false;
 
           useEffect(() => {
-            if (!trackRouteChanges || !analytics) return;
+            if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
             analytics.capturePageview();
-          }, [pathname, searchParams, analytics, trackRouteChanges]);
+          }, [pathname, searchParams, analytics, trackRouteChanges, autoTrackPageviewsEnabled]);
 
           return null;
         };
@@ -157,7 +170,7 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
         // Should not happen since we only render this when App Router is detected
         console.warn('Failed to load next/navigation hooks');
       });
-  }, [analytics]);
+  }, [analytics, effectiveOptions]);
 
   if (!TrackerComponent) return null;
 
@@ -170,10 +183,11 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
  * but router.events only works in Pages Router, so this component is only rendered
  * when Pages Router is detected.
  * Uses dynamic import to avoid build-time errors and ensure proper module resolution.
+ * Respects autoTrackPageviews setting from effective options.
  */
 const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
   const [TrackerComponent, setTrackerComponent] = useState<React.ComponentType<{ trackRouteChanges: boolean }> | null>(null);
-  const { analytics } = useJournium();
+  const { analytics, effectiveOptions } = useJournium();
 
   useEffect(() => {
     if (!analytics) return;
@@ -184,16 +198,24 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
         // Create a component that calls hooks at the top level (required by React)
         const TrackerImpl: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
           const router = routerModule.useRouter();
-          const { analytics } = useJournium();
+          const { analytics, effectiveOptions } = useJournium();
+
+          // Check if autoTrackPageviews is enabled (defaults to true if not set)
+          const autoTrackPageviewsEnabled = effectiveOptions?.autoTrackPageviews !== false;
 
           useEffect(() => {
-            if (!trackRouteChanges || !analytics) return;
+            if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
 
             // Track initial pageview
             analytics.capturePageview();
 
             const handleRouteChange = () => {
-              analytics.capturePageview();
+              // Re-check autoTrackPageviews in case it changed
+              const currentEffectiveOptions = analytics.getEffectiveOptions();
+              const currentAutoTrackEnabled = currentEffectiveOptions.autoTrackPageviews !== false;
+              if (currentAutoTrackEnabled) {
+                analytics.capturePageview();
+              }
             };
 
             router.events.on('routeChangeComplete', handleRouteChange);
@@ -201,7 +223,7 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
             return () => {
               router.events.off('routeChangeComplete', handleRouteChange);
             };
-          }, [router, analytics, trackRouteChanges]);
+          }, [router, analytics, trackRouteChanges, autoTrackPageviewsEnabled]);
 
           return null;
         };
@@ -211,7 +233,7 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
         // Should not happen since we only render this when Pages Router is detected
         console.warn('Failed to load next/router hooks');
       });
-  }, [analytics]);
+  }, [analytics, effectiveOptions]);
 
   if (!TrackerComponent) return null;
 
