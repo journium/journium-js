@@ -1,5 +1,11 @@
 # @journium/nextjs
 
+## 1.0.15
+
+### Patch Changes
+
+- c9cbf16: Override API Host via NEXT_PUBLIC_JOURNIUM_API_HOST environment variable in Next.js. This has lower precedence over direct config parameter.
+
 ## 1.0.14
 
 ### Patch Changes
