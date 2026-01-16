@@ -17,7 +17,7 @@ Learn how to use Journium in your React application:
 - [SDK Reference](https://journium.app/docs/react/hooks)
 
 ### Prerequisites
-- React 18 or later
+- React 16.8.0 or later (see [React Version Compatibility](COMPATIBILITY.md))
 - Node.js `>=18.17.0` or later
 - An existing Journium application. [Create your account for free](https://dashboard.journium.app/sign-up?utm_source=github&utm_medium=journium_react).
 

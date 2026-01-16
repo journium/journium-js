@@ -8,7 +8,7 @@ interface JourniumContextValue {
   effectiveOptions: JourniumLocalOptions | null;
 }
 
-const JourniumContext = createContext<JourniumContextValue>({ analytics: null, config: null, effectiveOptions: null });
+const JourniumContext = createContext<JourniumContextValue | undefined>(undefined);
 
 interface JourniumProviderProps {
   children: ReactNode;
