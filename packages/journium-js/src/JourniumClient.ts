@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, JourniumLocalOptions, ServerOptionsResponse, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumLocalOptions, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
 
 export class JourniumClient {
   private config!: JourniumConfig;
@@ -9,6 +9,7 @@ export class JourniumClient {
   private identityManager!: BrowserIdentityManager;
   private optionsStorageKey!: string;
   private disabled: boolean = false;
+  private optionsChangeCallbacks: Set<(options: JourniumLocalOptions) => void> = new Set();
 
   constructor(config: JourniumConfig) {
     // Validate required configuration - put in disabled state if invalid
@@ -87,12 +88,20 @@ export class JourniumClient {
     // Step 1: Load cached remote options from localStorage (synchronous)
     const cachedRemoteOptions = this.loadCachedOptions();
     
-    // Step 2: If no local options provided, use cached remote options
-    if (!this.config.options && cachedRemoteOptions) {
-      this.effectiveOptions = cachedRemoteOptions;
-      
-      Logger.log('Journium: Using cached remote options:', cachedRemoteOptions);
+    // Step 2: Merge cached remote options with local options (if cached options exist)
+    // Local options take precedence over cached remote options
+    if (cachedRemoteOptions) {
+      if (this.config.options) {
+        // Merge: local options override cached remote options
+        this.effectiveOptions = mergeOptions(cachedRemoteOptions, this.config.options);
+        Logger.log('Journium: Using cached remote options merged with local options:', this.effectiveOptions);
+      } else {
+        // No local options, use cached remote options as-is
+        this.effectiveOptions = cachedRemoteOptions;
+        Logger.log('Journium: Using cached remote options:', cachedRemoteOptions);
+      }
     }
+    // If no cached options, effectiveOptions already has defaults merged with local options from constructor
     
     // Step 3: Mark as initialized immediately - no need to wait for remote fetch
     this.initialized = true;
@@ -144,10 +153,34 @@ export class JourniumClient {
         
         // Update Logger debug setting with new options
         Logger.setDebug(this.effectiveOptions.debug ?? false);
+        
+        // Notify all registered callbacks about the options change
+        this.notifyOptionsChange();
       }
     } catch (error) {
       Logger.warn('Journium: Background remote options fetch failed:', error);
     }
+  }
+
+  /**
+   * Register a callback to be notified when effective options change (e.g., when remote options are fetched)
+   */
+  onOptionsChange(callback: (options: JourniumLocalOptions) => void): () => void {
+    this.optionsChangeCallbacks.add(callback);
+    // Return unsubscribe function
+    return () => {
+      this.optionsChangeCallbacks.delete(callback);
+    };
+  }
+
+  private notifyOptionsChange(): void {
+    this.optionsChangeCallbacks.forEach(callback => {
+      try {
+        callback(this.effectiveOptions);
+      } catch (error) {
+        Logger.warn('Journium: Error in options change callback:', error);
+      }
+    });
   }
 
   private startFlushTimer(): void {

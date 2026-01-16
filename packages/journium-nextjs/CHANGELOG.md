@@ -1,5 +1,25 @@
 # @journium/nextjs
 
+## 1.0.17
+
+### Patch Changes
+
+- bb95323: Fix auto-track updates for Next.js
+
+## 1.0.16
+
+### Patch Changes
+
+- Updated dependencies [75b2e5f]
+  - @journium/react@1.0.7
+  - @journium/js@1.0.7
+
+## 1.0.15
+
+### Patch Changes
+
+- c9cbf16: Override API Host via NEXT_PUBLIC_JOURNIUM_API_HOST environment variable in Next.js. This has lower precedence over direct config parameter.
+
 ## 1.0.14
 
 ### Patch Changes

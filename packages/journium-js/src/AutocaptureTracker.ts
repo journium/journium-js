@@ -24,6 +24,35 @@ export class AutocaptureTracker {
     };
   }
 
+  /**
+   * Update autocapture options and restart if currently active
+   */
+  updateOptions(options: AutocaptureOptions): void {
+    const wasActive = this.isActive;
+    
+    // Stop if currently active
+    if (wasActive) {
+      this.stop();
+    }
+    
+    // Update options
+    this.options = {
+      captureClicks: true,
+      captureFormSubmits: true,
+      captureFormChanges: true,
+      captureTextSelection: false,
+      ignoreClasses: ['journium-ignore'],
+      ignoreElements: ['script', 'style', 'noscript'],
+      captureContentText: true,
+      ...options,
+    };
+    
+    // Restart if it was active before
+    if (wasActive) {
+      this.start();
+    }
+  }
+
   start(): void {
     if (!isBrowser() || this.isActive) {
       return;
