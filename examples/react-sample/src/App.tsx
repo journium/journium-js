@@ -20,9 +20,15 @@ const journiumConfig = {
   //apiHost: 'https://ingestion.bhushan-685.workers.dev',
   options: {
     debug: true,  // Always set locally - never configured remotely
-    flushAt: 5,   // Send events immediately for demo purposes
-    flushInterval: 1000,  // Also flush every 1 second for demo
-    // autocapture: true by default - set to false to disable button/form tracking
+    flushAt: 10,   // Send events immediately for demo purposes
+    flushInterval: 2000,
+    autocapture:{
+      captureClicks: true,
+      captureFormSubmits: true,
+      captureFormChanges: true,
+      ignoreClasses: ['no-track', 'sensitive'],
+      captureContentText: true
+    }  
   }
 };
 

@@ -94,8 +94,11 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
   const { analytics, effectiveOptions } = useJournium();
   const [routerType, setRouterType] = useState<'app' | 'pages' | null>(null);
 
-  // Check if autoTrackPageviews is enabled (defaults to true if not set)
-  const autoTrackPageviewsEnabled = effectiveOptions?.autoTrackPageviews !== false;
+  // Check if autoTrackPageviews is enabled 
+  // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
+  const autoTrackPageviewsEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0 
+    ? effectiveOptions.autoTrackPageviews !== false 
+    : false;
 
   useEffect(() => {
     if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
@@ -154,8 +157,11 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
           const searchParams = nav.useSearchParams();
           const { analytics, effectiveOptions } = useJournium();
 
-          // Check if autoTrackPageviews is enabled (defaults to true if not set)
-          const autoTrackPageviewsEnabled = effectiveOptions?.autoTrackPageviews !== false;
+          // Check if autoTrackPageviews is enabled
+          // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
+          const autoTrackPageviewsEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0 
+            ? effectiveOptions.autoTrackPageviews !== false 
+            : false;
 
           useEffect(() => {
             if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
@@ -200,8 +206,11 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
           const router = routerModule.useRouter();
           const { analytics, effectiveOptions } = useJournium();
 
-          // Check if autoTrackPageviews is enabled (defaults to true if not set)
-          const autoTrackPageviewsEnabled = effectiveOptions?.autoTrackPageviews !== false;
+          // Check if autoTrackPageviews is enabled
+          // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
+          const autoTrackPageviewsEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0 
+            ? effectiveOptions.autoTrackPageviews !== false 
+            : false;
 
           useEffect(() => {
             if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
@@ -212,7 +221,9 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
             const handleRouteChange = () => {
               // Re-check autoTrackPageviews in case it changed
               const currentEffectiveOptions = analytics.getEffectiveOptions();
-              const currentAutoTrackEnabled = currentEffectiveOptions.autoTrackPageviews !== false;
+              const currentAutoTrackEnabled = currentEffectiveOptions && Object.keys(currentEffectiveOptions).length > 0
+                ? currentEffectiveOptions.autoTrackPageviews !== false
+                : false;
               if (currentAutoTrackEnabled) {
                 analytics.capturePageview();
               }

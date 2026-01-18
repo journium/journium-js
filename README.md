@@ -153,7 +153,6 @@ For comprehensive guides, tutorials, and API references, visit **[docs.journium.
 
 - [ ] **Real-time events** - WebSocket support for real-time event streaming
 - [ ] **Enhanced auto-capture** - More intelligent automatic event detection
-- [ ] **Performance monitoring** - Built-in performance tracking
 - [ ] **A/B testing** - Native A/B testing capabilities
 - [ ] **Mobile SDKs** - React Native, iOS, and Android support
 

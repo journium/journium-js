@@ -23,15 +23,6 @@ export interface JourniumServerOptions {
   autocapture?: boolean | AutocaptureOptions;
   autoTrackPageviews?: boolean;
   sessionTimeout?: number;
-  sampling?: {
-    enabled?: boolean;
-    rate?: number;
-  };
-  features?: {
-    enableGeolocation?: boolean;
-    enableSessionRecording?: boolean;
-    enablePerformanceTracking?: boolean;
-  };
   [key: string]: unknown;
 }
 
@@ -48,15 +39,6 @@ export interface JourniumLocalOptions {
   autocapture?: boolean | AutocaptureOptions;
   autoTrackPageviews?: boolean;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
-  sampling?: {
-    enabled?: boolean;
-    rate?: number;
-  };
-  features?: {
-    enableGeolocation?: boolean;
-    enableSessionRecording?: boolean;
-    enablePerformanceTracking?: boolean;
-  };
   [key: string]: unknown;
 }
 

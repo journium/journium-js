@@ -28,8 +28,9 @@ class JourniumDemo {
         this.startSessionTimer();
         this.setupFormTracking();
         
-        // Track initial page view
-        this.trackPageView('home');
+        // Handle initial page load and browser navigation
+        this.handleInitialPageLoad();
+        this.setupBrowserNavigation();
     }
 
     // Initialize Journium SDK
@@ -46,12 +47,11 @@ class JourniumDemo {
                     debug: true,  // Always set locally - never configured remotely
                     flushAt: 1,   // Demo: send events immediately
                     flushInterval: 1000,  // Demo: flush every 1 second
-                    // autocapture: true by default - set to false to disable
+                    // autocapture and autoTrackPageviews start automatically based on remote/local config
+                    // No need to manually call startAutocapture() - it's automatic now!
                 }
             });
 
-            // Start auto-capture for automatic tracking
-            this.journium.startAutocapture();
 
             this.log('✅ Journium SDK initialized successfully');
             this.updateDebugInfo();
@@ -91,25 +91,83 @@ class JourniumDemo {
         // Update current page
         this.currentPage = pageName;
 
-        // Track page view
-        this.trackPageView(pageName);
+        // Update URL using History API (this will trigger automatic pageview tracking)
+        const newUrl = pageName === 'home' ? '/' : `/${pageName}`;
+        window.history.pushState({ page: pageName }, '', newUrl);
+
+        // Manual pageview tracking is no longer needed since URL changes will trigger automatic tracking
+        // this.trackPageView(pageName);
+        this.updatePageViewCount();
+        this.updateDebugInfo();
+    }
+
+    // Handle initial page load based on URL
+    handleInitialPageLoad() {
+        const currentPath = window.location.pathname;
+        let initialPage = 'home';
+        
+        // Determine initial page from URL
+        if (currentPath === '/products') {
+            initialPage = 'products';
+        } else if (currentPath === '/about') {
+            initialPage = 'about';
+        } else if (currentPath === '/contact') {
+            initialPage = 'contact';
+        }
+        
+        // Navigate to the correct page without changing URL (since it's already correct)
+        this.showPage(initialPage);
+    }
+
+    // Setup browser navigation (back/forward buttons)
+    setupBrowserNavigation() {
+        window.addEventListener('popstate', (event) => {
+            const currentPath = window.location.pathname;
+            let targetPage = 'home';
+            
+            // Determine page from URL
+            if (currentPath === '/products') {
+                targetPage = 'products';
+            } else if (currentPath === '/about') {
+                targetPage = 'about';
+            } else if (currentPath === '/contact') {
+                targetPage = 'contact';
+            }
+            
+            // Show the correct page without changing URL (browser already did that)
+            this.showPage(targetPage);
+        });
+    }
+
+    // Show page without changing URL (for popstate and initial load)
+    showPage(pageName) {
+        // Hide current page
+        document.querySelector(`#${this.currentPage}`).classList.remove('active');
+        document.querySelector(`.nav-link[data-page="${this.currentPage}"]`).classList.remove('active');
+
+        // Show target page
+        document.querySelector(`#${pageName}`).classList.add('active');
+        document.querySelector(`.nav-link[data-page="${pageName}"]`).classList.add('active');
+
+        // Update current page
+        this.currentPage = pageName;
         this.updatePageViewCount();
         this.updateDebugInfo();
     }
 
     // Track page view events
     trackPageView(pageName) {
-        if (this.journium) {
-            this.journium.capturePageview({
-                page_name: pageName,
-                page_type: 'spa_page',
-                framework: 'vanilla_js',
-                timestamp: new Date().toISOString(),
-                session_duration: this.getSessionDuration()
-            });
+        // if (this.journium) {
+        //     this.journium.capturePageview({
+        //         page_name: pageName,
+        //         page_type: 'spa_page',
+        //         framework: 'vanilla_js',
+        //         timestamp: new Date().toISOString(),
+        //         session_duration: this.getSessionDuration()
+        //     });
 
-            this.log(`📄 Page view tracked: ${pageName}`);
-        }
+        //     this.log(`📄 Page view tracked: ${pageName}`);
+        // }
     }
 
     // Set up event tracking for interactive elements
