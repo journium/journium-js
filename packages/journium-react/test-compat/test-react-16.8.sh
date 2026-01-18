@@ -35,7 +35,7 @@ cat > package.json <<EOF
     "@types/react-dom": "16.9.0",
     "@testing-library/react": "^9.5.0",
     "@testing-library/jest-dom": "^5.16.5",
-    "typescript": "^4.9.0",
+    "typescript": "^4.9.5",
     "ts-jest": "^29.0.0",
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^29.0.0"
@@ -52,7 +52,7 @@ pnpm --filter @journium/js build > /dev/null 2>&1
 # Install dependencies first
 echo "📥 Installing React 16.8.0 and dependencies..."
 cd "$TEST_DIR"
-npm install --no-audit --no-fund
+npm install --no-audit --no-fund --legacy-peer-deps
 
 # Pack the @journium/react package using pnpm (handles workspace deps)
 echo "📦 Creating @journium/react package tarball..."
