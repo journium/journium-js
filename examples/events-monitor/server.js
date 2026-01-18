@@ -53,7 +53,7 @@ function broadcastEvent(eventData) {
   });
 }
 
-app.get('/v1/configs', (req, res) => {
+app.get('/v1/configs', async  (req, res) => {
   const ingestion_key = req.query.ingestion_key;
   
   if (!ingestion_key) {
@@ -65,26 +65,18 @@ app.get('/v1/configs', (req, res) => {
     debug: true,
     flushAt: 5,
     flushInterval: 1000,
+    autoTrackPageviews: true,
     autocapture: {
       captureClicks: true,
       captureFormSubmits: true,
-      captureFormChanges: false,
+      captureFormChanges: true,
       ignoreClasses: ['no-track', 'sensitive'],
-      captureContentText: false
-    },
-    sampling: {
-      enabled: true,
-      rate: 1.0
-    },
-    features: {
-      enableGeolocation: false,
-      enableSessionRecording: false,
-      enablePerformanceTracking: true
+      captureContentText: true
     }
   };
   
   console.log(`Config requested for ingestion_key: ${ingestion_key}`);
-  
+  // await new Promise(resolve => setTimeout(resolve, 5000));
   res.status(200).json({ 
     success: true,
     config: remoteConfig,

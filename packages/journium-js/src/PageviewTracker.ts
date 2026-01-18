@@ -34,7 +34,7 @@ export class PageviewTracker {
    * Start automatic autocapture for pageviews
    * @returns void
    */
-  startAutocapture(): void {
+  startAutoPageviewTracking(): void {
     this.capturePageview();
 
     if (typeof window !== 'undefined') {

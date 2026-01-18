@@ -8,7 +8,7 @@ interface JourniumContextValue {
   effectiveOptions: JourniumLocalOptions | null;
 }
 
-const JourniumContext = createContext<JourniumContextValue>({ analytics: null, config: null, effectiveOptions: null });
+const JourniumContext = createContext<JourniumContextValue | undefined>(undefined);
 
 interface JourniumProviderProps {
   children: ReactNode;
@@ -25,22 +25,16 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   useEffect(() => {
     const analyticsInstance = new JourniumAnalytics(config);
     
-    // Get initial effective options (may include cached remote options)
+    // Get initial effective options (may be empty during remote-first initialization)
     const initialEffective = analyticsInstance.getEffectiveOptions();
     setEffectiveOptions(initialEffective);
     
-    // Check if autocapture should be enabled based on initial effective options
-    const autocaptureEnabled = initialEffective.autocapture !== false;
-    
-    if (autocaptureEnabled) {
-      analyticsInstance.startAutocapture();
-    }
-    
+    // Don't start autocapture immediately with potentially empty options
+    // Let the analytics instance handle autocapture after initialization completes
     setAnalytics(analyticsInstance);
 
     // Listen for options changes (when remote options are fetched)
-    // Note: JourniumAnalytics already handles restarting autocapture when options change
-    // We just need to update the effectiveOptions state for consumers
+    // The JourniumAnalytics will automatically start autocapture when initialization completes
     const unsubscribe = analyticsInstance.onOptionsChange((newOptions: JourniumLocalOptions) => {
       setEffectiveOptions(newOptions);
     });

@@ -36,7 +36,7 @@
     "package": "export PACKAGE_DEST=$(pwd)/dist && turbo package",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish --provenance"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",

@@ -66,6 +66,20 @@ Thank you for your interest in contributing to the Journium JavaScript SDK! This
 - **Documentation**: Update relevant documentation
 - **Changesets**: Include a changeset for user-facing changes
 
+## Branch Management
+
+This repo uses squash merges. After your PR is merged:
+
+1. **Delete your feature branch** (this happens automatically)
+2. If you need to continue work, create a **new branch from main**:
+```bash
+   git checkout main
+   git pull
+   git checkout -b new-feature-branch
+```
+
+⚠️ **Do not reuse branches after they've been merged** — this causes duplicate changesets and version bumps.
+
 ## Package Structure
 
 - `@journium/core` - Core types and utilities
