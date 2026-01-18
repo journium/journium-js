@@ -81,10 +81,10 @@ module.exports = {
   testMatch: ['**/*.test.tsx'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   moduleNameMapper: {
-    '^@journium/react$': '<rootDir>/node_modules/@journium/react'
+    '^@journium/react\$': '<rootDir>/node_modules/@journium/react'
   },
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?\$': ['ts-jest', {
       tsconfig: {
         jsx: 'react',
         esModuleInterop: true,
@@ -92,7 +92,7 @@ module.exports = {
         module: 'commonjs',
         target: 'es5'
       }
-    }
+    }]
   }
 };
 EOF

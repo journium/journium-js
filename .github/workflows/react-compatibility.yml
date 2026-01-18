@@ -61,6 +61,9 @@ jobs:
           cd /tmp/react-compat-test
           npm init -y
           
+          # Update package.json to add test script
+          npm pkg set scripts.test="jest"
+          
       - name: Install React ${{ matrix.react-version }}
         run: |
           cd /tmp/react-compat-test
@@ -123,8 +126,8 @@ jobs:
             moduleNameMapper: {
               '^@journium/react\$': '<rootDir>/node_modules/@journium/react'
             },
-            globals: {
-              'ts-jest': {
+            transform: {
+              '^.+\\.tsx?\$': ['ts-jest', {
                 tsconfig: {
                   jsx: 'react',
                   esModuleInterop: true,
@@ -132,7 +135,7 @@ jobs:
                   module: 'commonjs',
                   target: 'es2017'
                 }
-              }
+              }]
             }
           };
           EOF
