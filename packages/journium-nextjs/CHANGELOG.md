@@ -1,5 +1,18 @@
 # @journium/nextjs
 
+## 1.1.0
+
+### Minor Changes
+
+- 3659c54: Eliminated use of default configs. Made remote config prerequisites for sdk initialisation. Removed unused options.
+
+### Patch Changes
+
+- Updated dependencies [3659c54]
+  - @journium/react@1.1.0
+  - @journium/js@1.1.0
+  - @journium/core@1.1.0
+
 ## 1.0.17
 
 ### Patch Changes
