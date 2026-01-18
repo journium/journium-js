@@ -101,9 +101,9 @@ jobs:
       - name: Pack and install @journium/react
         run: |
           cd ${{ github.workspace }}/packages/journium-react
-          PACKAGE_FILE=$(npm pack 2>&1 | tail -n 1)
+          PACKAGE_FILE=$(pnpm pack 2>&1 | grep -o '[^/]*\.tgz$')
           cd /tmp/react-compat-test
-          npm install ${{ github.workspace }}/packages/journium-react/$PACKAGE_FILE
+          npm install ${{ github.workspace }}/packages/journium-react/$PACKAGE_FILE --legacy-peer-deps
           rm ${{ github.workspace }}/packages/journium-react/$PACKAGE_FILE
 
       - name: Copy test suite
