@@ -37,10 +37,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "rollup": "^3.0.0",
-    "@rollup/plugin-typescript": "^11.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
-    "rollup-plugin-dts": "^5.0.0",
+    "rollup": "^4.55.2",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "rollup-plugin-dts": "^6.3.0",
     "tslib": "^2.0.0"
   },
   "repository": {
