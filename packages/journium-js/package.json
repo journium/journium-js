@@ -29,7 +29,6 @@
     "dev": "rollup -c -w",
     "test": "jest --config jest.config.cjs",
     "test:unit": "jest --config jest.config.cjs",
-    "test:cdn": "echo 'Open test-cdn.html in browser to test CDN build'",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
