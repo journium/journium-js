@@ -3,11 +3,11 @@
 [![npm version](https://badge.fury.io/js/@journium%2Fjs.svg)](https://badge.fury.io/js/@journium%2Fjs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![Documentation](https://img.shields.io/badge/docs-docs.journium.app-blue.svg)](https://docs.journium.app)
+[![Documentation](https://img.shields.io/badge/docs-journium.app/docs-blue.svg)](https://journium.app/docs)
 
 A comprehensive JavaScript SDK for Journium analytics, providing seamless event tracking across web browsers, React, Next.js, and Node.js environments.
 
-**📚 [Full Documentation](https://docs.journium.app) | 🚀 [Quick Start](#-quick-start) | 📦 [Installation](#-installation)**
+**📚 [Full Documentation](https://journium.app/docs) | 🚀 [Quick Start](#-quick-start) | 📦 [Installation](#-installation)**
 
 ## What is Journium?
 
@@ -107,9 +107,9 @@ Check out our example applications and guides:
 - **[Events Monitor](/examples/events-monitor)** - Debug tool for viewing events
 
 **Online Guides:**
-- **[Live Demo](https://docs.journium.app/demo)** - Interactive SDK demo
-- **[Code Examples](https://docs.journium.app/examples)** - More integration examples
-- **[Best Practices](https://docs.journium.app/best-practices)** - Implementation patterns
+- **[Live Demo](https://journium.app/docs/demo)** - Interactive SDK demo
+- **[Code Examples](https://journium.app/docs/examples)** - More integration examples
+- **[Best Practices](https://journium.app/docs/best-practices)** - Implementation patterns
 
 ## 🤝 Contributing
 
@@ -131,23 +131,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support & Resources
 
-- **📚 Documentation**: [https://docs.journium.app](https://docs.journium.app)
+- **📚 Documentation**: [https://journium.app/docs](https://journium.app/docs)
 - **🐛 Issues**: [GitHub Issues](https://github.com/journium/journium-js/issues)
 - **💬 Discussions**: [GitHub Discussions](https://github.com/journium/journium-js/discussions)
 - **📧 Email**: support@journium.com
 
 ## 📖 Additional Documentation
 
-For comprehensive guides, tutorials, and API references, visit **[docs.journium.app](https://docs.journium.app)**:
-
-### 🔗 Quick Links
-- **[Getting Started Guide](https://docs.journium.app/getting-started)** - Complete setup walkthrough
-- **[API Reference](https://docs.journium.app/api)** - Detailed method documentation
-- **[React Integration](https://docs.journium.app/integrations/react)** - React-specific guides
-- **[Next.js Integration](https://docs.journium.app/integrations/nextjs)** - Next.js setup and SSR
-- **[Node.js Server-Side](https://docs.journium.app/integrations/nodejs)** - Backend tracking
-- **[Configuration](https://docs.journium.app/configuration)** - All configuration options
-- **[Privacy & Compliance](https://docs.journium.app/privacy)** - GDPR, data handling
+For comprehensive guides, tutorials, and API references, visit **[journium.app/docs](https://journium.app/docs)**:
 
 ## 🗺️ Roadmap
 

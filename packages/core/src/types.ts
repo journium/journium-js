@@ -27,9 +27,10 @@ export interface JourniumServerOptions {
 }
 
 export interface ServerOptionsResponse {
-  success: boolean;
-  config: JourniumServerOptions;
-  timestamp: string;
+  config?: JourniumServerOptions;
+  errorCode?: string;
+  message?: string;
+  status: 'success' | 'error';
 }
 
 export interface JourniumLocalOptions {

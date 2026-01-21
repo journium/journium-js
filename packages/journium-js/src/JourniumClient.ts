@@ -1,4 +1,4 @@
-import { JourniumEvent, JourniumConfig, JourniumLocalOptions, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
+import { JourniumEvent, JourniumConfig, JourniumServerOptions, JourniumLocalOptions, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
 
 export class JourniumClient {
   private config!: JourniumConfig;
@@ -10,20 +10,16 @@ export class JourniumClient {
   private initializationFailed: boolean = false;
   private identityManager!: BrowserIdentityManager;
   private optionsStorageKey!: string;
-  private disabled: boolean = false;
   private optionsChangeCallbacks: Set<(options: JourniumLocalOptions) => void> = new Set();
 
   constructor(config: JourniumConfig) {
-    // Validate required configuration - put in disabled state if invalid
+    // Validate required configuration
     if (!config.publishableKey || config.publishableKey.trim() === '') {
-      this.disabled = true;
+      // Reject initialization with clear error
+      const errorMsg = 'Journium: publishableKey is required but not provided or is empty. SDK cannot be initialized.';
       Logger.setDebug(true);
-      Logger.error('Journium: publishableKey is required but not provided or is empty. SDK will not function.');
-      // Create minimal config to prevent crashes
-      this.config = { publishableKey: '', apiHost: 'https://events.journium.app' };
-      this.effectiveOptions = { debug: true };
-      this.optionsStorageKey = 'jrnm_invalid_options';
-      return;
+      Logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
     // Set default apiHost if not provided
@@ -96,7 +92,7 @@ export class JourniumClient {
         }
       } else {
         // Step 4: Fallback to cached config if fresh fetch failed
-        const cachedRemoteOptions = this.loadCachedOptions();
+        /* const cachedRemoteOptions = this.loadCachedOptions();
         
         if (cachedRemoteOptions) {
           if (this.config.options) {
@@ -112,7 +108,8 @@ export class JourniumClient {
           this.initializationFailed = true;
           this.initializationComplete = false;
           return;
-        }
+        } */
+
       }
       
       // Step 6: Update identity manager session timeout if provided
@@ -147,7 +144,7 @@ export class JourniumClient {
     }
   }
 
-  private async fetchRemoteOptionsWithRetry(): Promise<JourniumLocalOptions | null> {
+  private async fetchRemoteOptionsWithRetry(): Promise<JourniumServerOptions | null> {
     const maxRetries = 2;
     const timeoutMs = 15000; // 15 seconds
     
@@ -168,10 +165,13 @@ export class JourniumClient {
         
         const remoteOptionsResponse = await Promise.race([fetchPromise, timeoutPromise]);
         
-        if (remoteOptionsResponse && remoteOptionsResponse.success) {
+        if (remoteOptionsResponse && remoteOptionsResponse.status === 'success') {
           Logger.log('Journium: Successfully fetched fresh remote config:', remoteOptionsResponse.config);
-          return remoteOptionsResponse.config;
-        } else {
+          return remoteOptionsResponse.config || null;
+        } else if(remoteOptionsResponse && remoteOptionsResponse.status === 'error' && remoteOptionsResponse.errorCode === 'J_ERR_TENANT_NOT_FOUND'){
+          Logger.error('Journium: Invalid publishableKey is being used.');
+          return null;
+        }{
           throw new Error('Remote config fetch unsuccessful');
         }
         
@@ -295,12 +295,6 @@ export class JourniumClient {
   }
 
   identify(distinctId: string, attributes: Record<string, unknown> = {}): void {
-    // Don't identify if SDK is not properly configured or disabled
-    if (this.disabled || !this.config || !this.config.publishableKey) {
-      Logger.warn('Journium: identify() call rejected - SDK not ready or disabled');
-      return;
-    }
-
     // Don't identify if initialization failed
     if (this.initializationFailed) {
       Logger.warn('Journium: identify() call rejected - initialization failed');
@@ -322,12 +316,6 @@ export class JourniumClient {
   }
 
   reset(): void {
-    // Don't reset if SDK is not properly configured or disabled
-    if (this.disabled || !this.config || !this.config.publishableKey) {
-      Logger.warn('Journium: reset() call rejected - SDK not ready or disabled');
-      return;
-    }
-
     // Don't reset if initialization failed
     if (this.initializationFailed) {
       Logger.warn('Journium: reset() call rejected - initialization failed');
@@ -341,12 +329,6 @@ export class JourniumClient {
   }
 
   track(event: string, properties: Record<string, unknown> = {}): void {
-    // Don't track if SDK is not properly configured or disabled
-    if (this.disabled || !this.config || !this.config.publishableKey) {
-      Logger.warn('Journium: track() call rejected - SDK not ready or disabled');
-      return;
-    }
-
     // Create minimal event without identity properties (will be added later if staging)
     const journiumEvent: JourniumEvent = {
       uuid: generateUuidv7(),
@@ -406,11 +388,6 @@ export class JourniumClient {
   }
 
   async flush(): Promise<void> {
-    // Don't flush if SDK is not properly configured
-    if (!this.config || !this.config.publishableKey) {
-      return;
-    }
-    
     // Don't flush if initialization failed
     if (this.initializationFailed) {
       Logger.warn('Journium: flush() call rejected - initialization failed');

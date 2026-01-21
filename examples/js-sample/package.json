@@ -3,17 +3,21 @@
   "version": "1.0.0",
   "description": "Vanilla JavaScript sample demonstrating @journium/js SDK",
   "main": "index.js",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "http-server -p 3007 -o",
+    "dev:esm": "vite --port 3008 --open",
     "start": "http-server -p 3007 -o",
-    "build": "echo 'No build step needed for vanilla JS'"
+    "build": "vite build",
+    "preview": "vite preview --port 3008"
   },
   "dependencies": {
     "@journium/js": "workspace:*"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "vite": "^5.0.0"
   },
   "keywords": [
     "journium",

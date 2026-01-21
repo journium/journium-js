@@ -24,22 +24,28 @@
   "type": "module",
   "scripts": {
     "build": "rollup -c",
+    "build:cdn": "rollup -c --environment BUILD:cdn",
+    "build:watch": "rollup -c -w",
     "dev": "rollup -c -w",
     "test": "jest --config jest.config.cjs",
     "test:unit": "jest --config jest.config.cjs",
+    "test:cdn": "echo 'Open test-cdn.html in browser to test CDN build'",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepare:cdn": "pnpm build && echo 'CDN files ready: dist/journium.js and dist/journium.min.js'"
   },
   "dependencies": {
     "@journium/core": "workspace:*"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.0.0",
     "@types/node": "^20.0.0",
     "rollup": "^3.0.0",
-    "@rollup/plugin-typescript": "^11.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
     "rollup-plugin-dts": "^5.0.0",
     "tslib": "^2.0.0"
   },

@@ -70,9 +70,9 @@ export const fetchRemoteOptions = async (
       },
     });
     
-    if (!response.ok) {
-      throw new Error(`Options fetch failed: ${response.status} ${response.statusText}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`Options fetch failed: ${response.status} ${response.statusText}`);
+    // }
     
     const data = await response.json();
     return data;

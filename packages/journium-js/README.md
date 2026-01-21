@@ -18,10 +18,9 @@ Learn how to use Journium to power your application:
 
 ### Prerequisites
 - Modern browser (ES2017+)
-- Node.js `>=18.17.0` or later
 - An existing Journium application. [Create your account for free](https://dashboard.journium.app/sign-up?utm_source=github&utm_medium=journium_js).
 
-## Installation
+## Installation Option 1: Via package manager
 
 ```bash
 npm install @journium/js
@@ -35,13 +34,58 @@ import { init } from '@journium/js';
 const journium = init({
   publishableKey: "your-publishable-key"
 });
-
-journium.track('button_clicked', {
-  button_name: 'signup'
-});
 ```
 
 For more detailed examples and configuration options, visit the [Journium documentation](https://journium.app/docs/js/).
+
+## Installation Option 2: Adding the JavaScript snippet to your HTML
+
+For websites without module bundlers (Shopify, WordPress, static HTML), use the CDN version with a single global `journium` object.
+
+### Script Tag
+
+```html
+<script>
+!function(j,o,u,r,n,i,u,m){
+    if(!o.__JV){
+        window.journium=o;
+        o._q=[];
+        o._i=null;
+        o.init=function(c,n){o._i=[c,n]};
+        var methods="track identify reset capturePageview startAutocapture stopAutocapture flush getEffectiveOptions onOptionsChange destroy".split(" ");
+        for(var k=0;k<methods.length;k++){
+            !function(method){
+                o[method]=function(){o._q.push([method].concat(Array.prototype.slice.call(arguments)));return o}
+            }(methods[k])
+        }
+        o.__JV=1;
+        (m=j.createElement("script")).type="text/javascript";
+        m.async=!0;
+        m.src="https://cdn.jsdelivr.net/npm/@journium/js@1/dist/journium.min.js";
+        m.onerror=function(){console.warn("Journium: Failed to load SDK from CDN")};
+        (i=j.getElementsByTagName("script")[0]).parentNode.insertBefore(m,i);
+    }
+}(document,window.journium||[]);
+
+journium.init({ 
+    publishableKey: 'YOUR_PUBLISHABLE_KEY'
+});
+</script>
+```
+
+### Usage Examples
+
+```javascript
+// Track events
+journium.track('page_view', { page: 'home' });
+journium.track('button_click', { button: 'signup' });
+
+// Identify users  
+journium.identify('user123', { 
+    email: 'user@example.com',
+    plan: 'pro' 
+});
+```
 
 ## Other SDKs
 
