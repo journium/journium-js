@@ -1,5 +1,14 @@
 # @journium/nextjs
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies [919d983]
+  - @journium/react@1.1.1
+  - @journium/js@1.1.1
+  - @journium/core@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes
