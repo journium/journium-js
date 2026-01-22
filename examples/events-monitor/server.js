@@ -77,11 +77,18 @@ app.get('/v1/configs', async  (req, res) => {
   
   console.log(`Config requested for ingestion_key: ${ingestion_key}`);
   // await new Promise(resolve => setTimeout(resolve, 5000));
+  if(ingestion_key != 'client_abcdef1234567890abcdef1234567890') {
+    return res.status(200).json({ 
+      status: 'error',
+      errorCode: 'J_ERR_TENANT_NOT_FOUND',
+      message: 'Tenant not found'
+    });
+  }
+
   res.status(200).json({ 
-    success: true,
+    status: 'success',
     config: remoteConfig,
-    tenant_id:"acme_corp",
-    timestamp: new Date().toISOString()
+    tenant_id:"acme_corp"
   });
 });
 

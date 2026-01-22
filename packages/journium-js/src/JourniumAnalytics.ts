@@ -198,4 +198,4 @@ export const init = (config: JourniumConfig): JourniumAnalytics => {
   return new JourniumAnalytics(config);
 };
 
-export default { init, JourniumAnalytics };
+export default { init };

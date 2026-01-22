@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { JourniumAnalytics } from '@journium/js';
+import { init } from '@journium/js';
 import { JourniumConfig, JourniumLocalOptions } from '@journium/core';
 
+type JourniumAnalyticsInstance = ReturnType<typeof init>;
+
 interface JourniumContextValue {
-  analytics: JourniumAnalytics | null;
+  analytics: JourniumAnalyticsInstance | null;
   config: JourniumConfig | null;
   effectiveOptions: JourniumLocalOptions | null;
 }
@@ -19,11 +21,11 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   children,
   config,
 }) => {
-  const [analytics, setAnalytics] = useState<JourniumAnalytics | null>(null);
+  const [analytics, setAnalytics] = useState<JourniumAnalyticsInstance | null>(null);
   const [effectiveOptions, setEffectiveOptions] = useState<JourniumLocalOptions | null>(null);
 
   useEffect(() => {
-    const analyticsInstance = new JourniumAnalytics(config);
+    const analyticsInstance = init(config);
     
     // Get initial effective options (may be empty during remote-first initialization)
     const initialEffective = analyticsInstance.getEffectiveOptions();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journium JavaScript SDK Demo</title>
+    <title>Journium JavaScript SDK Demo (ES Module)</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
@@ -11,8 +11,8 @@
     <header class="header">
         <div class="container">
             <h1>📊 Journium JavaScript SDK Demo</h1>
-            <p>Vanilla JavaScript implementation showcasing event tracking, pageviews, and user interactions</p>
-            <div class="badge">Using: Local SDK Build (node_modules/@journium/js/dist/journium.min.js)</div>
+            <p>ES Module implementation showcasing event tracking, pageviews, and user interactions</p>
+            <div class="badge">Using: npm install @journium/js + Vite</div>
         </div>
     </header>
 
@@ -160,7 +160,7 @@
             <div id="about" class="page">
                 <section class="about-section">
                     <h2>ℹ️ About This Demo</h2>
-                    <p>This demo showcases the Journium JavaScript SDK in a vanilla JavaScript environment.</p>
+                    <p>This demo showcases the Journium JavaScript SDK using ES modules and a modern build setup.</p>
                     
                     <div class="demo-features">
                         <h3>🔍 What You'll See</h3>
@@ -176,10 +176,10 @@
                     <div class="tech-stack">
                         <h3>🛠️ Technical Implementation</h3>
                         <ul>
-                            <li><strong>Vanilla JavaScript:</strong> No frameworks, just pure JS</li>
-                            <li><strong>Journium SDK:</strong> Local build from workspace</li>
-                            <li><strong>CDN Snippet:</strong> Async loading pattern</li>
-                            <li><strong>Event-driven:</strong> Real-time tracking and updates</li>
+                            <li><strong>ES Modules:</strong> Using import statements</li>
+                            <li><strong>Journium SDK:</strong> Installed via npm</li>
+                            <li><strong>Vite:</strong> Modern build tool for fast development</li>
+                            <li><strong>TypeScript Support:</strong> Full type safety available</li>
                             <li><strong>Responsive Design:</strong> Works on all devices</li>
                         </ul>
                     </div>
@@ -316,40 +316,7 @@
         </div>
     </div>
 
-    <!-- Journium Analytics SDK Snippet -->
-    <script>
-    !function(j,o,u,r,n,i,u,m){
-        if(!o.__JV){
-            window.journium=o;
-            o._q=[];
-            o._i=null;
-            o.init=function(c,n){o._i=[c,n]};
-            var methods="track identify reset capturePageview startAutocapture stopAutocapture flush getEffectiveOptions onOptionsChange destroy".split(" ");
-            for(var k=0;k<methods.length;k++){
-                !function(method){
-                    o[method]=function(){o._q.push([method].concat(Array.prototype.slice.call(arguments)));return o}
-                }(methods[k])
-            }
-            o.__JV=1;
-            (m=j.createElement("script")).type="text/javascript";
-            m.async=!0;
-            m.src="node_modules/@journium/js/dist/journium.min.js";
-            (i=j.getElementsByTagName("script")[0]).parentNode.insertBefore(m,i);
-        }
-    }(document,window.journium||[]);
-    
-    journium.init({
-        publishableKey: 'client_abcdef1234567890abcdef1234567890',
-        apiHost: 'http://localhost:3006',
-        options: {
-            debug: true,
-            flushAt: 1,
-            flushInterval: 1000,
-            autocapture: true,
-            autoTrackPageviews: true
-        }
-    });
-    </script>
-    <script src="app.js"></script>
+    <!-- Load ES Module -->
+    <script type="module" src="/app-esm.js"></script>
 </body>
 </html>

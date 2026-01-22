@@ -1,5 +1,7 @@
-// Journium JavaScript SDK Demo Application
-// This demonstrates various tracking capabilities using vanilla JavaScript
+// Journium JavaScript SDK Demo Application (ES Module version)
+// This demonstrates various tracking capabilities using ES6 imports
+
+import { init } from '@journium/js';
 
 class JourniumDemo {
     constructor() {
@@ -31,42 +33,33 @@ class JourniumDemo {
         this.handleInitialPageLoad();
         this.setupBrowserNavigation();
         
-        // Initialize Journium after a short delay to allow script to load
+        // Initialize Journium SDK
         this.initializeJournium();
     }
 
-    // Initialize Journium SDK
+    // Initialize Journium SDK using ES module import
     initializeJournium() {
         try {
-            // Journium is already initialized via the CDN snippet
-            // Just reference the global journium object
-            this.journium = window.journium;
+            // Initialize using the imported init function
+            this.journium = init({
+                publishableKey: 'client_abcdef1234567890abcdef1234567890',
+                apiHost: 'http://localhost:3006',
+                options: {
+                    debug: true,
+                    flushAt: 1,
+                    flushInterval: 1000,
+                    autocapture: true,
+                    autoTrackPageviews: true
+                }
+            });
 
-            if (!this.journium) {
-                throw new Error('Journium SDK not found. Make sure the snippet loaded correctly.');
-            }
-
-            // Check if the actual SDK loaded or if we're just using the stub
-            if (this.journium._fallback) {
-                this.log('⚠️ Journium SDK running in fallback mode (script failed to load)');
-            } else if (this.journium._error) {
-                this.log('❌ Journium SDK initialization error:', this.journium._error);
-            } else if (this.journium._q && this.journium._q.length > 0) {
-                this.log('⏳ Journium SDK loaded (stub methods still processing queue)');
-            } else {
-                this.log('✅ Journium SDK initialized successfully via snippet');
-            }
-            
-            // Debug: Print detailed information about the journium object
-            // this.debugJourniumObject();
-            
+            this.log('✅ Journium SDK initialized successfully via ES module');
             this.updateDebugInfo();
 
         } catch (error) {
             this.log('❌ Failed to initialize Journium SDK:', error);
         }
     }
-
 
     // Set up single-page navigation
     setupNavigation() {
@@ -102,8 +95,6 @@ class JourniumDemo {
         const newUrl = pageName === 'home' ? '/' : `/${pageName}`;
         window.history.pushState({ page: pageName }, '', newUrl);
 
-        // Manual pageview tracking is no longer needed since URL changes will trigger automatic tracking
-        // this.trackPageView(pageName);
         this.updatePageViewCount();
         this.updateDebugInfo();
     }
@@ -160,21 +151,6 @@ class JourniumDemo {
         this.currentPage = pageName;
         this.updatePageViewCount();
         this.updateDebugInfo();
-    }
-
-    // Track page view events
-    trackPageView(pageName) {
-        // if (this.journium) {
-        //     this.journium.capturePageview({
-        //         page_name: pageName,
-        //         page_type: 'spa_page',
-        //         framework: 'vanilla_js',
-        //         timestamp: new Date().toISOString(),
-        //         session_duration: this.getSessionDuration()
-        //     });
-
-        //     this.log(`📄 Page view tracked: ${pageName}`);
-        // }
     }
 
     // Set up event tracking for interactive elements
@@ -672,16 +648,13 @@ class JourniumDemo {
 
     // Logging utility
     log(message, data = null) {
-        console.log(`🔍 Journium Demo: ${message}`, data || '');
+        console.log(`🔍 Journium Demo (ESM): ${message}`, data || '');
     }
 }
 
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Add a small delay to ensure Journium SDK is fully loaded
-    setTimeout(() => {
-        new JourniumDemo();
-    }, 100);
+    window.journiumDemo = new JourniumDemo();
 });
 
 // Handle page unload - flush any remaining events
