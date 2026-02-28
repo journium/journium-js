@@ -1,7 +1,7 @@
 import { JourniumEvent, JourniumConfig, JourniumServerOptions, JourniumLocalOptions, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
 
 export class JourniumClient {
-  private static readonly REMOTE_OPTIONS_REFRESH_INTERVAL = 0.5 * 60 * 1000; // 15 minutes
+  private static readonly REMOTE_OPTIONS_REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
   private config!: JourniumConfig;
   private effectiveOptions!: JourniumLocalOptions;
@@ -184,6 +184,12 @@ export class JourniumClient {
 
   private processStagedEvents(): void {
     if (this.stagedEvents.length === 0) return;
+
+    if (this.ingestionPaused) {
+      Logger.warn(`Journium: Ingestion is paused — discarding ${this.stagedEvents.length} staged events`);
+      this.stagedEvents = [];
+      return;
+    }
 
     Logger.log(`Journium: Processing ${this.stagedEvents.length} staged events`);
 
@@ -381,6 +387,11 @@ export class JourniumClient {
       return;
     }
 
+    if (this.ingestionPaused) {
+      Logger.warn('Journium: Ingestion is paused — event dropped:', journiumEvent.event);
+      return;
+    }
+
     const eventWithIdentity: JourniumEvent = {
       ...journiumEvent,
       properties: this.buildIdentityProperties(properties),
@@ -428,5 +439,9 @@ export class JourniumClient {
 
   getEffectiveOptions(): JourniumLocalOptions {
     return this.effectiveOptions;
+  }
+
+  private get ingestionPaused(): boolean {
+    return (this.effectiveOptions['ingestionPaused'] as boolean | undefined) === true;
   }
 }
