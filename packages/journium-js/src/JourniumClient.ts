@@ -1,11 +1,16 @@
 import { JourniumEvent, JourniumConfig, JourniumServerOptions, JourniumLocalOptions, generateUuidv7, getCurrentTimestamp, fetchRemoteOptions, mergeOptions, BrowserIdentityManager, Logger } from '@journium/core';
 
 export class JourniumClient {
+  private static readonly REMOTE_OPTIONS_REFRESH_INTERVAL = 0.5 * 60 * 1000; // 15 minutes
+
   private config!: JourniumConfig;
   private effectiveOptions!: JourniumLocalOptions;
   private queue: JourniumEvent[] = [];
   private stagedEvents: JourniumEvent[] = [];
   private flushTimer: ReturnType<typeof setInterval> | null = null;
+  private remoteOptionsRefreshTimer: ReturnType<typeof setInterval> | null = null;
+  private isRefreshing: boolean = false;
+  private lastRemoteOptions: JourniumServerOptions | null = null;
   private initializationComplete: boolean = false;
   private initializationFailed: boolean = false;
   private identityManager!: BrowserIdentityManager;
@@ -74,69 +79,32 @@ export class JourniumClient {
   private async initializeAsync(): Promise<void> {
     try {
       Logger.log('Journium: Starting initialization - fetching fresh remote config...');
-      
-      // Step 1: Try to fetch fresh remote config with timeout and retry
-      const remoteOptions = await this.fetchRemoteOptionsWithRetry();
-      
-      if (remoteOptions) {
-        // Step 2: Cache the fresh remote config
-        this.saveCachedOptions(remoteOptions);
-        
-        // Step 3: Merge local options over remote config (local overrides remote)
-        if (this.config.options) {
-          this.effectiveOptions = mergeOptions(this.config.options, remoteOptions);
-          Logger.log('Journium: Using fresh remote config merged with local options:', this.effectiveOptions);
-        } else {
-          this.effectiveOptions = remoteOptions;
-          Logger.log('Journium: Using fresh remote config:', this.effectiveOptions);
-        }
-      } else {
-        // Step 4: Fallback to cached config if fresh fetch failed
-        /* const cachedRemoteOptions = this.loadCachedOptions();
-        
-        if (cachedRemoteOptions) {
-          if (this.config.options) {
-            this.effectiveOptions = mergeOptions(this.config.options, cachedRemoteOptions);
-            Logger.log('Journium: Fresh config failed, using cached remote config merged with local options:', this.effectiveOptions);
-          } else {
-            this.effectiveOptions = cachedRemoteOptions;
-            Logger.log('Journium: Fresh config failed, using cached remote config:', this.effectiveOptions);
-          }
-        } else {
-          // Step 5: No remote config and no cached config - initialization fails
-          Logger.error('Journium: Initialization failed - no remote config available and no cached config found');
-          this.initializationFailed = true;
-          this.initializationComplete = false;
-          return;
-        } */
 
+      const remoteOptions = await this.fetchRemoteOptionsWithRetry();
+
+      if (!remoteOptions) {
+        Logger.error('Journium: Initialization failed - no remote config available');
+        this.initializationFailed = true;
+        return;
       }
-      
-      // Step 6: Update identity manager session timeout if provided
-      if (this.effectiveOptions.sessionTimeout) {
-        this.identityManager.updateSessionTimeout(this.effectiveOptions.sessionTimeout);
-      }
-      
-      // Step 7: Update Logger debug setting
-      Logger.setDebug(this.effectiveOptions.debug ?? false);
-      
-      // Step 8: Mark initialization as complete
+
+      this.applyRemoteOptions(remoteOptions);
+      Logger.log('Journium: Effective options after init:', this.effectiveOptions);
+
       this.initializationComplete = true;
       this.initializationFailed = false;
-      
-      // Step 9: Process any staged events
+
       this.processStagedEvents();
-      
-      // Step 10: Start flush timer
+
       if (this.effectiveOptions.flushInterval && this.effectiveOptions.flushInterval > 0) {
         this.startFlushTimer();
       }
-      
-      Logger.log('Journium: Initialization complete with options:', this.effectiveOptions);
-      
-      // Step 11: Notify callbacks about options
+
+      this.startRemoteOptionsRefreshTimer();
+
+      Logger.log('Journium: Initialization complete');
       this.notifyOptionsChange();
-      
+
     } catch (error) {
       Logger.error('Journium: Initialization failed:', error);
       this.initializationFailed = true;
@@ -216,42 +184,21 @@ export class JourniumClient {
 
   private processStagedEvents(): void {
     if (this.stagedEvents.length === 0) return;
-    
+
     Logger.log(`Journium: Processing ${this.stagedEvents.length} staged events`);
-    
-    // Move staged events to main queue, adding identity properties now
-    const identity = this.identityManager.getIdentity();
-    const userAgentInfo = this.identityManager.getUserAgentInfo();
-    
+
     for (const stagedEvent of this.stagedEvents) {
-      // Add identity properties that weren't available during staging
-      const eventWithIdentity: JourniumEvent = {
+      this.queue.push({
         ...stagedEvent,
-        properties: {
-          $device_id: identity?.$device_id,
-          distinct_id: identity?.distinct_id,
-          $session_id: identity?.$session_id,
-          $is_identified: identity?.$user_state === 'identified',
-          $current_url: typeof window !== 'undefined' ? window.location.href : '',
-          $pathname: typeof window !== 'undefined' ? window.location.pathname : '',
-          ...userAgentInfo,
-          $lib_version: '0.1.0', // TODO: Get from package.json
-          $platform: 'web',
-          ...stagedEvent.properties, // Original properties override system properties
-        },
-      };
-      
-      this.queue.push(eventWithIdentity);
+        properties: this.buildIdentityProperties(stagedEvent.properties),
+      });
     }
-    
-    // Clear staged events
+
     this.stagedEvents = [];
-    
+
     Logger.log('Journium: Staged events processed and moved to main queue');
-    
-    // Check if we should flush immediately
+
     if (this.queue.length >= this.effectiveOptions.flushAt!) {
-      // console.log('1 Journium: Flushing events...'+JSON.stringify(this.effectiveOptions));
       this.flush();
     }
   }
@@ -261,11 +208,97 @@ export class JourniumClient {
       clearInterval(this.flushTimer);
     }
 
-    // Use universal setInterval (works in both browser and Node.js)
     this.flushTimer = setInterval(() => {
-      // console.log('2 Journium: Flushing events...'+JSON.stringify(this.effectiveOptions));
       this.flush();
     }, this.effectiveOptions.flushInterval!);
+  }
+
+  private startRemoteOptionsRefreshTimer(): void {
+    // Clear any existing timer to prevent duplicate intervals
+    if (this.remoteOptionsRefreshTimer) {
+      clearInterval(this.remoteOptionsRefreshTimer);
+      this.remoteOptionsRefreshTimer = null;
+    }
+
+    this.remoteOptionsRefreshTimer = setInterval(() => {
+      this.refreshRemoteOptions();
+    }, JourniumClient.REMOTE_OPTIONS_REFRESH_INTERVAL);
+
+    Logger.log(`Journium: Scheduling remote options refresh every ${JourniumClient.REMOTE_OPTIONS_REFRESH_INTERVAL}ms`);
+  }
+
+  private async refreshRemoteOptions(): Promise<void> {
+    if (this.isRefreshing) {
+      Logger.log('Journium: Remote options refresh already in progress, skipping');
+      return;
+    }
+
+    this.isRefreshing = true;
+    Logger.log('Journium: Periodic remote options refresh triggered');
+
+    try {
+      const remoteOptions = await this.fetchRemoteOptionsWithRetry();
+
+      if (!remoteOptions) {
+        Logger.warn('Journium: Periodic remote options refresh failed, keeping current options');
+        return;
+      }
+
+      const prevRemoteSnapshot = JSON.stringify(this.lastRemoteOptions);
+      const prevFlushInterval = this.effectiveOptions.flushInterval;
+      this.applyRemoteOptions(remoteOptions);
+
+      if (prevRemoteSnapshot === JSON.stringify(this.lastRemoteOptions)) {
+        Logger.log('Journium: Remote options unchanged after refresh, no update needed');
+        return;
+      }
+
+      Logger.log('Journium: Remote options updated after refresh:', this.effectiveOptions);
+
+      if (this.effectiveOptions.flushInterval !== prevFlushInterval) {
+        if (this.effectiveOptions.flushInterval && this.effectiveOptions.flushInterval > 0) {
+          this.startFlushTimer();
+        } else if (this.flushTimer) {
+          clearInterval(this.flushTimer);
+          this.flushTimer = null;
+        }
+      }
+
+      this.notifyOptionsChange();
+    } catch (error) {
+      Logger.error('Journium: Periodic remote options refresh encountered an error:', error);
+    } finally {
+      this.isRefreshing = false;
+    }
+  }
+
+  private applyRemoteOptions(remoteOptions: JourniumServerOptions): void {
+    this.lastRemoteOptions = remoteOptions;
+    this.effectiveOptions = this.config.options
+      ? mergeOptions(this.config.options, remoteOptions)
+      : remoteOptions;
+    this.saveCachedOptions(remoteOptions);
+    if (this.effectiveOptions.sessionTimeout) {
+      this.identityManager.updateSessionTimeout(this.effectiveOptions.sessionTimeout);
+    }
+    Logger.setDebug(this.effectiveOptions.debug ?? false);
+  }
+
+  private buildIdentityProperties(userProperties: Record<string, unknown> = {}): Record<string, unknown> {
+    const identity = this.identityManager.getIdentity();
+    const userAgentInfo = this.identityManager.getUserAgentInfo();
+    return {
+      $device_id: identity?.$device_id,
+      distinct_id: identity?.distinct_id,
+      $session_id: identity?.$session_id,
+      $is_identified: identity?.$user_state === 'identified',
+      $current_url: typeof window !== 'undefined' ? window.location.href : '',
+      $pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+      ...userAgentInfo,
+      $lib_version: '0.1.0', // TODO: Get from package.json
+      $platform: 'web',
+      ...userProperties,
+    };
   }
 
   private async sendEvents(events: JourniumEvent[]): Promise<void> {
@@ -338,51 +371,25 @@ export class JourniumClient {
       properties: { ...properties }, // Only user properties for now
     };
 
-    // Stage events during initialization, add to queue after initialization
     if (!this.initializationComplete) {
-      // If initialization failed, reject events
       if (this.initializationFailed) {
         Logger.warn('Journium: track() call rejected - initialization failed');
         return;
       }
-      
       this.stagedEvents.push(journiumEvent);
       Logger.log('Journium: Event staged during initialization', journiumEvent);
       return;
     }
 
-    // If initialization failed, reject events
-    if (this.initializationFailed) {
-      Logger.warn('Journium: track() call rejected - initialization failed');
-      return;
-    }
-
-    // Add identity properties for immediate events (after initialization)
-    const identity = this.identityManager.getIdentity();
-    const userAgentInfo = this.identityManager.getUserAgentInfo();
-    
     const eventWithIdentity: JourniumEvent = {
       ...journiumEvent,
-      properties: {
-        $device_id: identity?.$device_id,
-        distinct_id: identity?.distinct_id,
-        $session_id: identity?.$session_id,
-        $is_identified: identity?.$user_state === 'identified',
-        $current_url: typeof window !== 'undefined' ? window.location.href : '',
-        $pathname: typeof window !== 'undefined' ? window.location.pathname : '',
-        ...userAgentInfo,
-        $lib_version: '0.1.0', // TODO: Get from package.json
-        $platform: 'web',
-        ...properties, // User-provided properties override system properties
-      },
+      properties: this.buildIdentityProperties(properties),
     };
 
     this.queue.push(eventWithIdentity);
     Logger.log('Journium: Event tracked', eventWithIdentity);
 
-    // Only flush if we have effective options (after initialization)
     if (this.effectiveOptions.flushAt && this.queue.length >= this.effectiveOptions.flushAt) {
-      // console.log('3 Journium: Flushing events...'+JSON.stringify(this.effectiveOptions));
       this.flush();
     }
   }
@@ -411,6 +418,10 @@ export class JourniumClient {
     if (this.flushTimer) {
       clearInterval(this.flushTimer);
       this.flushTimer = null;
+    }
+    if (this.remoteOptionsRefreshTimer) {
+      clearInterval(this.remoteOptionsRefreshTimer);
+      this.remoteOptionsRefreshTimer = null;
     }
     this.flush();
   }

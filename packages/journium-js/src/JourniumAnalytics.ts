@@ -141,30 +141,32 @@ export class JourniumAnalytics {
    * Handle effective options change (e.g., when remote options are fetched)
    */
   private handleOptionsChange(effectiveOptions: JourniumLocalOptions): void {
-    // Stop current autocapture if it was already started
+    // If autocapture was never started before, this is the initial options application
+    // (async init completed) — treat it like a page load and capture a pageview.
+    // If it was already started, this is a periodic remote options update — only
+    // re-register listeners without emitting a spurious pageview.
+    const isFirstStart = !this.autocaptureStarted;
+
     if (this.autocaptureStarted) {
       this.pageviewTracker.stopAutocapture();
       this.autocaptureTracker.stop();
       this.autocaptureStarted = false;
     }
-    
-    // Evaluate if autocapture should be enabled with new options
+
     const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
     const autocaptureEnabled = effectiveOptions.autocapture !== false;
-    
-    // Update autocapture tracker options
+
     const autocaptureOptions = this.resolveAutocaptureOptions(effectiveOptions.autocapture);
     this.autocaptureTracker.updateOptions(autocaptureOptions);
-    
-    // Start autocapture based on new options (even if it wasn't started before)
+
     if (autoTrackPageviews) {
-      this.pageviewTracker.startAutoPageviewTracking();
+      this.pageviewTracker.startAutoPageviewTracking(isFirstStart);
     }
-    
+
     if (autocaptureEnabled) {
       this.autocaptureTracker.start();
     }
-    
+
     this.autocaptureStarted = autoTrackPageviews || autocaptureEnabled;
   }
 
