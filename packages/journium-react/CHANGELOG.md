@@ -1,5 +1,13 @@
 # @journium/react
 
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies [2b6c9a1]
+  - @journium/js@1.2.0
+  - @journium/core@1.2.0
+
 ## 1.1.1
 
 ### Patch Changes
