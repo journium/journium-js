@@ -23,6 +23,7 @@ export interface JourniumServerOptions {
   autocapture?: boolean | AutocaptureOptions;
   autoTrackPageviews?: boolean;
   sessionTimeout?: number;
+  ingestionPaused?: boolean;
   [key: string]: unknown;
 }
 
