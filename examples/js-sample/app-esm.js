@@ -46,10 +46,10 @@ class JourniumDemo {
                 apiHost: 'http://localhost:3006',
                 options: {
                     debug: true,
-                    flushAt: 1,
-                    flushInterval: 1000,
-                    autocapture: true,
-                    autoTrackPageviews: true
+                    // flushAt: 1,
+                    // flushInterval: 1000,
+                    // autocapture: true,
+                    // autoTrackPageviews: true
                 }
             });
 

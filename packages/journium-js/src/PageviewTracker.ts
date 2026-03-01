@@ -32,10 +32,13 @@ export class PageviewTracker {
 
   /**
    * Start automatic autocapture for pageviews
-   * @returns void
+   * @param captureInitialPageview - whether to fire a $pageview immediately on start (default: true).
+   *   Pass false when restarting after a remote options update to avoid a spurious pageview.
    */
-  startAutoPageviewTracking(): void {
-    this.capturePageview();
+  startAutoPageviewTracking(captureInitialPageview: boolean = true): void {
+    if (captureInitialPageview) {
+      this.capturePageview();
+    }
 
     if (typeof window !== 'undefined') {
       // Store original methods for cleanup
