@@ -1,5 +1,11 @@
 # @journium/core
 
+## 1.2.0
+
+### Minor Changes
+
+- 2b6c9a1: Added periodic fetching of remote options. Added support for remotely stopping/pausing event ingestion.
+
 ## 1.1.1
 
 ### Patch Changes
