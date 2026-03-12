@@ -20,7 +20,7 @@ export function provideJournium(config: JourniumConfig): EnvironmentProviders {
     { provide: JOURNIUM_CONFIG, useValue: config },
     {
       provide: JourniumService,
-      useFactory: () => new JourniumService(inject(JOURNIUM_CONFIG)),
+      useFactory: () => new JourniumService(config),
     },
   ]);
 }

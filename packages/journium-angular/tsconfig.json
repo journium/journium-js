@@ -2,13 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "module": "ES2022",
     "moduleResolution": "bundler",
-    "lib": ["ES2018", "DOM"]
+    "lib": ["ES2018", "DOM"],
+    "paths": {
+      "@journium/angular": ["./src/index.ts"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "ngmodule/**/*"],
   "exclude": ["dist", "node_modules", "**/*.test.ts"]
 }

@@ -1,9 +1,10 @@
-import { OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { init } from '@journium/js';
 import { JourniumConfig, JourniumLocalOptions } from '@journium/core';
 
 type JourniumAnalyticsInstance = ReturnType<typeof init>;
 
+@Injectable()
 export class JourniumService implements OnDestroy {
   private readonly analytics: JourniumAnalyticsInstance;
 

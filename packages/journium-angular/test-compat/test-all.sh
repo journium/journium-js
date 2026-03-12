@@ -57,6 +57,15 @@ else
 fi
 echo ""
 
+# Test Angular 21.x
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if bash "$SCRIPT_DIR/test-angular-21.sh"; then
+  PASSED_TESTS+=("Angular 21.x")
+else
+  FAILED_TESTS+=("Angular 21.x")
+fi
+echo ""
+
 # Print summary
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "COMPATIBILITY TEST SUMMARY"

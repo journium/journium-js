@@ -1,5 +1,7 @@
-// Mock @angular/core — only what service.ts imports (OnDestroy is an interface, no runtime value needed)
-jest.mock('@angular/core', () => ({}));
+// Mock @angular/core — Injectable is a decorator no-op; OnDestroy is an interface (no runtime value)
+jest.mock('@angular/core', () => ({
+  Injectable: () => (ctor: unknown) => ctor,
+}));
 
 const mockAnalytics = {
   track: jest.fn(),
