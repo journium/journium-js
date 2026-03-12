@@ -1,5 +1,11 @@
 # @journium/angular
 
+## 1.0.4
+
+### Patch Changes
+
+- 161b7f3: Fix exports
+
 ## 1.0.3
 
 ### Patch Changes
