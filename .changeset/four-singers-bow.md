@@ -1,9 +1,9 @@
 ---
-'@journium/angular': patch
-'@journium/react': patch
-'@journium/js': patch
 '@journium/core': patch
+'@journium/angular': patch
+'@journium/js': patch
 '@journium/nextjs': patch
+'@journium/react': patch
 ---
 
-Added Angular SDK
+Fix release
