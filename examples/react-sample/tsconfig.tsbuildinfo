@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/index.tsx","./src/components/authmodal.tsx","./src/components/authprovider.tsx","./src/components/header.tsx","./src/pages/analyticspage.tsx","./src/pages/dashboardpage.tsx","./src/pages/homepage.tsx","./src/pages/productspage.tsx","./src/pages/profilepage.tsx","./src/pages/settingspage.tsx"],"version":"5.6.3"}

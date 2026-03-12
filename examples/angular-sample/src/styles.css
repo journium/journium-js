@@ -1,0 +1,225 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.app-header {
+  background-color: #1a1a2e;
+  color: white;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 64px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.header-left h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.main-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.identify-btn {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.identify-btn:hover {
+  background-color: #5a52d5;
+}
+
+.reset-btn {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.demo-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.demo-section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1a1a2e;
+}
+
+.demo-section p {
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.demo-section.info {
+  background: #f0f4ff;
+  border-left: 4px solid #6c63ff;
+}
+
+.demo-section.info h2 {
+  color: #6c63ff;
+}
+
+.demo-section.info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.demo-section.info li {
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.demo-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  background-color: #6c63ff;
+  color: white;
+}
+
+.demo-button:hover {
+  background-color: #5a52d5;
+  transform: translateY(-1px);
+}
+
+.demo-button.purchase {
+  background-color: #10b981;
+}
+
+.demo-button.purchase:hover {
+  background-color: #059669;
+}
+
+.demo-button.feature {
+  background-color: #f59e0b;
+  color: #1a1a2e;
+}
+
+.demo-button.feature:hover {
+  background-color: #d97706;
+}
+
+.demo-button.pageview {
+  background-color: #3b82f6;
+}
+
+.demo-button.pageview:hover {
+  background-color: #2563eb;
+}
+
+.demo-button.danger {
+  background-color: #ef4444;
+}
+
+.demo-button.danger:hover {
+  background-color: #dc2626;
+}
+
+.user-status {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}

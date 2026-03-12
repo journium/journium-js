@@ -43,6 +43,7 @@ tmp/
 temp/
 
 .turbo
+.angular/
 
 .next/
 build/

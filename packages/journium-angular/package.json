@@ -1,0 +1,92 @@
+{
+  "name": "@journium/angular",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Journium Angular integration - Service, module, and providers for Angular applications",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./ngmodule": {
+      "types": "./dist/ngmodule.d.ts",
+      "import": "./dist/ngmodule.mjs",
+      "require": "./dist/ngmodule.cjs"
+    }
+  },
+  "homepage": "https://github.com/journium/journium-js",
+  "bugs": {
+    "url": "https://github.com/journium/journium-js/issues"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest --passWithNoTests",
+    "test:unit": "jest --passWithNoTests",
+    "test:compat": "cd test-compat && ./test-all.sh",
+    "test:compat:15": "cd test-compat && ./test-angular-15.sh",
+    "test:compat:16": "cd test-compat && ./test-angular-16.sh",
+    "test:compat:17": "cd test-compat && ./test-angular-17.sh",
+    "test:compat:18": "cd test-compat && ./test-angular-18.sh",
+    "test:compat:19": "cd test-compat && ./test-angular-19.sh",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@journium/js": "workspace:*",
+    "@journium/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=15.0.0",
+    "@angular/router": ">=15.0.0",
+    "rxjs": ">=6.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/router": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular/router": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^20.0.0",
+    "rollup": "^3.0.0",
+    "rollup-plugin-dts": "^5.0.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/journium/journium-js.git",
+    "directory": "packages/journium-angular"
+  },
+  "keywords": [
+    "analytics",
+    "tracking",
+    "journium",
+    "angular",
+    "service",
+    "provider",
+    "dependency-injection",
+    "web-analytics",
+    "typescript"
+  ],
+  "author": "Journium Team",
+  "publishConfig": {
+    "access": "public"
+  }
+}

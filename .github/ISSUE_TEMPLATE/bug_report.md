@@ -32,6 +32,7 @@ assignees: ''
 - [ ] `@journium/js`
 - [ ] `@journium/react`
 - [ ] `@journium/nextjs`
+- [ ] `@journium/angular`
 - [ ] `@journium/core`
 
 **Browser (if applicable):**

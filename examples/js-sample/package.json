@@ -7,10 +7,10 @@
   "private": true,
   "scripts": {
     "dev": "http-server -p 3007 -o",
-    "dev:esm": "vite --port 3008 --open",
+    "dev:esm": "vite --port 3009 --open",
     "start": "http-server -p 3007 -o",
     "build": "vite build",
-    "preview": "vite preview --port 3008"
+    "preview": "vite preview --port 3009"
   },
   "dependencies": {
     "@journium/js": "workspace:*"
