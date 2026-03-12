@@ -91,6 +91,7 @@ journium.identify('user123', {
 
 - [@journium/nextjs](https://www.npmjs.com/package/@journium/nextjs) - Next.js SDK
 - [@journium/react](https://www.npmjs.com/package/@journium/react) - React SDK
+- [@journium/angular](https://www.npmjs.com/package/@journium/angular) - Angular SDK
 
 ## Support
 
