@@ -92,8 +92,8 @@ module.exports = {
   },
   transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$|@angular/|@journium/))'],
   moduleNameMapper: {
-    '^@journium/angular/ngmodule$': '<rootDir>/node_modules/@journium/angular/fesm2022/journium-angular-ngmodule.mjs',
-    '^@journium/angular$': '<rootDir>/node_modules/@journium/angular/fesm2022/journium-angular.mjs'
+    '^@journium/angular/ngmodule$': '<rootDir>/node_modules/@journium/angular/dist/fesm2022/journium-angular-ngmodule.mjs',
+    '^@journium/angular$': '<rootDir>/node_modules/@journium/angular/dist/fesm2022/journium-angular.mjs'
   }
 };
 JESTCFG
