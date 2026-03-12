@@ -34,6 +34,7 @@
 - [ ] Tested in browser environments
 - [ ] Tested with React applications
 - [ ] Tested with Next.js applications
+- [ ] Tested with Angular applications
 - [ ] Manual testing performed
 
 ## Checklist
