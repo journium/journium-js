@@ -1,5 +1,11 @@
 # @journium/core
 
+## 1.2.1
+
+### Patch Changes
+
+- c296fb1: Fix release
+
 ## 1.2.0
 
 ### Minor Changes
