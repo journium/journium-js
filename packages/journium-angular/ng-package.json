@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/ng-packagr/ng-package.schema.json",
+  "lib": {
+    "entryFile": "src/index.ts",
+    "flatModuleFile": "journium-angular"
+  },
+  "allowedNonPeerDependencies": ["@journium/js", "@journium/core"],
+  "dest": "dist"
+}

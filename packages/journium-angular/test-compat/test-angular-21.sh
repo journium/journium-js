@@ -1,9 +1,9 @@
 #!/bin/bash
-# Test @journium/angular compatibility with Angular 18.x
+# Test @journium/angular compatibility with Angular 21.x
 
 set -e
 
-echo "Testing @journium/angular with Angular 18.x..."
+echo "Testing @journium/angular with Angular 21.x..."
 
 # Save current directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,32 +17,32 @@ cd "$TEST_DIR"
 
 echo "Setting up test environment..."
 
-# Create package.json with Angular 18.x
+# Create package.json with Angular 21.x
 cat > package.json <<'PKGJSON'
 {
-  "name": "angular-18-compat-test",
+  "name": "angular-21-compat-test",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "test": "jest"
   },
   "dependencies": {
-    "@angular/common": "^18.0.0",
-    "@angular/compiler": "^18.0.0",
-    "@angular/core": "^18.0.0",
-    "@angular/platform-browser": "^18.0.0",
-    "@angular/platform-browser-dynamic": "^18.0.0",
-    "@angular/router": "^18.0.0",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/platform-browser-dynamic": "^21.2.0",
+    "@angular/router": "^21.2.0",
     "rxjs": "^7.8.0",
-    "zone.js": "~0.14.0"
+    "zone.js": "~0.16.1"
   },
   "devDependencies": {
-    "@types/jest": "^29.0.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
-    "jest": "^29.0.0",
-    "jest-environment-jsdom": "^29.0.0",
-    "jest-preset-angular": "^14.0.0",
-    "typescript": "~5.4.5"
+    "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0",
+    "jest-preset-angular": "^16.0.0",
+    "typescript": "~5.9.0"
   }
 }
 PKGJSON
@@ -54,7 +54,7 @@ pnpm --filter @journium/core build > /dev/null 2>&1
 pnpm --filter @journium/js build > /dev/null 2>&1
 
 # Install dependencies
-echo "Installing Angular 18.x and dependencies..."
+echo "Installing Angular 21.x and dependencies..."
 cd "$TEST_DIR"
 npm install --no-audit --no-fund --legacy-peer-deps
 
@@ -119,4 +119,4 @@ TSCONFIG
 echo "Running compatibility tests..."
 npm test
 
-echo "Angular 18.x compatibility test passed!"
+echo "Angular 21.x compatibility test passed!"

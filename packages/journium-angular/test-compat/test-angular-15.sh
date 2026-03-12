@@ -90,9 +90,10 @@ module.exports = {
       stringifyContentPathRegex: '\\.html$'
     }]
   },
+  transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$|@angular/|@journium/))'],
   moduleNameMapper: {
-    '^@journium/angular/ngmodule$': '<rootDir>/node_modules/@journium/angular/dist/ngmodule.cjs',
-    '^@journium/angular$': '<rootDir>/node_modules/@journium/angular/dist/index.cjs'
+    '^@journium/angular/ngmodule$': '<rootDir>/node_modules/@journium/angular/fesm2022/journium-angular-ngmodule.mjs',
+    '^@journium/angular$': '<rootDir>/node_modules/@journium/angular/fesm2022/journium-angular.mjs'
   }
 };
 JESTCFG
@@ -103,17 +104,13 @@ cat > tsconfig.spec.json <<'TSCONFIG'
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
+    "moduleResolution": "node",
+    "isolatedModules": true,
     "lib": ["ES2022", "dom"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,
-    "types": ["jest", "node"],
-    "paths": {
-      "@journium/angular": ["./node_modules/@journium/angular/dist/index.d.ts"],
-      "@journium/angular/ngmodule": ["./node_modules/@journium/angular/dist/ngmodule.d.ts"]
-    }
+    "types": ["jest", "node"]
   }
 }
 TSCONFIG
