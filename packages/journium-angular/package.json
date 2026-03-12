@@ -1,8 +1,9 @@
 {
-  "name": "@journium/js",
-  "version": "1.2.0",
+  "name": "@journium/angular",
+  "version": "1.0.0",
+  "type": "module",
   "license": "MIT",
-  "description": "Journium JavaScript SDK for web browsers - Track events, pageviews, and user interactions with ease",
+  "description": "Journium Angular integration - Service, module, and providers for Angular applications",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -21,48 +22,56 @@
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
   },
-  "type": "module",
   "scripts": {
     "build": "rollup -c",
-    "build:cdn": "rollup -c --environment BUILD:cdn",
-    "build:watch": "rollup -c -w",
     "dev": "rollup -c -w",
-    "test": "jest --config jest.config.cjs",
-    "test:unit": "jest --config jest.config.cjs",
+    "test": "jest --passWithNoTests",
+    "test:unit": "jest --passWithNoTests",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist",
-    "prepare:cdn": "pnpm build && echo 'CDN files ready: dist/journium.js and dist/journium.min.js'"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@journium/js": "workspace:*",
     "@journium/core": "workspace:*"
   },
+  "peerDependencies": {
+    "@angular/core": ">=15.0.0",
+    "@angular/router": ">=15.0.0",
+    "rxjs": ">=6.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/router": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.0",
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular/router": "^19.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
-    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.0.0",
     "@types/node": "^20.0.0",
     "rollup": "^3.0.0",
     "rollup-plugin-dts": "^5.0.0",
+    "rxjs": "^7.8.0",
     "tslib": "^2.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/journium/journium-js.git",
-    "directory": "packages/journium-js"
+    "directory": "packages/journium-angular"
   },
   "keywords": [
     "analytics",
     "tracking",
     "journium",
-    "javascript",
-    "browser",
+    "angular",
+    "service",
+    "provider",
+    "dependency-injection",
     "web-analytics",
-    "event-tracking",
-    "pageview",
-    "autocapture",
     "typescript"
   ],
   "author": "Journium Team",
