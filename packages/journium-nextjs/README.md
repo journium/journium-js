@@ -55,6 +55,7 @@ For more detailed examples, hooks, and configuration options, visit the [Journiu
 
 - [@journium/js](https://www.npmjs.com/package/@journium/js) - JavaScript SDK
 - [@journium/react](https://www.npmjs.com/package/@journium/react) - React SDK
+- [@journium/angular](https://www.npmjs.com/package/@journium/angular) - Angular SDK
 
 ## Support
 

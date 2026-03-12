@@ -51,6 +51,7 @@ For more detailed examples, hooks, and configuration options, visit the [Journiu
 
 - [@journium/nextjs](https://www.npmjs.com/package/@journium/nextjs) - Next.js SDK
 - [@journium/js](https://www.npmjs.com/package/@journium/js) - JavaScript SDK
+- [@journium/angular](https://www.npmjs.com/package/@journium/angular) - Angular SDK
 
 ## Support
 
