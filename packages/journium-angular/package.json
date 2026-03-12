@@ -10,6 +10,16 @@
     "dist"
   ],
   "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/types/journium-angular.d.ts",
+      "default": "./dist/fesm2022/journium-angular.mjs"
+    },
+    "./ngmodule": {
+      "types": "./dist/types/journium-angular-ngmodule.d.ts",
+      "default": "./dist/fesm2022/journium-angular-ngmodule.mjs"
+    }
+  },
   "homepage": "https://github.com/journium/journium-js",
   "bugs": {
     "url": "https://github.com/journium/journium-js/issues"
