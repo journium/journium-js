@@ -1,9 +1,11 @@
 {
   "name": "@journium/angular",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "license": "MIT",
   "description": "Journium Angular integration - Service, module, and providers for Angular applications",
+  "module": "dist/fesm2022/journium-angular.mjs",
+  "types": "dist/types/journium-angular.d.ts",
   "module": "dist/fesm2022/journium-angular.mjs",
   "types": "dist/types/journium-angular.d.ts",
   "files": [
@@ -26,6 +28,7 @@
   },
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
+    "build": "ng-packagr -p ng-package.json",
     "test": "jest --passWithNoTests",
     "test:unit": "jest --passWithNoTests",
     "test:compat": "cd test-compat && ./test-all.sh",
@@ -34,6 +37,7 @@
     "test:compat:17": "cd test-compat && ./test-angular-17.sh",
     "test:compat:18": "cd test-compat && ./test-angular-18.sh",
     "test:compat:19": "cd test-compat && ./test-angular-19.sh",
+    "test:compat:21": "cd test-compat && ./test-angular-21.sh",
     "test:compat:21": "cd test-compat && ./test-angular-21.sh",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
@@ -55,6 +59,13 @@
     }
   },
   "devDependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/compiler-cli": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/platform-browser-dynamic": "^21.2.0",
+    "@angular/router": "^21.2.0",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/compiler-cli": "^21.2.0",
