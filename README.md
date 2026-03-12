@@ -29,6 +29,7 @@ This monorepo contains multiple packages optimized for different environments:
 | **`@journium/js`** | Core browser SDK | Vanilla JavaScript, SPAs |
 | **`@journium/react`** | React integration | React applications with hooks |
 | **`@journium/nextjs`** | Next.js integration | Next.js apps with SSR support |
+| **`@journium/angular`** | Angular integration | Angular 15+ apps (standalone & NgModule) |
 | **`@journium/core`** | Core SDK functionality | Identity, events, types & utilities |
 
 ## 🛠️ Development
@@ -61,9 +62,11 @@ pnpm format
 pnpm dev
 
 # This starts:
-# - React sample: http://localhost:3005
-# - Next.js sample: http://localhost:3004  
-# - Events monitor: http://localhost:3006
+# - React sample:    http://localhost:3005
+# - Next.js sample:  http://localhost:3004
+# - Angular sample:  http://localhost:3008
+# - JS sample:       http://localhost:3007
+# - Events monitor:  http://localhost:3006
 ```
 
 ### Project Structure
@@ -72,14 +75,17 @@ pnpm dev
 journium-js/
 ├── packages/
 │   ├── journium-js/         # Core browser SDK (@journium/js)
-│   ├── journium-react/      # React integration
-│   ├── journium-nextjs/     # Next.js integration
-│   └── core/                # Core SDK functionality
+│   ├── journium-react/      # React integration (@journium/react)
+│   ├── journium-nextjs/     # Next.js integration (@journium/nextjs)
+│   ├── journium-angular/    # Angular integration (@journium/angular)
+│   └── core/                # Core SDK functionality (@journium/core)
 ├── examples/
-│   ├── react-sample/        # React example app
-│   ├── nextjs-sample/       # Next.js example app  
-│   └── events-monitor/      # Event debugging tool
-└── docs/                    # Documentation
+│   ├── react-sample/        # React example app (port 3005)
+│   ├── nextjs-sample/       # Next.js example app (port 3004)
+│   ├── angular-sample/      # Angular example app (port 3008)
+│   ├── js-sample/           # Vanilla JS example (port 3007)
+│   └── events-monitor/      # Event debugging tool (port 3006)
+└── basic-example.html       # Standalone HTML/CDN example
 ```
 
 ## 🧪 Testing
@@ -90,11 +96,8 @@ We use Jest for testing across all packages:
 # Run all tests
 pnpm test
 
-# Run tests for specific package
+# Run tests for a specific package
 pnpm --filter @journium/js test
-
-# Run tests in watch mode
-pnpm test:watch
 ```
 
 ## 📝 Examples
@@ -104,6 +107,8 @@ Check out our example applications and guides:
 **Local Examples:**
 - **[React Sample](/examples/react-sample)** - Complete React app with Journium integration
 - **[Next.js Sample](/examples/nextjs-sample)** - Next.js app showing SSR usage
+- **[Angular Sample](/examples/angular-sample)** - Angular 15+ app with standalone and NgModule setup
+- **[JS Sample](/examples/js-sample)** - Vanilla JavaScript integration
 - **[Events Monitor](/examples/events-monitor)** - Debug tool for viewing events
 
 **Online Guides:**

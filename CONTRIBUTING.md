@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the Journium JavaScript SDK! This
 
 1. **Prerequisites**
    - Node.js ≥20.0.0
-   - pnpm ≥8.15.0
+   - pnpm ≥10.0.0
 
 2. **Installation**
    ```bash
@@ -86,6 +86,7 @@ This repo uses squash merges. After your PR is merged:
 - `@journium/js` - Browser JavaScript SDK
 - `@journium/react` - React hooks and components
 - `@journium/nextjs` - Next.js SSR integration
+- `@journium/angular` - Angular 15+ integration (standalone & NgModule)
 
 ## Code Style
 
