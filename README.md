@@ -62,11 +62,11 @@ pnpm format
 pnpm dev
 
 # This starts:
-# - React sample:    http://localhost:3005
 # - Next.js sample:  http://localhost:3004
-# - Angular sample:  http://localhost:3008
-# - JS sample:       http://localhost:3007
+# - React sample:    http://localhost:3005
 # - Events monitor:  http://localhost:3006
+# - JS sample:       http://localhost:3007
+# - Angular sample:  http://localhost:3008
 ```
 
 ### Project Structure
