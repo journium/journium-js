@@ -1,5 +1,13 @@
 # @journium/angular
 
+## 1.0.2
+
+### Patch Changes
+
+- 1817127: Update docs
+- Updated dependencies [1817127]
+  - @journium/js@1.2.2
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@journium/angular",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "license": "MIT",
   "description": "Journium Angular integration - Service, module, and providers for Angular applications",
