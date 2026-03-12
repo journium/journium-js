@@ -29,16 +29,14 @@ jobs:
           - '18.0.0'
           - '18.2.0'
           - '18.3.1'
-        node-version: [18.x]
+        node-version: [20.x]
         
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -116,7 +114,7 @@ jobs:
       - name: Create Jest config
         run: |
           cd /tmp/react-compat-test
-          cat > jest.config.js <<EOF
+          cat > jest.config.js <<'EOF'
           module.exports = {
             preset: 'ts-jest',
             testEnvironment: 'jsdom',
@@ -124,10 +122,10 @@ jobs:
             testMatch: ['**/*.test.tsx'],
             setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
             moduleNameMapper: {
-              '^@journium/react\$': '<rootDir>/node_modules/@journium/react'
+              '^@journium/react$': '<rootDir>/node_modules/@journium/react'
             },
             transform: {
-              '^.+\\.tsx?\$': ['ts-jest', {
+              '^.+\\.tsx?$': ['ts-jest', {
                 tsconfig: {
                   jsx: 'react',
                   esModuleInterop: true,
