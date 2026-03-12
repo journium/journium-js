@@ -58,10 +58,16 @@ describe('provideJournium()', () => {
     expect((configProvider as Record<string, unknown>)['useValue']).toBe(mockConfig);
   });
 
-  test('returns EnvironmentProviders containing JourniumService', () => {
+  test('returns EnvironmentProviders containing a JourniumService useFactory provider', () => {
     const result = provideJournium(mockConfig) as unknown as { ɵproviders: unknown[] };
-    const hasService = result.ɵproviders.some((p) => p === JourniumService);
-    expect(hasService).toBe(true);
+    const serviceProvider = result.ɵproviders.find(
+      (p: unknown) =>
+        typeof p === 'object' &&
+        p !== null &&
+        (p as Record<string, unknown>)['provide'] === JourniumService &&
+        typeof (p as Record<string, unknown>)['useFactory'] === 'function'
+    );
+    expect(serviceProvider).toBeDefined();
   });
 
   test('accepts config without options', () => {

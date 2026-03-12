@@ -56,13 +56,17 @@ describe('JourniumModule', () => {
     expect((configProvider as Record<string, unknown>)['useValue']).toBe(mockConfig);
   });
 
-  test('forRoot() providers array includes JourniumService', () => {
+  test('forRoot() providers array includes a JourniumService useFactory provider', () => {
     const result = JourniumModule.forRoot(mockConfig);
     expect(result.providers).toBeDefined();
-    const hasService = (result.providers as unknown[]).some(
-      (p) => p === JourniumService
+    const serviceProvider = (result.providers as unknown[]).find(
+      (p: unknown) =>
+        typeof p === 'object' &&
+        p !== null &&
+        (p as Record<string, unknown>)['provide'] === JourniumService &&
+        typeof (p as Record<string, unknown>)['useFactory'] === 'function'
     );
-    expect(hasService).toBe(true);
+    expect(serviceProvider).toBeDefined();
   });
 
   test('forRoot() returns different provider instances for different configs', () => {

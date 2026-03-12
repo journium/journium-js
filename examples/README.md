@@ -87,17 +87,22 @@ pnpm --filter journium-events-monitor start
 In another terminal, start any of the sample applications:
 
 ```bash
-# Vanilla JavaScript Sample
-pnpm --filter journium-js-sample start
-# Open http://localhost:3007 in your browser
+
+# Next.js Sample  
+pnpm --filter journium-nextjs-sample dev
+# Open http://localhost:3004 in your browser
 
 # React Sample
 pnpm --filter journium-react-sample start
 # Open http://localhost:3005 in your browser
 
-# OR Next.js Sample  
-pnpm --filter journium-nextjs-sample dev
-# Open http://localhost:3004 in your browser
+# Vanilla JavaScript Sample
+pnpm --filter journium-js-sample start
+# Open http://localhost:3007 in your browser
+
+# Angular Sample
+pnpm --filter journium-angular-sample start
+# Open http://localhost:3008 in your browser
 ```
 
 #### 3. Watch Events in Real-Time

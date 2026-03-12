@@ -12,35 +12,41 @@ const external = [
   'rxjs/operators',
 ];
 
+const plugins = [
+  nodeResolve(),
+  typescript({ tsconfig: './tsconfig.json' }),
+];
+
 export default [
+  // Main entry (standalone API — no Angular decorators)
   {
     input: 'src/index.ts',
     output: [
-      {
-        file: 'dist/index.cjs',
-        format: 'cjs',
-        sourcemap: true,
-      },
-      {
-        file: 'dist/index.mjs',
-        format: 'esm',
-        sourcemap: true,
-      },
+      { file: 'dist/index.cjs', format: 'cjs', sourcemap: true },
+      { file: 'dist/index.mjs', format: 'esm', sourcemap: true },
     ],
-    plugins: [
-      nodeResolve(),
-      typescript({
-        tsconfig: './tsconfig.json',
-      }),
-    ],
+    plugins,
     external,
   },
   {
     input: 'src/index.ts',
-    output: {
-      file: 'dist/index.d.ts',
-      format: 'esm',
-    },
+    output: { file: 'dist/index.d.ts', format: 'esm' },
+    plugins: [dts()],
+    external,
+  },
+  // NgModule entry (for Angular apps using NgModule pattern)
+  {
+    input: 'src/ngmodule.ts',
+    output: [
+      { file: 'dist/ngmodule.cjs', format: 'cjs', sourcemap: true },
+      { file: 'dist/ngmodule.mjs', format: 'esm', sourcemap: true },
+    ],
+    plugins,
+    external,
+  },
+  {
+    input: 'src/ngmodule.ts',
+    output: { file: 'dist/ngmodule.d.ts', format: 'esm' },
     plugins: [dts()],
     external,
   },

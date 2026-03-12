@@ -16,6 +16,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./ngmodule": {
+      "types": "./dist/ngmodule.d.ts",
+      "import": "./dist/ngmodule.mjs",
+      "require": "./dist/ngmodule.cjs"
     }
   },
   "homepage": "https://github.com/journium/journium-js",

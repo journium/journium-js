@@ -1,16 +1,5 @@
-// Mock Angular core decorators as no-ops so tests run without Angular DI runtime
-jest.mock('@angular/core', () => ({
-  Injectable: () => (ctor: unknown) => ctor,
-  Inject: () => () => {},
-  InjectionToken: class MockInjectionToken {
-    constructor(public desc: string) {}
-    toString() { return `InjectionToken ${this.desc}`; }
-  },
-  NgModule: () => (ctor: unknown) => ctor,
-  makeEnvironmentProviders: (providers: unknown[]) => ({ ɵproviders: providers }),
-  APP_INITIALIZER: 'APP_INITIALIZER',
-  inject: jest.fn(),
-}));
+// Mock @angular/core — only what service.ts imports (OnDestroy is an interface, no runtime value needed)
+jest.mock('@angular/core', () => ({}));
 
 const mockAnalytics = {
   track: jest.fn(),
@@ -47,7 +36,7 @@ describe('JourniumService', () => {
     service = new JourniumService(mockConfig);
   });
 
-  test('constructor calls init(config) with the injected config', () => {
+  test('constructor calls init(config) with the provided config', () => {
     expect(init).toHaveBeenCalledWith(mockConfig);
     expect(init).toHaveBeenCalledTimes(1);
   });

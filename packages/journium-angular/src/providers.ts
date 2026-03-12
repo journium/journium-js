@@ -18,7 +18,10 @@ export const JOURNIUM_ROUTER_FEATURE = new InjectionToken<void>(
 export function provideJournium(config: JourniumConfig): EnvironmentProviders {
   return makeEnvironmentProviders([
     { provide: JOURNIUM_CONFIG, useValue: config },
-    JourniumService,
+    {
+      provide: JourniumService,
+      useFactory: () => new JourniumService(inject(JOURNIUM_CONFIG)),
+    },
   ]);
 }
 

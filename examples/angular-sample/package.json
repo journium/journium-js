@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NG_CLI_ANALYTICS=false ng serve --port 3007",
-    "start": "NG_CLI_ANALYTICS=false ng serve --port 3007",
+    "dev": "NG_CLI_ANALYTICS=false ng serve --port 3008",
+    "start": "NG_CLI_ANALYTICS=false ng serve --port 3008",
     "build": "NG_CLI_ANALYTICS=false ng build",
     "test": "echo 'No tests configured' && exit 0"
   },

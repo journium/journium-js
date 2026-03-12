@@ -10,7 +10,10 @@ export class JourniumModule {
       ngModule: JourniumModule,
       providers: [
         { provide: JOURNIUM_CONFIG, useValue: config },
-        JourniumService,
+        {
+          provide: JourniumService,
+          useFactory: () => new JourniumService(config),
+        },
       ],
     };
   }
