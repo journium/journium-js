@@ -1,0 +1,225 @@
+name: Angular Version Compatibility Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'packages/journium-angular/**'
+      - '.github/workflows/angular-compatibility.yml'
+  pull_request:
+    paths:
+      - 'packages/journium-angular/**'
+      - '.github/workflows/angular-compatibility.yml'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  test-compatibility:
+    name: Test Angular ${{ matrix.angular-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false # Continue testing other versions even if one fails
+      matrix:
+        angular-version:
+          - '15.2.0'
+          - '16.2.0'
+          - '17.3.0'
+          - '18.2.0'
+          - '19.0.0'
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: |
+          pnpm --filter @journium/core build
+          pnpm --filter @journium/js build
+          pnpm --filter @journium/angular build
+
+      - name: Create test environment
+        run: |
+          mkdir -p /tmp/angular-compat-test
+          cd /tmp/angular-compat-test
+          npm init -y
+          npm pkg set scripts.test="jest"
+
+      - name: Determine version-specific dependencies
+        id: deps
+        run: |
+          ANGULAR_VERSION="${{ matrix.angular-version }}"
+          MAJOR=$(echo $ANGULAR_VERSION | cut -d. -f1)
+
+          if [[ "$MAJOR" == "15" ]]; then
+            echo "zone_version=~0.12.0" >> $GITHUB_OUTPUT
+            echo "ts_version=~4.9.5" >> $GITHUB_OUTPUT
+            echo "jest_preset_version=^13.0.0" >> $GITHUB_OUTPUT
+          elif [[ "$MAJOR" == "16" ]]; then
+            echo "zone_version=~0.13.0" >> $GITHUB_OUTPUT
+            echo "ts_version=~5.0.4" >> $GITHUB_OUTPUT
+            echo "jest_preset_version=^13.0.0" >> $GITHUB_OUTPUT
+          elif [[ "$MAJOR" == "17" ]]; then
+            echo "zone_version=~0.14.0" >> $GITHUB_OUTPUT
+            echo "ts_version=~5.2.2" >> $GITHUB_OUTPUT
+            echo "jest_preset_version=^14.0.0" >> $GITHUB_OUTPUT
+          elif [[ "$MAJOR" == "18" ]]; then
+            echo "zone_version=~0.14.0" >> $GITHUB_OUTPUT
+            echo "ts_version=~5.4.5" >> $GITHUB_OUTPUT
+            echo "jest_preset_version=^14.0.0" >> $GITHUB_OUTPUT
+          else
+            echo "zone_version=~0.15.0" >> $GITHUB_OUTPUT
+            echo "ts_version=~5.6.3" >> $GITHUB_OUTPUT
+            echo "jest_preset_version=^14.0.0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Angular ${{ matrix.angular-version }} and tooling
+        run: |
+          cd /tmp/angular-compat-test
+
+          npm install \
+            @angular/common@${{ matrix.angular-version }} \
+            @angular/compiler@${{ matrix.angular-version }} \
+            @angular/core@${{ matrix.angular-version }} \
+            @angular/platform-browser@${{ matrix.angular-version }} \
+            @angular/platform-browser-dynamic@${{ matrix.angular-version }} \
+            @angular/router@${{ matrix.angular-version }} \
+            rxjs@^7.8.0 \
+            zone.js@"${{ steps.deps.outputs.zone_version }}" \
+            --save \
+            --legacy-peer-deps
+
+          npm install \
+            @types/jest@^29.0.0 \
+            @types/node@^20.0.0 \
+            jest@^29.0.0 \
+            jest-environment-jsdom@^29.0.0 \
+            jest-preset-angular@"${{ steps.deps.outputs.jest_preset_version }}" \
+            typescript@"${{ steps.deps.outputs.ts_version }}" \
+            --save-dev \
+            --legacy-peer-deps
+
+      - name: Pack and install @journium/angular
+        run: |
+          cd ${{ github.workspace }}/packages/journium-angular
+          PACKAGE_FILE=$(pnpm pack 2>&1 | grep -o '[^/]*\.tgz$')
+          cd /tmp/angular-compat-test
+          npm install ${{ github.workspace }}/packages/journium-angular/$PACKAGE_FILE --legacy-peer-deps
+          rm ${{ github.workspace }}/packages/journium-angular/$PACKAGE_FILE
+
+      - name: Copy test suite
+        run: |
+          cp -r ${{ github.workspace }}/packages/journium-angular/test-compat/test-suite /tmp/angular-compat-test/tests
+
+      - name: Create Jest config
+        run: |
+          cd /tmp/angular-compat-test
+          cat > jest.config.js <<'EOF'
+          module.exports = {
+            preset: 'jest-preset-angular',
+            testEnvironment: 'jsdom',
+            roots: ['<rootDir>/tests'],
+            testMatch: ['**/*.spec.ts'],
+            setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+            transform: {
+              '^.+\\.(ts|js|html|mjs)$': ['jest-preset-angular', {
+                tsconfig: '<rootDir>/tsconfig.spec.json',
+                stringifyContentPathRegex: '\\.html$'
+              }]
+            },
+            moduleNameMapper: {
+              '^@journium/angular/ngmodule$': '<rootDir>/node_modules/@journium/angular/dist/ngmodule.cjs',
+              '^@journium/angular$': '<rootDir>/node_modules/@journium/angular/dist/index.cjs'
+            }
+          };
+          EOF
+
+      - name: Create tsconfig.spec.json
+        run: |
+          cd /tmp/angular-compat-test
+          cat > tsconfig.spec.json <<'EOF'
+          {
+            "compilerOptions": {
+              "target": "ES2022",
+              "module": "CommonJS",
+              "lib": ["ES2022", "dom"],
+              "experimentalDecorators": true,
+              "emitDecoratorMetadata": true,
+              "esModuleInterop": true,
+              "allowSyntheticDefaultImports": true,
+              "strict": false,
+              "types": ["jest", "node"],
+              "paths": {
+                "@journium/angular": ["./node_modules/@journium/angular/dist/index.d.ts"],
+                "@journium/angular/ngmodule": ["./node_modules/@journium/angular/dist/ngmodule.d.ts"]
+              }
+            }
+          }
+          EOF
+
+      - name: Run compatibility tests
+        run: |
+          cd /tmp/angular-compat-test
+          npm test -- --verbose
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "✅ @journium/angular is compatible with Angular ${{ matrix.angular-version }}"
+
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "❌ @journium/angular has compatibility issues with Angular ${{ matrix.angular-version }}"
+          exit 1
+
+  compatibility-summary:
+    name: Compatibility Test Summary
+    runs-on: ubuntu-latest
+    needs: test-compatibility
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [[ "${{ needs.test-compatibility.result }}" == "success" ]]; then
+            echo "✅ All Angular version compatibility tests passed!"
+            exit 0
+          else
+            echo "❌ Some Angular version compatibility tests failed"
+            echo "Check the individual test jobs for details"
+            exit 1
+          fi
+
+      - name: Post summary
+        if: always()
+        run: |
+          echo "## Angular Compatibility Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Angular Version | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.test-compatibility.result }}" == "success" ]]; then
+            echo "| All Versions | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Some Versions | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Tested versions: 15.2.0, 16.2.0, 17.3.0, 18.2.0, 19.0.0" >> $GITHUB_STEP_SUMMARY
