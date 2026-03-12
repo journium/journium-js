@@ -1,5 +1,11 @@
 # @journium/js
 
+## 1.2.2
+
+### Patch Changes
+
+- 1817127: Update docs
+
 ## 1.2.1
 
 ### Patch Changes
