@@ -327,11 +327,23 @@ export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
         ? process.env.NEXT_PUBLIC_JOURNIUM_API_HOST
         : undefined;
     
-    // Merge config with env var (config takes precedence, but env var fills in missing values)
+    // Preserve false (user disabled all pageview tracking).
+    // For true / undefined / object: force trackSpaPageviews: false because
+    // AppRouterTracker / PagesRouterTracker own route-change pageviews.
+    const userAutoTrack = config?.options?.autoTrackPageviews;
+    const autoTrackPageviews = userAutoTrack === false
+      ? false
+      : typeof userAutoTrack === 'object'
+        ? { ...userAutoTrack, trackSpaPageviews: false, trackInitialPageview: false }
+        : { trackSpaPageviews: false, trackInitialPageview: false };
+
     return {
       publishableKey,
       ...(apiHost && { apiHost }),
-      ...(config?.options && { options: config.options }),
+      options: {
+        ...config?.options,
+        autoTrackPageviews,
+      },
     };
   }, [config]);
 

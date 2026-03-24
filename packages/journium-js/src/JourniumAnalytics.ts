@@ -1,4 +1,4 @@
-import { JourniumConfig, AutocaptureOptions, JourniumLocalOptions } from '@journium/core';
+import { JourniumConfig, AutocaptureOptions, AutoTrackPageviewsOptions, JourniumLocalOptions } from '@journium/core';
 import { JourniumClient } from './JourniumClient';
 import { PageviewTracker } from './PageviewTracker';
 import { AutocaptureTracker } from './AutocaptureTracker';
@@ -32,6 +32,25 @@ export class JourniumAnalytics {
     this.startAutocaptureIfEnabled(initialEffectiveOptions);
   }
 
+  private resolvePageviewOptions(autoTrackPageviews?: boolean | AutoTrackPageviewsOptions): {
+    enabled: boolean;
+    trackSpaPageviews: boolean;
+    captureInitialPageview: boolean;
+  } {
+    if (autoTrackPageviews === false) {
+      return { enabled: false, trackSpaPageviews: false, captureInitialPageview: false };
+    }
+    if (autoTrackPageviews === true || autoTrackPageviews === undefined) {
+      return { enabled: true, trackSpaPageviews: true, captureInitialPageview: true };
+    }
+    // object form implies enabled
+    return {
+      enabled: true,
+      trackSpaPageviews: autoTrackPageviews.trackSpaPageviews !== false,
+      captureInitialPageview: autoTrackPageviews.trackInitialPageview !== false,
+    };
+  }
+
   private resolveAutocaptureOptions(autocapture?: boolean | AutocaptureOptions): AutocaptureOptions {
     if (autocapture === false) {
       return {
@@ -49,50 +68,61 @@ export class JourniumAnalytics {
     return autocapture;
   }
 
+  /** Track a custom event with optional properties. */
   track(event: string, properties?: Record<string, unknown>): void {
     this.client.track(event, properties);
   }
 
+  /** Associate the current session with a known user identity and optional attributes. */
   identify(distinctId: string, attributes?: Record<string, unknown>): void {
     this.client.identify(distinctId, attributes);
   }
 
+  /** Clear the current identity, starting a new anonymous session. */
   reset(): void {
     this.client.reset();
   }
 
+  /** Manually capture a $pageview event with optional custom properties. */
   capturePageview(properties?: Record<string, unknown>): void {
     this.pageviewTracker.capturePageview(properties);
   }
 
+  /**
+   * Manually start autocapture (pageview tracking + DOM event capture).
+   * Under normal usage this is not needed — the SDK starts automatically on init.
+   * Useful only if autocapture was explicitly stopped and needs to be restarted.
+   */
   startAutocapture(): void {
     // Always check effective options (which may include remote options)
     const effectiveOptions = this.client.getEffectiveOptions();
     
-    // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
-    const autoTrackPageviews = effectiveOptions && Object.keys(effectiveOptions).length > 0 
-      ? effectiveOptions.autoTrackPageviews !== false 
-      : false;
-      
-    const autocaptureEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0
+    // Only start if effectiveOptions are actually loaded (non-empty)
+    const hasOptions = effectiveOptions && Object.keys(effectiveOptions).length > 0;
+    const { enabled: autoTrackPageviews, trackSpaPageviews, captureInitialPageview } = hasOptions
+      ? this.resolvePageviewOptions(effectiveOptions.autoTrackPageviews)
+      : { enabled: false, trackSpaPageviews: false, captureInitialPageview: false };
+
+    const autocaptureEnabled = hasOptions
       ? effectiveOptions.autocapture !== false
       : false;
-    
+
     // Update autocapture tracker options if they've changed
     const autocaptureOptions = this.resolveAutocaptureOptions(effectiveOptions.autocapture);
     this.autocaptureTracker.updateOptions(autocaptureOptions);
-    
+
     if (autoTrackPageviews) {
-      this.pageviewTracker.startAutoPageviewTracking();
+      this.pageviewTracker.startAutoPageviewTracking(captureInitialPageview, trackSpaPageviews);
     }
-    
+
     if (autocaptureEnabled) {
       this.autocaptureTracker.start();
     }
-    
+
     this.autocaptureStarted = true;
   }
 
+  /** Stop autocapture — pauses pageview tracking and DOM event capture. */
   stopAutocapture(): void {
     this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
@@ -115,15 +145,17 @@ export class JourniumAnalytics {
     
     if (hasActualOptions) {
       // Use same logic as manual startAutocapture() but only start automatically
-      const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+      const { enabled: autoTrackPageviews, trackSpaPageviews, captureInitialPageview } = this.resolvePageviewOptions(
+        effectiveOptions.autoTrackPageviews
+      );
       const autocaptureEnabled = effectiveOptions.autocapture !== false;
-      
+
       // Update autocapture tracker options
       const autocaptureOptions = this.resolveAutocaptureOptions(effectiveOptions.autocapture);
       this.autocaptureTracker.updateOptions(autocaptureOptions);
-      
+
       if (autoTrackPageviews) {
-        this.pageviewTracker.startAutoPageviewTracking();
+        this.pageviewTracker.startAutoPageviewTracking(captureInitialPageview, trackSpaPageviews);
       }
       
       if (autocaptureEnabled) {
@@ -153,14 +185,16 @@ export class JourniumAnalytics {
       this.autocaptureStarted = false;
     }
 
-    const autoTrackPageviews = effectiveOptions.autoTrackPageviews !== false;
+    const { enabled: autoTrackPageviews, trackSpaPageviews, captureInitialPageview } = this.resolvePageviewOptions(
+      effectiveOptions.autoTrackPageviews
+    );
     const autocaptureEnabled = effectiveOptions.autocapture !== false;
 
     const autocaptureOptions = this.resolveAutocaptureOptions(effectiveOptions.autocapture);
     this.autocaptureTracker.updateOptions(autocaptureOptions);
 
     if (autoTrackPageviews) {
-      this.pageviewTracker.startAutoPageviewTracking(isFirstStart);
+      this.pageviewTracker.startAutoPageviewTracking(isFirstStart && captureInitialPageview, trackSpaPageviews);
     }
 
     if (autocaptureEnabled) {
@@ -171,10 +205,12 @@ export class JourniumAnalytics {
   }
 
 
+  /** Flush all queued events to the ingestion endpoint immediately. */
   async flush(): Promise<void> {
     return this.client.flush();
   }
 
+  /** Return the currently active options (merged local + remote config). */
   getEffectiveOptions() {
     return this.client.getEffectiveOptions();
   }
@@ -186,6 +222,7 @@ export class JourniumAnalytics {
     return this.client.onOptionsChange(callback);
   }
 
+  /** Tear down the analytics instance: stop all tracking, flush pending events, and release resources. */
   destroy(): void {
     this.pageviewTracker.stopAutocapture();
     this.autocaptureTracker.stop();
@@ -196,6 +233,7 @@ export class JourniumAnalytics {
   }
 }
 
+/** Create and return a new JourniumAnalytics instance for the given config. */
 export const init = (config: JourniumConfig): JourniumAnalytics => {
   return new JourniumAnalytics(config);
 };
