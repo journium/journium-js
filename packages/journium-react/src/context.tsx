@@ -17,6 +17,11 @@ interface JourniumProviderProps {
   config: JourniumConfig;
 }
 
+/**
+ * Provides the Journium analytics instance to the React tree.
+ * Initializes the SDK on mount and tears it down on unmount.
+ * Re-initializes if `config` changes.
+ */
 export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   children,
   config,
@@ -58,6 +63,10 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   );
 };
 
+/**
+ * Access the Journium analytics instance and effective options from any component
+ * inside `JourniumProvider`. Throws if called outside the provider.
+ */
 export const useJournium = (): JourniumContextValue => {
   const context = useContext(JourniumContext);
   if (!context) {

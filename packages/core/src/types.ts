@@ -6,6 +6,11 @@ export interface JourniumEvent {
   properties: Record<string, unknown>;
 }
 
+export interface AutoTrackPageviewsOptions {
+  trackSpaPageviews?: boolean;    // default: true — controls pushState/replaceState/popstate patching
+  trackInitialPageview?: boolean; // default: true — controls whether the initial pageview is captured on load
+}
+
 export interface AutocaptureOptions {
   captureClicks?: boolean;
   captureFormSubmits?: boolean;
@@ -21,7 +26,7 @@ export interface JourniumServerOptions {
   flushAt?: number;
   flushInterval?: number;
   autocapture?: boolean | AutocaptureOptions;
-  autoTrackPageviews?: boolean;
+  autoTrackPageviews?: boolean | AutoTrackPageviewsOptions;
   sessionTimeout?: number;
   ingestionPaused?: boolean;
   [key: string]: unknown;
@@ -39,7 +44,7 @@ export interface JourniumLocalOptions {
   flushAt?: number;
   flushInterval?: number;
   autocapture?: boolean | AutocaptureOptions;
-  autoTrackPageviews?: boolean;
+  autoTrackPageviews?: boolean | AutoTrackPageviewsOptions;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
   [key: string]: unknown;
 }

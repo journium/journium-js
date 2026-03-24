@@ -33,6 +33,54 @@ describe('PageviewTracker', () => {
     jest.clearAllMocks();
   });
 
+  describe('startAutoPageviewTracking', () => {
+    let originalPushState: typeof window.history.pushState;
+
+    beforeEach(() => {
+      originalPushState = window.history.pushState;
+    });
+
+    afterEach(() => {
+      window.history.pushState = originalPushState;
+      pageviewTracker.stopAutocapture();
+    });
+
+    it('captures initial pageview when captureInitialPageview is true', () => {
+      pageviewTracker.startAutoPageviewTracking(true, false);
+      expect(mockClient.track).toHaveBeenCalledTimes(1);
+      expect(mockClient.track).toHaveBeenCalledWith('$pageview', expect.any(Object));
+    });
+
+    it('does not capture initial pageview when captureInitialPageview is false', () => {
+      pageviewTracker.startAutoPageviewTracking(false, false);
+      expect(mockClient.track).not.toHaveBeenCalled();
+    });
+
+    it('patches history.pushState when patchHistory is true', () => {
+      pageviewTracker.startAutoPageviewTracking(false, true);
+      expect(window.history.pushState).not.toBe(originalPushState);
+    });
+
+    it('does NOT patch history.pushState when patchHistory is false', () => {
+      pageviewTracker.startAutoPageviewTracking(false, false);
+      expect(window.history.pushState).toBe(originalPushState);
+    });
+
+    it('fires pageview on pushState when patchHistory is true', async () => {
+      pageviewTracker.startAutoPageviewTracking(false, true);
+      window.history.pushState({}, '', '/new-route');
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(mockClient.track).toHaveBeenCalledWith('$pageview', expect.any(Object));
+    });
+
+    it('does NOT fire pageview on pushState when patchHistory is false', async () => {
+      pageviewTracker.startAutoPageviewTracking(false, false);
+      window.history.pushState({}, '', '/new-route');
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(mockClient.track).not.toHaveBeenCalled();
+    });
+  });
+
   describe('capturePageview', () => {
     it('should capture pageview with correct properties', () => {
       pageviewTracker.capturePageview();
