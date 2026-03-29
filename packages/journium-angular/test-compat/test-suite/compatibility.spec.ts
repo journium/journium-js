@@ -2,7 +2,7 @@
  * Angular Version Compatibility Tests
  *
  * These tests verify that @journium/angular works correctly across
- * Angular versions 15–19 using TestBed without DOM rendering.
+ * Angular versions 19+ using TestBed without DOM rendering.
  *
  * @journium/js is mocked to avoid async network calls and zone.js timer
  * pollution. The tests focus on Angular DI wiring: provider registration,
@@ -246,9 +246,9 @@ describe('Angular Compatibility Tests', () => {
   // Suite 5 — Angular version detection + zone-agnostic note
   // ─────────────────────────────────────────────────────────────────────────
   describe('Suite 5 — Angular version detection', () => {
-    it('Angular major version is >= 15', () => {
+    it('Angular major version is >= 19', () => {
       const major = parseInt(VERSION.major, 10);
-      expect(major).toBeGreaterThanOrEqual(15);
+      expect(major).toBeGreaterThanOrEqual(19);
     });
 
     it('VERSION.full is a non-empty string', () => {

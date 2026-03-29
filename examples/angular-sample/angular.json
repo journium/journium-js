@@ -59,6 +59,11 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "prebundle": {
+              "exclude": ["@journium/angular"]
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "angular-sample:build:production"

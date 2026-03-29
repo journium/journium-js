@@ -46,6 +46,9 @@ export interface JourniumLocalOptions {
   autocapture?: boolean | AutocaptureOptions;
   autoTrackPageviews?: boolean | AutoTrackPageviewsOptions;
   sessionTimeout?: number; // in milliseconds, defaults to 30 minutes
+  /** @internal Used by framework SDKs (Angular, Next.js) to disable built-in pageview
+   *  tracking without modifying autoTrackPageviews, so remote config can still override it. */
+  _frameworkHandlesPageviews?: boolean;
   [key: string]: unknown;
 }
 

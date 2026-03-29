@@ -23,10 +23,6 @@ jobs:
       fail-fast: false # Continue testing other versions even if one fails
       matrix:
         angular-version:
-          - '15.2.0'
-          - '16.2.0'
-          - '17.3.0'
-          - '18.2.0'
           - '19.0.0'
           - '21.2.0'
         node-version: [20.x]
@@ -66,27 +62,7 @@ jobs:
           ANGULAR_VERSION="${{ matrix.angular-version }}"
           MAJOR=$(echo $ANGULAR_VERSION | cut -d. -f1)
 
-          if [[ "$MAJOR" == "15" ]]; then
-            echo "zone_version=~0.12.0" >> $GITHUB_OUTPUT
-            echo "ts_version=~4.9.5" >> $GITHUB_OUTPUT
-            echo "jest_version=^29.0.0" >> $GITHUB_OUTPUT
-            echo "jest_preset_version=^13.0.0" >> $GITHUB_OUTPUT
-          elif [[ "$MAJOR" == "16" ]]; then
-            echo "zone_version=~0.13.0" >> $GITHUB_OUTPUT
-            echo "ts_version=~5.0.4" >> $GITHUB_OUTPUT
-            echo "jest_version=^29.0.0" >> $GITHUB_OUTPUT
-            echo "jest_preset_version=^13.0.0" >> $GITHUB_OUTPUT
-          elif [[ "$MAJOR" == "17" ]]; then
-            echo "zone_version=~0.14.0" >> $GITHUB_OUTPUT
-            echo "ts_version=~5.2.2" >> $GITHUB_OUTPUT
-            echo "jest_version=^29.0.0" >> $GITHUB_OUTPUT
-            echo "jest_preset_version=^14.0.0" >> $GITHUB_OUTPUT
-          elif [[ "$MAJOR" == "18" ]]; then
-            echo "zone_version=~0.14.0" >> $GITHUB_OUTPUT
-            echo "ts_version=~5.4.5" >> $GITHUB_OUTPUT
-            echo "jest_version=^29.0.0" >> $GITHUB_OUTPUT
-            echo "jest_preset_version=^14.0.0" >> $GITHUB_OUTPUT
-          elif [[ "$MAJOR" == "19" ]]; then
+          if [[ "$MAJOR" == "19" ]]; then
             echo "zone_version=~0.15.0" >> $GITHUB_OUTPUT
             echo "ts_version=~5.6.3" >> $GITHUB_OUTPUT
             echo "jest_version=^29.0.0" >> $GITHUB_OUTPUT
