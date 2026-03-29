@@ -70,7 +70,7 @@ interface NextJourniumProviderProps {
  */
 function getPublishableKeyFromEnv(): string {
   const key = process.env.NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY;
-  
+
   if (!key) {
     throw new Error(
       'NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY environment variable is required. ' +
@@ -78,7 +78,7 @@ function getPublishableKeyFromEnv(): string {
       'Example: NEXT_PUBLIC_JOURNIUM_PUBLISHABLE_KEY=pk_test_your_key_here'
     );
   }
-  
+
   return key;
 }
 
@@ -316,17 +316,17 @@ export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
   // Build the final config: merge provided config with env var (env var as fallback)
   const finalConfig = useMemo<JourniumConfig>(() => {
     // Get publishableKey from config if provided and non-empty, otherwise use env var
-    const publishableKey = (config?.publishableKey && config.publishableKey.trim()) 
-      ? config.publishableKey 
+    const publishableKey = (config?.publishableKey && config.publishableKey.trim())
+      ? config.publishableKey
       : getPublishableKeyFromEnv();
-    
+
     // Get apiHost from config if provided and non-empty, otherwise use env var if available
     const apiHost = (config?.apiHost && config.apiHost.trim())
       ? config.apiHost
       : (process.env.NEXT_PUBLIC_JOURNIUM_API_HOST && process.env.NEXT_PUBLIC_JOURNIUM_API_HOST.trim())
         ? process.env.NEXT_PUBLIC_JOURNIUM_API_HOST
         : undefined;
-    
+
     return {
       publishableKey,
       ...(apiHost && { apiHost }),

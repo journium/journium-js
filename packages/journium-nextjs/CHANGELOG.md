@@ -1,5 +1,16 @@
 # @journium/nextjs
 
+## 1.2.0
+
+### Minor Changes
+
+- 8030889: Fixed duplicate pageview events in NextJS SDK. Added comments in all SDKs.
+
+### Patch Changes
+
+- Updated dependencies [8030889]
+  - @journium/react@1.2.0
+
 ## 1.1.4
 
 ### Patch Changes
