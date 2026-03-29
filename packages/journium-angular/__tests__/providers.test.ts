@@ -9,6 +9,12 @@ jest.mock('@angular/core', () => ({
   NgModule: () => (ctor: unknown) => ctor,
   makeEnvironmentProviders: (providers: unknown[]) => ({ ɵproviders: providers }),
   APP_INITIALIZER: 'APP_INITIALIZER',
+  // Mock provideAppInitializer to return a recognizable flat provider so helpers can find it
+  provideAppInitializer: (fn: () => void) => ({
+    provide: 'APP_INITIALIZER',
+    useFactory: () => fn,
+    multi: true,
+  }),
   inject: jest.fn(),
 }));
 
@@ -91,7 +97,7 @@ describe('withJourniumRouter()', () => {
     expect(featureProvider).toBeDefined();
   });
 
-  test('returns EnvironmentProviders containing APP_INITIALIZER', () => {
+  test('returns EnvironmentProviders containing app initializer provider', () => {
     const result = withJourniumRouter() as unknown as { ɵproviders: unknown[] };
     const initializerProvider = result.ɵproviders.find(
       (p: unknown) =>
@@ -102,7 +108,7 @@ describe('withJourniumRouter()', () => {
     expect(initializerProvider).toBeDefined();
   });
 
-  test('APP_INITIALIZER provider has multi: true', () => {
+  test('app initializer provider has multi: true', () => {
     const result = withJourniumRouter() as unknown as { ɵproviders: unknown[] };
     const initializerProvider = result.ɵproviders.find(
       (p: unknown) =>

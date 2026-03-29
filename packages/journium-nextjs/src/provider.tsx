@@ -88,20 +88,14 @@ function getPublishableKeyFromEnv(): string {
  * Uses dynamic imports to avoid build-time errors when next/navigation is not available.
  * Respects autoTrackPageviews setting from effective options.
  */
-const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({ 
-  trackRouteChanges 
+const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
+  trackRouteChanges
 }) => {
-  const { analytics, effectiveOptions } = useJournium();
+  const { analytics } = useJournium();
   const [routerType, setRouterType] = useState<'app' | 'pages' | null>(null);
 
-  // Check if autoTrackPageviews is enabled 
-  // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
-  const autoTrackPageviewsEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0 
-    ? effectiveOptions.autoTrackPageviews !== false 
-    : false;
-
   useEffect(() => {
-    if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
+    if (!trackRouteChanges || !analytics) return;
 
     // Detect router type by attempting to import next/navigation
     // If it succeeds, we're using App Router; if it fails, we're using Pages Router
@@ -114,12 +108,7 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
         // Pages Router detected - will use next/router
         setRouterType('pages');
       });
-  }, [trackRouteChanges, analytics, autoTrackPageviewsEnabled]);
-
-  // Don't track if autoTrackPageviews is disabled
-  if (!autoTrackPageviewsEnabled) {
-    return null;
-  }
+  }, [trackRouteChanges, analytics]);
 
   // App Router tracker component
   if (routerType === 'app') {
@@ -143,12 +132,15 @@ const RouteChangeTracker: React.FC<{ trackRouteChanges: boolean }> = ({
  */
 const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
   const [TrackerComponent, setTrackerComponent] = useState<React.ComponentType<{ trackRouteChanges: boolean }> | null>(null);
-  const { analytics, effectiveOptions } = useJournium();
+  const { analytics } = useJournium();
 
   useEffect(() => {
     if (!analytics) return;
 
-    // Dynamically import App Router hooks and create a component that uses them
+    // Dynamically import App Router hooks and create a component that uses them.
+    // This effect runs once when analytics is ready — do NOT include effectiveOptions
+    // in deps, as that would re-create TrackerImpl on every config change, causing
+    // the inner useEffect to fire and emit a spurious pageview.
     import('next/navigation')
       .then((nav) => {
         // Create a component that calls hooks at the top level (required by React)
@@ -157,16 +149,20 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
           const searchParams = nav.useSearchParams();
           const { analytics, effectiveOptions } = useJournium();
 
-          // Check if autoTrackPageviews is enabled
-          // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
-          const autoTrackPageviewsEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0 
-            ? effectiveOptions.autoTrackPageviews !== false 
-            : false;
+          // hasEffectiveOptions transitions once (false → true) when remote config loads.
+          // Using this as a dep (instead of autoTrackPageviews) ensures config value
+          // changes don't re-trigger the effect — only navigation does.
+          const hasEffectiveOptions = effectiveOptions && Object.keys(effectiveOptions).length > 0;
 
+          // Navigation effect: fires on route changes and when options first become available.
+          // Checks autoTrackPageviews at call time via getEffectiveOptions() so remote
+          // config changes are respected without producing spurious pageviews.
           useEffect(() => {
-            if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
+            if (!trackRouteChanges || !analytics || !hasEffectiveOptions) return;
+            const effective = analytics.getEffectiveOptions();
+            if (effective.autoTrackPageviews === false) return;
             analytics.capturePageview();
-          }, [pathname, searchParams, analytics, trackRouteChanges, autoTrackPageviewsEnabled]);
+          }, [pathname, searchParams, analytics, trackRouteChanges, hasEffectiveOptions]);
 
           return null;
         };
@@ -176,7 +172,7 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
         // Should not happen since we only render this when App Router is detected
         console.warn('Failed to load next/navigation hooks');
       });
-  }, [analytics, effectiveOptions]);
+  }, [analytics]);
 
   if (!TrackerComponent) return null;
 
@@ -193,12 +189,15 @@ const AppRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRoute
  */
 const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRouteChanges }) => {
   const [TrackerComponent, setTrackerComponent] = useState<React.ComponentType<{ trackRouteChanges: boolean }> | null>(null);
-  const { analytics, effectiveOptions } = useJournium();
+  const { analytics } = useJournium();
 
   useEffect(() => {
     if (!analytics) return;
 
-    // Dynamically import Pages Router hooks and create a component that uses them
+    // Dynamically import Pages Router hooks and create a component that uses them.
+    // This effect runs once when analytics is ready — do NOT include effectiveOptions
+    // in deps, as that would re-create TrackerImpl on every config change, causing
+    // the inner useEffect to fire and emit a spurious pageview.
     import('next/router')
       .then((routerModule) => {
         // Create a component that calls hooks at the top level (required by React)
@@ -206,27 +205,28 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
           const router = routerModule.useRouter();
           const { analytics, effectiveOptions } = useJournium();
 
-          // Check if autoTrackPageviews is enabled
-          // Only enable if effectiveOptions are loaded and autoTrackPageviews is not explicitly false
-          const autoTrackPageviewsEnabled = effectiveOptions && Object.keys(effectiveOptions).length > 0 
-            ? effectiveOptions.autoTrackPageviews !== false 
-            : false;
+          // hasEffectiveOptions transitions once (false → true) when remote config loads.
+          // Using this as a dep (instead of autoTrackPageviews) ensures config value
+          // changes don't re-trigger the effect — only navigation does.
+          const hasEffectiveOptions = effectiveOptions && Object.keys(effectiveOptions).length > 0;
 
+          // Navigation effect: subscribes to route changes and fires initial pageview.
+          // Checks autoTrackPageviews at call time via getEffectiveOptions() so remote
+          // config changes are respected without producing spurious pageviews.
           useEffect(() => {
-            if (!trackRouteChanges || !analytics || !autoTrackPageviewsEnabled) return;
+            if (!trackRouteChanges || !analytics || !hasEffectiveOptions) return;
 
-            // Track initial pageview
-            analytics.capturePageview();
+            // Check effective options at setup time for initial pageview
+            const effective = analytics.getEffectiveOptions();
+            if (effective.autoTrackPageviews !== false) {
+              analytics.capturePageview();
+            }
 
+            // Always subscribe — handler checks at event time
             const handleRouteChange = () => {
-              // Re-check autoTrackPageviews in case it changed
-              const currentEffectiveOptions = analytics.getEffectiveOptions();
-              const currentAutoTrackEnabled = currentEffectiveOptions && Object.keys(currentEffectiveOptions).length > 0
-                ? currentEffectiveOptions.autoTrackPageviews !== false
-                : false;
-              if (currentAutoTrackEnabled) {
-                analytics.capturePageview();
-              }
+              const currentEffective = analytics.getEffectiveOptions();
+              if (currentEffective.autoTrackPageviews === false) return;
+              analytics.capturePageview();
             };
 
             router.events.on('routeChangeComplete', handleRouteChange);
@@ -234,7 +234,7 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
             return () => {
               router.events.off('routeChangeComplete', handleRouteChange);
             };
-          }, [router, analytics, trackRouteChanges, autoTrackPageviewsEnabled]);
+          }, [router, analytics, trackRouteChanges, hasEffectiveOptions]);
 
           return null;
         };
@@ -244,7 +244,7 @@ const PagesRouterTracker: React.FC<{ trackRouteChanges: boolean }> = ({ trackRou
         // Should not happen since we only render this when Pages Router is detected
         console.warn('Failed to load next/router hooks');
       });
-  }, [analytics, effectiveOptions]);
+  }, [analytics]);
 
   if (!TrackerComponent) return null;
 
@@ -327,22 +327,16 @@ export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
         ? process.env.NEXT_PUBLIC_JOURNIUM_API_HOST
         : undefined;
     
-    // Preserve false (user disabled all pageview tracking).
-    // For true / undefined / object: force trackSpaPageviews: false because
-    // AppRouterTracker / PagesRouterTracker own route-change pageviews.
-    const userAutoTrack = config?.options?.autoTrackPageviews;
-    const autoTrackPageviews = userAutoTrack === false
-      ? false
-      : typeof userAutoTrack === 'object'
-        ? { ...userAutoTrack, trackSpaPageviews: false, trackInitialPageview: false }
-        : { trackSpaPageviews: false, trackInitialPageview: false };
-
     return {
       publishableKey,
       ...(apiHost && { apiHost }),
       options: {
         ...config?.options,
-        autoTrackPageviews,
+        // Tell the JS SDK to skip built-in pageview tracking (pushState patching,
+        // initial pageview). The framework trackers below handle pageviews via
+        // Next.js routing hooks. We leave autoTrackPageviews untouched so remote
+        // config can set it to false and the trackers will respect it.
+        _frameworkHandlesPageviews: true,
       },
     };
   }, [config]);

@@ -32,12 +32,15 @@ export class JourniumAnalytics {
     this.startAutocaptureIfEnabled(initialEffectiveOptions);
   }
 
-  private resolvePageviewOptions(autoTrackPageviews?: boolean | AutoTrackPageviewsOptions): {
+  private resolvePageviewOptions(
+    autoTrackPageviews?: boolean | AutoTrackPageviewsOptions,
+    frameworkHandlesPageviews?: boolean,
+  ): {
     enabled: boolean;
     trackSpaPageviews: boolean;
     captureInitialPageview: boolean;
   } {
-    if (autoTrackPageviews === false) {
+    if (autoTrackPageviews === false || frameworkHandlesPageviews) {
       return { enabled: false, trackSpaPageviews: false, captureInitialPageview: false };
     }
     if (autoTrackPageviews === true || autoTrackPageviews === undefined) {
@@ -100,7 +103,7 @@ export class JourniumAnalytics {
     // Only start if effectiveOptions are actually loaded (non-empty)
     const hasOptions = effectiveOptions && Object.keys(effectiveOptions).length > 0;
     const { enabled: autoTrackPageviews, trackSpaPageviews, captureInitialPageview } = hasOptions
-      ? this.resolvePageviewOptions(effectiveOptions.autoTrackPageviews)
+      ? this.resolvePageviewOptions(effectiveOptions.autoTrackPageviews, effectiveOptions._frameworkHandlesPageviews)
       : { enabled: false, trackSpaPageviews: false, captureInitialPageview: false };
 
     const autocaptureEnabled = hasOptions
@@ -146,7 +149,7 @@ export class JourniumAnalytics {
     if (hasActualOptions) {
       // Use same logic as manual startAutocapture() but only start automatically
       const { enabled: autoTrackPageviews, trackSpaPageviews, captureInitialPageview } = this.resolvePageviewOptions(
-        effectiveOptions.autoTrackPageviews
+        effectiveOptions.autoTrackPageviews, effectiveOptions._frameworkHandlesPageviews
       );
       const autocaptureEnabled = effectiveOptions.autocapture !== false;
 
@@ -186,7 +189,7 @@ export class JourniumAnalytics {
     }
 
     const { enabled: autoTrackPageviews, trackSpaPageviews, captureInitialPageview } = this.resolvePageviewOptions(
-      effectiveOptions.autoTrackPageviews
+      effectiveOptions.autoTrackPageviews, effectiveOptions._frameworkHandlesPageviews
     );
     const autocaptureEnabled = effectiveOptions.autocapture !== false;
 

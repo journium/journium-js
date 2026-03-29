@@ -63,4 +63,27 @@ describe('JourniumAnalytics — resolvePageviewOptions integration', () => {
       expect(mockPageviewTracker.startAutoPageviewTracking).toHaveBeenCalledWith(false, false);
     });
   });
+
+  describe('_frameworkHandlesPageviews: true', () => {
+    it('does not start built-in pageview tracking even when autoTrackPageviews is not false', () => {
+      mockClientInstance.getEffectiveOptions.mockReturnValue({
+        autoTrackPageviews: true,
+        autocapture: false,
+        _frameworkHandlesPageviews: true,
+      });
+      new JourniumAnalytics({ publishableKey: 'pk_test', options: { _frameworkHandlesPageviews: true } as any });
+      expect(mockPageviewTracker.startAutoPageviewTracking).not.toHaveBeenCalled();
+    });
+
+    it('still allows manual capturePageview calls', () => {
+      mockClientInstance.getEffectiveOptions.mockReturnValue({
+        autoTrackPageviews: true,
+        autocapture: false,
+        _frameworkHandlesPageviews: true,
+      });
+      const analytics = new JourniumAnalytics({ publishableKey: 'pk_test', options: { _frameworkHandlesPageviews: true } as any });
+      analytics.capturePageview();
+      expect(mockPageviewTracker.capturePageview).toHaveBeenCalledTimes(1);
+    });
+  });
 });
