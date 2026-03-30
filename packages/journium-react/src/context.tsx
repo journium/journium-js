@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 import { init } from '@journium/js';
 import { JourniumConfig, JourniumLocalOptions } from '@journium/core';
+import { SDK_VERSION } from './version';
 
 type JourniumAnalyticsInstance = ReturnType<typeof init>;
 
@@ -29,8 +30,13 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
   const [analytics, setAnalytics] = useState<JourniumAnalyticsInstance | null>(null);
   const [effectiveOptions, setEffectiveOptions] = useState<JourniumLocalOptions | null>(null);
 
+  const configWithSdk = useMemo(() => ({
+    ...config,
+    options: { _sdkVersion: SDK_VERSION, ...config.options },
+  }), [config]);
+
   useEffect(() => {
-    const analyticsInstance = init(config);
+    const analyticsInstance = init(configWithSdk);
     
     // Get initial effective options (may be empty during remote-first initialization)
     const initialEffective = analyticsInstance.getEffectiveOptions();
@@ -54,7 +60,7 @@ export const JourniumProvider: React.FC<JourniumProviderProps> = ({
       setAnalytics(null);
       setEffectiveOptions(null);
     };
-  }, [config]);
+  }, [configWithSdk]);
 
   return (
     <JourniumContext.Provider value={{ analytics, config, effectiveOptions }}>

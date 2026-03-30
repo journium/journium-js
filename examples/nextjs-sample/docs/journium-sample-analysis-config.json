@@ -1,0 +1,295 @@
+{
+  "version": "1.3",
+
+  "event_definitions": [
+    {
+      "id": "home_viewed",
+      "description": "User visited the home page with demo event tracking buttons",
+      "match": "event == '$pageview' && page_path == '/'"
+    },
+    {
+      "id": "products_viewed",
+      "description": "User browsed the product catalog page",
+      "match": "event == '$pageview' && page_path == '/products'"
+    },
+    {
+      "id": "about_viewed",
+      "description": "User visited the about page with contact form and social links",
+      "match": "event == '$pageview' && page_path == '/about'"
+    },
+    {
+      "id": "product_added_to_cart",
+      "description": "User clicked Add to Cart on a product card",
+      "match": "event == '$autocapture' && element_text == 'Add to Cart' && page_path == '/products'"
+    },
+    {
+      "id": "product_purchased",
+      "description": "User clicked Buy Now on a product card",
+      "match": "event == '$autocapture' && element_text == 'Buy Now' && page_path == '/products'"
+    },
+    {
+      "id": "custom_event_tracked",
+      "description": "User clicked Track Custom Event button on the home page demo",
+      "match": "event == '$autocapture' && element_text.startsWith('Track Custom Event') && page_path == '/'"
+    },
+    {
+      "id": "add_to_cart_home",
+      "description": "User clicked Track Add to Cart demo button on the home page",
+      "match": "event == '$autocapture' && element_text == 'Track Add to Cart' && page_path == '/'"
+    },
+    {
+      "id": "feature_usage_tracked",
+      "description": "User clicked Track Feature Usage demo button on the home page",
+      "match": "event == '$autocapture' && element_text == 'Track Feature Usage' && page_path == '/'"
+    },
+    {
+      "id": "file_download_tracked",
+      "description": "User clicked Track File Download demo button on the home page",
+      "match": "event == '$autocapture' && element_text == 'Track File Download' && page_path == '/'"
+    },
+    {
+      "id": "contact_form_submitted",
+      "description": "User submitted the contact form on the about page",
+      "match": "event == '$autocapture' && element_text == 'Send Message' && element_tag == 'button' && page_path == '/about'"
+    },
+    {
+      "id": "documentation_accessed",
+      "description": "User clicked View Documentation on the about page",
+      "match": "event == '$autocapture' && element_text == 'View Documentation' && page_path == '/about'"
+    },
+    {
+      "id": "social_link_clicked",
+      "description": "User clicked a social media button (Twitter, GitHub, LinkedIn) on the about page",
+      "match": "event == '$autocapture' && element_text in ['Twitter', 'GitHub', 'LinkedIn'] && page_path == '/about'"
+    },
+    {
+      "id": "login_initiated",
+      "description": "User clicked the Login button in the header",
+      "match": "event == '$autocapture' && element_text == 'Login' && element_tag == 'button'"
+    },
+    {
+      "id": "signup_initiated",
+      "description": "User clicked the Sign Up button in the header",
+      "match": "event == '$autocapture' && element_text == 'Sign Up' && element_tag == 'button'"
+    },
+    {
+      "id": "navigation_to_products",
+      "description": "User clicked the Products link in the header navigation",
+      "match": "event == '$autocapture' && element_text == 'Products' && element_tag == 'a'"
+    },
+    {
+      "id": "navigation_to_about",
+      "description": "User clicked the About link in the header navigation",
+      "match": "event == '$autocapture' && element_text == 'About' && element_tag == 'a'"
+    }
+  ],
+
+  "features": {
+    "taxonomy": {
+      "product_browsing": {
+        "description": "Browsing and interacting with products in the catalog",
+        "actions": [
+          "products_viewed",
+          "product_added_to_cart",
+          "product_purchased"
+        ],
+        "is_core": true
+      },
+      "event_tracking_demo": {
+        "description": "Using the home page demo buttons to test event tracking",
+        "actions": [
+          "custom_event_tracked",
+          "add_to_cart_home",
+          "feature_usage_tracked",
+          "file_download_tracked"
+        ],
+        "is_core": true
+      },
+      "engagement": {
+        "description": "Interactions showing deeper interest: docs, social, contact form",
+        "actions": [
+          "documentation_accessed",
+          "social_link_clicked",
+          "contact_form_submitted"
+        ],
+        "is_core": false
+      },
+      "authentication": {
+        "description": "Login and signup interactions",
+        "actions": [
+          "login_initiated",
+          "signup_initiated"
+        ],
+        "is_core": true
+      },
+      "navigation": {
+        "description": "Navigating between pages in the app",
+        "actions": [
+          "home_viewed",
+          "products_viewed",
+          "about_viewed",
+          "navigation_to_products",
+          "navigation_to_about"
+        ],
+        "is_core": false
+      }
+    }
+  },
+
+  "activation": {
+    "aha_moment": {
+      "action": "product_added_to_cart",
+      "conditions": [
+        "User browses products page",
+        "User adds first product to cart",
+        "Cart interaction confirms the app is functional"
+      ],
+      "description": "The first Add to Cart click shows the user the core product interaction works — they see the cart count update and the tracking event fire"
+    },
+    "onboarding_steps": [
+      {
+        "id": "first_visit",
+        "action": "home_viewed"
+      },
+      {
+        "id": "explore_products",
+        "action": "products_viewed"
+      },
+      {
+        "id": "first_cart_add",
+        "action": "product_added_to_cart"
+      },
+      {
+        "id": "first_purchase",
+        "action": "product_purchased",
+        "optional": true
+      }
+    ]
+  },
+
+  "lifecycle": {
+    "stages": {
+      "new": {
+        "description": "First-time visitor, only viewed the home page",
+        "criteria": {
+          "sessions_count": 1,
+          "pages_viewed_count_lte": 1
+        }
+      },
+      "exploring": {
+        "description": "Visitor browsing multiple pages, testing demo buttons",
+        "criteria": {
+          "pages_viewed_count_gte": 2,
+          "feature_breadth_lt": 3
+        }
+      },
+      "engaged": {
+        "description": "Visitor interacting with products and forms",
+        "criteria": {
+          "feature_breadth_gte": 3,
+          "actions_per_session_gte": 5
+        }
+      },
+      "inactive": {
+        "description": "No activity for 7+ days",
+        "criteria": {
+          "days_since_last_session_gte": 7
+        }
+      }
+    }
+  },
+
+  "funnels": [
+    {
+      "id": "visitor_to_buyer",
+      "name": "Visitor to Buyer",
+      "description": "From first page view to product purchase",
+      "steps": [
+        { "id": "home_visit",     "action": "home_viewed",            "expected_completion_pct": 100 },
+        { "id": "browse",         "action": "products_viewed",        "expected_completion_pct": 65  },
+        { "id": "add_to_cart",    "action": "product_added_to_cart",  "expected_completion_pct": 35  },
+        { "id": "purchase",       "action": "product_purchased",      "expected_completion_pct": 18  }
+      ],
+      "time_window_days": 7
+    }
+  ],
+
+  "semantic_labeling": {
+    "glossary": {
+      "product": "An item in the product catalog with name, price, and category (e.g., Next.js Masterclass, React Hooks Guide)",
+      "cart": "A shopping cart interaction tracked when user clicks Add to Cart on a product",
+      "purchase": "A buy interaction tracked when user clicks Buy Now on a product",
+      "demo_button": "One of the home page buttons that demonstrates SDK event tracking capabilities"
+    },
+    "page_patterns": [
+      { "pattern": "/",         "page_name": "home"            },
+      { "pattern": "/products", "page_name": "product_catalog" },
+      { "pattern": "/about",    "page_name": "about"           }
+    ]
+  },
+
+  "segments": {
+    "predefined": [
+      {
+        "id": "product_browsers",
+        "name": "Product Browsers",
+        "description": "Visitors who viewed the products page at least once",
+        "rules": { "has_action": "products_viewed" }
+      },
+      {
+        "id": "cart_users",
+        "name": "Cart Users",
+        "description": "Visitors who added at least one product to cart",
+        "rules": { "has_action": "product_added_to_cart" }
+      },
+      {
+        "id": "buyers",
+        "name": "Buyers",
+        "description": "Visitors who clicked Buy Now on at least one product",
+        "rules": { "has_action": "product_purchased" }
+      }
+    ]
+  },
+
+  "monitoring": {
+    "severity_rules": {
+      "critical": {
+        "description": "Severe drop in core product interactions",
+        "conditions": [
+          { "metric_matches": "product_added_to_cart", "deviation_pct_gte": 40 },
+          { "metric_matches": "product_purchased",     "deviation_pct_gte": 45 }
+        ]
+      },
+      "high": {
+        "description": "Significant drop in page views or engagement",
+        "conditions": [
+          { "metric_matches": "products_viewed",       "deviation_pct_gte": 30 },
+          { "metric_matches": "contact_form_submitted","deviation_pct_gte": 35 }
+        ]
+      }
+    }
+  },
+
+  "objectives": [
+    {
+      "id": "increase_product_engagement",
+      "goal": "Increase the share of visitors who browse products and add items to cart",
+      "priority": 1,
+      "primary_metric": "products_viewed_to_cart_rate",
+      "supporting_metrics": [
+        "products_viewed_count",
+        "product_added_to_cart_count",
+        "product_purchased_count"
+      ],
+      "target_value": 40,
+      "funnel_id": "visitor_to_buyer",
+      "focus_segments": ["product_browsers"],
+      "investigation_hints": [
+        "Check which products get the most Add to Cart clicks vs Buy Now clicks",
+        "Analyze if product hover (product view) predicts cart addition",
+        "Compare engagement between visitors who arrive at home first vs direct to products"
+      ],
+      "time_horizon": "7d"
+    }
+  ]
+}

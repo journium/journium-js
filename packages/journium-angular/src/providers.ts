@@ -9,6 +9,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { JourniumConfig } from '@journium/core';
 import { JourniumService } from './service';
 import { JOURNIUM_CONFIG } from './tokens';
+import { SDK_VERSION } from './version';
 import { filter } from 'rxjs';
 
 export const JOURNIUM_ROUTER_FEATURE = new InjectionToken<void>(
@@ -16,11 +17,15 @@ export const JOURNIUM_ROUTER_FEATURE = new InjectionToken<void>(
 );
 
 export function provideJournium(config: JourniumConfig): EnvironmentProviders {
+  const configWithSdk: JourniumConfig = {
+    ...config,
+    options: { ...config.options, _sdkVersion: SDK_VERSION },
+  };
   return makeEnvironmentProviders([
-    { provide: JOURNIUM_CONFIG, useValue: config },
+    { provide: JOURNIUM_CONFIG, useValue: configWithSdk },
     {
       provide: JourniumService,
-      useFactory: () => new JourniumService(config),
+      useFactory: () => new JourniumService(configWithSdk),
     },
   ]);
 }

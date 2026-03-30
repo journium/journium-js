@@ -25,7 +25,7 @@
     "url": "https://github.com/journium/journium-js/issues"
   },
   "scripts": {
-    "build": "ng-packagr -p ng-package.json",
+    "build": "node -e \"const p=require('./package.json');require('fs').writeFileSync('src/version.ts','export const SDK_VERSION = \\\"@journium/angular@'+p.version+'\\\";\\n')\" && ng-packagr -p ng-package.json",
     "test": "jest --passWithNoTests",
     "test:unit": "jest --passWithNoTests",
     "test:compat": "cd test-compat && ./test-all.sh",

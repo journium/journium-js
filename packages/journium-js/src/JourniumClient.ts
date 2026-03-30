@@ -301,7 +301,7 @@ export class JourniumClient {
       $current_url: typeof window !== 'undefined' ? window.location.href : '',
       $pathname: typeof window !== 'undefined' ? window.location.pathname : '',
       ...userAgentInfo,
-      $lib_version: '0.1.0', // TODO: Get from package.json
+      $sdk_version: this.config.options?._sdkVersion ?? 'unknown',
       $platform: 'web',
       ...userProperties,
     };

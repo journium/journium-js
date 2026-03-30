@@ -61,7 +61,10 @@ describe('provideJournium()', () => {
         (p as Record<string, unknown>)['provide'] === JOURNIUM_CONFIG
     );
     expect(configProvider).toBeDefined();
-    expect((configProvider as Record<string, unknown>)['useValue']).toBe(mockConfig);
+    expect((configProvider as Record<string, unknown>)['useValue']).toEqual({
+      ...mockConfig,
+      options: { _sdkVersion: expect.stringMatching(/^@journium\/angular@/), ...mockConfig.options },
+    });
   });
 
   test('returns EnvironmentProviders containing a JourniumService useFactory provider', () => {
