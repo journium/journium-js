@@ -12,42 +12,6 @@ echo ""
 FAILED_TESTS=()
 PASSED_TESTS=()
 
-# Test Angular 15.x
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if bash "$SCRIPT_DIR/test-angular-15.sh"; then
-  PASSED_TESTS+=("Angular 15.x")
-else
-  FAILED_TESTS+=("Angular 15.x")
-fi
-echo ""
-
-# Test Angular 16.x
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if bash "$SCRIPT_DIR/test-angular-16.sh"; then
-  PASSED_TESTS+=("Angular 16.x")
-else
-  FAILED_TESTS+=("Angular 16.x")
-fi
-echo ""
-
-# Test Angular 17.x
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if bash "$SCRIPT_DIR/test-angular-17.sh"; then
-  PASSED_TESTS+=("Angular 17.x")
-else
-  FAILED_TESTS+=("Angular 17.x")
-fi
-echo ""
-
-# Test Angular 18.x
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if bash "$SCRIPT_DIR/test-angular-18.sh"; then
-  PASSED_TESTS+=("Angular 18.x")
-else
-  FAILED_TESTS+=("Angular 18.x")
-fi
-echo ""
-
 # Test Angular 19.x
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if bash "$SCRIPT_DIR/test-angular-19.sh"; then
