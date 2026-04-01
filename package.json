@@ -35,11 +35,12 @@
     "clean": "turbo clean",
     "package": "export PACKAGE_DEST=$(pwd)/dist && turbo package",
     "changeset": "changeset",
-    "version": "changeset version",
+    "version": "changeset version && node scripts/sync-sdk-versions.js",
     "release": "pnpm build && changeset publish --provenance"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
+    "@rollup/plugin-replace": "^6.0.3",
     "@turbo/gen": "^1.10.12",
     "@types/jest": "^29.0.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",

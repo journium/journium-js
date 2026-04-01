@@ -1,8 +1,13 @@
+import { readFileSync } from 'fs';
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import commonjs from '@rollup/plugin-commonjs';
 import dts from 'rollup-plugin-dts';
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+const sdkVersion = `@journium/js@${pkg.version}`;
 
 export default [
   // Regular package builds (CJS, ESM, UMD)
@@ -30,6 +35,7 @@ export default [
       },
     ],
     plugins: [
+      replace({ __SDK_VERSION__: sdkVersion, preventAssignment: true }),
       nodeResolve(),
       typescript({
         tsconfig: './tsconfig.json',
@@ -37,7 +43,7 @@ export default [
     ],
     external: [],
   },
-  
+
   // CDN build - optimized for script snippet usage
   {
     input: 'src/cdn.ts',
@@ -68,6 +74,7 @@ export default [
       },
     ],
     plugins: [
+      replace({ __SDK_VERSION__: sdkVersion, preventAssignment: true }),
       nodeResolve({
         browser: true,
         preferBuiltins: false,

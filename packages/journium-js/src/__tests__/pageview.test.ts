@@ -90,7 +90,7 @@ describe('PageviewTracker', () => {
         $host: 'example.com',
         $pathname: '/test',
         $search: '?param=value',
-        $title: 'Test Page',
+        $page_title: 'Test Page',
         $referrer: 'https://google.com',
       });
     });
@@ -104,7 +104,7 @@ describe('PageviewTracker', () => {
         $host: 'example.com',
         $pathname: '/test',
         $search: '?param=value',
-        $title: 'Test Page',
+        $page_title: 'Test Page',
         $referrer: 'https://google.com',
         custom_prop: 'value',
       });

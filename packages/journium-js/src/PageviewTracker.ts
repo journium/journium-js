@@ -12,7 +12,7 @@ export class PageviewTracker {
     this.client = client;
   }
 
-  capturePageview(customProperties: Record<string, unknown> = {}): void {
+  capturePageview(customProperties: PageviewProperties = {}): void {
     const currentUrl = getCurrentUrl();
     const url = new URL(currentUrl);
 
@@ -21,7 +21,7 @@ export class PageviewTracker {
       $host: url.host,
       $pathname: url.pathname,
       $search: url.search,
-      $title: getPageTitle(),
+      $page_title: getPageTitle(),
       $referrer: getReferrer(),
       ...customProperties,
     };

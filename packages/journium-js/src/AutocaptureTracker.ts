@@ -1,5 +1,5 @@
 import { JourniumClient } from './JourniumClient';
-import { isBrowser, AutocaptureOptions } from '@journium/core';
+import { isBrowser, AutocaptureOptions, AutocaptureBaseProperties } from '@journium/core';
 
 /**
  * AutocaptureTracker is responsible for tracking user interactions and capturing them as events.
@@ -20,6 +20,8 @@ export class AutocaptureTracker {
       ignoreClasses: ['journium-ignore'],
       ignoreElements: ['script', 'style', 'noscript'],
       captureContentText: true,
+      dataAttributePrefixes: ['jrnm-'],
+      dataAttributeNames: ['data-testid', 'data-track'],
       ...options,
     };
   }
@@ -44,6 +46,8 @@ export class AutocaptureTracker {
       ignoreClasses: ['journium-ignore'],
       ignoreElements: ['script', 'style', 'noscript'],
       captureContentText: true,
+      dataAttributePrefixes: ['jrnm-'],
+      dataAttributeNames: ['data-testid', 'data-track'],
       ...options,
     };
     
@@ -100,11 +104,7 @@ export class AutocaptureTracker {
       }
 
       const properties = this.getElementProperties(target, 'click');
-      
-      this.client.track('$autocapture', {
-        $event_type: 'click',
-        ...properties,
-      });
+      this.client.track('$autocapture', properties);
     };
 
     document.addEventListener('click', clickListener, true);
@@ -120,11 +120,7 @@ export class AutocaptureTracker {
       }
 
       const properties = this.getFormProperties(target, 'submit');
-      
-      this.client.track('$autocapture', {
-        $event_type: 'submit',
-        ...properties,
-      });
+      this.client.track('$autocapture', properties);
     };
 
     document.addEventListener('submit', submitListener, true);
@@ -140,11 +136,7 @@ export class AutocaptureTracker {
       }
 
       const properties = this.getInputProperties(target, 'change');
-      
-      this.client.track('$autocapture', {
-        $event_type: 'change',
-        ...properties,
-      });
+      this.client.track('$autocapture', properties);
     };
 
     document.addEventListener('change', changeListener, true);
@@ -206,8 +198,9 @@ export class AutocaptureTracker {
     return formElements.includes(element.tagName.toLowerCase());
   }
 
-  private getElementProperties(element: HTMLElement, eventType: string): Record<string, unknown> {
-    const properties: Record<string, unknown> = {
+  private getElementProperties(element: HTMLElement, eventType: string): AutocaptureBaseProperties {
+    const properties: AutocaptureBaseProperties = {
+      $event_type: eventType as AutocaptureBaseProperties['$event_type'],
       $element_tag: element.tagName.toLowerCase(),
       $element_type: this.getElementType(element),
     };
@@ -219,6 +212,7 @@ export class AutocaptureTracker {
 
     if (element.className) {
       properties.$element_classes = Array.from(element.classList);
+      properties.$element_semantic_classes = this.extractSemanticClasses(element.classList);
     }
 
     // Element attributes
@@ -229,6 +223,36 @@ export class AutocaptureTracker {
         properties[`$element_${attr.replace('-', '_')}`] = value;
       }
     });
+
+    // Configurable data-* attribute capture
+    const prefixes = this.options.dataAttributePrefixes || ['jrnm-'];
+    const exactNames = new Set(this.options.dataAttributeNames || ['data-testid', 'data-track']);
+    const relevantSet = new Set(relevantAttributes);
+    let dataAttrCount = 0;
+
+    for (let i = 0; i < element.attributes.length && dataAttrCount < 10; i++) {
+      const attr = element.attributes.item(i);
+      if (!attr || !attr.name.startsWith('data-')) continue;
+      if (relevantSet.has(attr.name)) continue;
+
+      const suffix = attr.name.slice(5); // strip 'data-'
+      const matchesPrefix = prefixes.some(p => suffix.startsWith(p));
+      const matchesName = exactNames.has(attr.name);
+
+      if (matchesPrefix || matchesName) {
+        const propName = `$attr_${attr.name.replace(/-/g, '_')}`;
+        properties[propName] = attr.value;
+        dataAttrCount++;
+      }
+    }
+
+    // Link href as first-class property
+    if (element.tagName.toLowerCase() === 'a') {
+      const href = element.getAttribute('href');
+      if (href) {
+        properties.$element_href = href;
+      }
+    }
 
     // Element content
     if (this.options.captureContentText) {
@@ -263,15 +287,18 @@ export class AutocaptureTracker {
       }
     }
 
-    // URL information
+    // URL and page context
     properties.$current_url = window.location.href;
     properties.$host = window.location.host;
     properties.$pathname = window.location.pathname;
+    properties.$search = window.location.search;
+    properties.$page_title = document.title;
+    properties.$referrer = document.referrer;
 
     return properties;
   }
 
-  private getFormProperties(form: HTMLFormElement, eventType: string): Record<string, unknown> {
+  private getFormProperties(form: HTMLFormElement, eventType: string): AutocaptureBaseProperties {
     const properties = this.getElementProperties(form, eventType);
 
     // Form-specific properties
@@ -293,7 +320,7 @@ export class AutocaptureTracker {
     return properties;
   }
 
-  private getInputProperties(input: HTMLInputElement, eventType: string): Record<string, unknown> {
+  private getInputProperties(input: HTMLInputElement, eventType: string): AutocaptureBaseProperties {
     const properties = this.getElementProperties(input, eventType);
 
     // Input-specific properties
@@ -446,6 +473,39 @@ export class AutocaptureTracker {
       texts: texts.reverse(),
       ids: ids.reverse()
     };
+  }
+
+  private extractSemanticClasses(classList: DOMTokenList): string[] {
+    const results = new Set<string>();
+
+    for (let i = 0; i < classList.length; i++) {
+      const cls = classList.item(i);
+      if (!cls) continue;
+      const parts = cls.split('__');
+
+      if (parts.length >= 3) {
+        // CSS module pattern: Module__hash__name → take last segment
+        const last = parts[parts.length - 1];
+        if (last) results.add(last);
+      } else if (parts.length === 2) {
+        // 2-part __ class (e.g., Module__hash) → drop, no semantic name
+        continue;
+      } else {
+        // Single-part class — keep unless it looks like a hash
+        if (!this.isHashLike(cls)) {
+          results.add(cls);
+        }
+      }
+    }
+
+    return Array.from(results);
+  }
+
+  private isHashLike(value: string): boolean {
+    // Hash-like: alphanumeric, 5-10 chars, contains both letters and digits
+    return /^[a-zA-Z0-9]{5,10}$/.test(value)
+      && /[a-zA-Z]/.test(value)
+      && /[0-9]/.test(value);
   }
 
   private isSafeInputType(type: string): boolean {

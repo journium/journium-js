@@ -56,6 +56,7 @@
 import React, { ReactNode, useEffect, Suspense, useMemo, useState } from 'react';
 import { JourniumProvider as BaseJourniumProvider, useJournium } from '@journium/react';
 import { JourniumConfig } from '@journium/core';
+import { SDK_VERSION } from './version';
 
 interface NextJourniumProviderProps {
   children: ReactNode;
@@ -337,6 +338,7 @@ export const NextJourniumProvider: React.FC<NextJourniumProviderProps> = ({
         // Next.js routing hooks. We leave autoTrackPageviews untouched so remote
         // config can set it to false and the trackers will respect it.
         _frameworkHandlesPageviews: true,
+        _sdkVersion: SDK_VERSION,
       },
     };
   }, [config]);

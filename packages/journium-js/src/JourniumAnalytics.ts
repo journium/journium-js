@@ -1,4 +1,5 @@
 import { JourniumConfig, AutocaptureOptions, AutoTrackPageviewsOptions, JourniumLocalOptions } from '@journium/core';
+import { SDK_VERSION } from './version';
 import { JourniumClient } from './JourniumClient';
 import { PageviewTracker } from './PageviewTracker';
 import { AutocaptureTracker } from './AutocaptureTracker';
@@ -238,6 +239,13 @@ export class JourniumAnalytics {
 
 /** Create and return a new JourniumAnalytics instance for the given config. */
 export const init = (config: JourniumConfig): JourniumAnalytics => {
+  // Set SDK version if not already set by a framework SDK (React, Next.js, Angular)
+  if (!config.options?._sdkVersion) {
+    config = {
+      ...config,
+      options: { ...config.options, _sdkVersion: SDK_VERSION },
+    };
+  }
   return new JourniumAnalytics(config);
 };
 
