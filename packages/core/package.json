@@ -33,7 +33,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "uuidv7": "^1.0.1"
+    "uuidv7": "^1.2.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
