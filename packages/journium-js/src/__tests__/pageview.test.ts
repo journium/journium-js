@@ -92,6 +92,8 @@ describe('PageviewTracker', () => {
         $search: '?param=value',
         $page_title: 'Test Page',
         $referrer: 'https://google.com',
+        $previous_url: '',
+        $previous_pathname: '',
       });
     });
 
@@ -106,8 +108,54 @@ describe('PageviewTracker', () => {
         $search: '?param=value',
         $page_title: 'Test Page',
         $referrer: 'https://google.com',
+        $previous_url: '',
+        $previous_pathname: '',
         custom_prop: 'value',
       });
+    });
+  });
+
+  describe('SPA previous page tracking', () => {
+    it('first pageview has empty $previous_url and $previous_pathname', () => {
+      pageviewTracker.capturePageview();
+
+      expect(mockClient.track).toHaveBeenCalledWith('$pageview', expect.objectContaining({
+        $previous_url: '',
+        $previous_pathname: '',
+      }));
+    });
+
+    it('second pageview includes previous URL', () => {
+      // First pageview
+      (coreUtils.getCurrentUrl as jest.Mock).mockReturnValue('https://example.com/page-1');
+      pageviewTracker.capturePageview();
+
+      // Second pageview from a different page
+      (coreUtils.getCurrentUrl as jest.Mock).mockReturnValue('https://example.com/page-2?q=search');
+      pageviewTracker.capturePageview();
+
+      const secondCall = mockClient.track.mock.calls[1]!;
+      expect(secondCall[1]).toEqual(expect.objectContaining({
+        $previous_url: 'https://example.com/page-1',
+        $previous_pathname: '/page-1',
+      }));
+    });
+
+    it('third pageview shows second page as previous', () => {
+      (coreUtils.getCurrentUrl as jest.Mock).mockReturnValue('https://example.com/a');
+      pageviewTracker.capturePageview();
+
+      (coreUtils.getCurrentUrl as jest.Mock).mockReturnValue('https://example.com/b');
+      pageviewTracker.capturePageview();
+
+      (coreUtils.getCurrentUrl as jest.Mock).mockReturnValue('https://example.com/c');
+      pageviewTracker.capturePageview();
+
+      const thirdCall = mockClient.track.mock.calls[2]!;
+      expect(thirdCall[1]).toEqual(expect.objectContaining({
+        $previous_url: 'https://example.com/b',
+        $previous_pathname: '/b',
+      }));
     });
   });
 });

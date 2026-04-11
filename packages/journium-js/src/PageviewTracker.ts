@@ -23,6 +23,8 @@ export class PageviewTracker {
       $search: url.search,
       $page_title: getPageTitle(),
       $referrer: getReferrer(),
+      $previous_url: this.lastUrl || '',
+      $previous_pathname: this.lastUrl ? new URL(this.lastUrl).pathname : '',
       ...customProperties,
     };
 

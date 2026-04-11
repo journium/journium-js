@@ -43,6 +43,257 @@ describe('AutocaptureTracker - enriched properties', () => {
     return trackedEvents[trackedEvents.length - 1]?.properties ?? {};
   }
 
+  // --- $element_text fallback chain ---
+
+  describe('$element_text fallback chain', () => {
+    test('uses textContent when available', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.textContent = 'Submit';
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBe('Submit');
+      expect(props.$element_text_source).toBe('content');
+    });
+
+    test('falls back to aria-label for icon-only button', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.setAttribute('aria-label', 'Close dialog');
+      // Icon-only: no text content, just an SVG icon
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      button.appendChild(svg);
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBe('Close dialog');
+      expect(props.$element_text_source).toBe('aria-label');
+    });
+
+    test('falls back to title attribute when no text or aria-label', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.setAttribute('title', 'Settings');
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBe('Settings');
+      expect(props.$element_text_source).toBe('title');
+    });
+
+    test('falls back to child img alt text', () => {
+      createTracker();
+      const button = document.createElement('button');
+      const img = document.createElement('img');
+      img.alt = 'User avatar';
+      button.appendChild(img);
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBe('User avatar');
+      expect(props.$element_text_source).toBe('alt');
+    });
+
+    test('falls back to child svg title element', () => {
+      createTracker();
+      const button = document.createElement('button');
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const svgTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      svgTitle.textContent = 'Search icon';
+      svg.appendChild(svgTitle);
+      button.appendChild(svg);
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBe('Search icon');
+      expect(props.$element_text_source).toBe('svg-title');
+    });
+
+    test('fallback chain works for <a> elements too', () => {
+      createTracker();
+      const link = document.createElement('a');
+      link.href = '#';
+      link.setAttribute('aria-label', 'Home');
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      link.appendChild(svg);
+      document.body.appendChild(link);
+
+      clickElement(link);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBe('Home');
+      expect(props.$element_text_source).toBe('aria-label');
+    });
+
+    test('$element_text_source is content for normal text button', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.textContent = 'Enroll';
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_text_source).toBe('content');
+    });
+
+    test('no $element_text or $element_text_source when no fallback matches', () => {
+      createTracker();
+      const div = document.createElement('div');
+      document.body.appendChild(div);
+
+      clickElement(div);
+
+      const props = getLastProperties();
+      expect(props.$element_text).toBeUndefined();
+      expect(props.$element_text_source).toBeUndefined();
+    });
+  });
+
+  // --- $element_state ---
+
+  describe('$element_state', () => {
+    test('captures disabled state from DOM property', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.disabled = true;
+      button.textContent = 'Submit';
+      document.body.appendChild(button);
+
+      // Native .click() doesn't fire on disabled buttons; dispatch directly
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      const props = getLastProperties();
+      expect(props.$element_state).toEqual({ disabled: true });
+    });
+
+    test('captures checked state from checkbox', () => {
+      createTracker();
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = true;
+      document.body.appendChild(checkbox);
+
+      const changeEvent = new Event('change', { bubbles: true });
+      checkbox.dispatchEvent(changeEvent);
+
+      const props = getLastProperties();
+      expect(props.$element_state).toEqual({ checked: true });
+    });
+
+    test('captures aria-expanded state', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.setAttribute('aria-expanded', 'true');
+      button.textContent = 'Menu';
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_state).toEqual({ expanded: true });
+    });
+
+    test('captures aria-selected state', () => {
+      createTracker();
+      const div = document.createElement('div');
+      div.setAttribute('role', 'button');
+      div.setAttribute('aria-selected', 'true');
+      div.textContent = 'Tab 1';
+      document.body.appendChild(div);
+
+      clickElement(div);
+
+      const props = getLastProperties();
+      expect(props.$element_state).toEqual({ selected: true });
+    });
+
+    test('captures multiple states simultaneously', () => {
+      createTracker();
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = true;
+      input.disabled = true;
+      document.body.appendChild(input);
+
+      const changeEvent = new Event('change', { bubbles: true });
+      input.dispatchEvent(changeEvent);
+
+      const props = getLastProperties();
+      expect(props.$element_state).toEqual({ disabled: true, checked: true });
+    });
+
+    test('omits $element_state when no state flags are set', () => {
+      createTracker();
+      const button = document.createElement('button');
+      button.textContent = 'Normal';
+      document.body.appendChild(button);
+
+      clickElement(button);
+
+      const props = getLastProperties();
+      expect(props.$element_state).toBeUndefined();
+    });
+
+    test('captures aria-disabled even on non-native elements', () => {
+      createTracker();
+      const div = document.createElement('div');
+      div.setAttribute('role', 'button');
+      div.setAttribute('aria-disabled', 'true');
+      div.textContent = 'Custom button';
+      document.body.appendChild(div);
+
+      clickElement(div);
+
+      const props = getLastProperties();
+      expect(props.$element_state).toEqual({ disabled: true });
+    });
+  });
+
+  // --- text_selection page context ---
+
+  describe('text_selection page context', () => {
+    test('includes page context properties in text selection events', () => {
+      tracker = new AutocaptureTracker(mockClient, { captureTextSelection: true });
+      tracker.start();
+
+      // Simulate text selection via mouseup
+      const p = document.createElement('p');
+      p.textContent = 'This is some selectable text content for testing';
+      document.body.appendChild(p);
+
+      // Mock window.getSelection
+      const mockSelection = {
+        toString: () => 'selectable text',
+        trim: undefined,
+      };
+      jest.spyOn(window, 'getSelection').mockReturnValue(mockSelection as any);
+
+      document.dispatchEvent(new MouseEvent('mouseup'));
+
+      const props = getLastProperties();
+      expect(props.$event_type).toBe('text_selection');
+      expect(props.$current_url).toBeDefined();
+      expect(props.$host).toBeDefined();
+      expect(props.$pathname).toBeDefined();
+      expect(props.$page_title).toBe('Test Page Title');
+      expect(props.$referrer).toBeDefined();
+
+      jest.restoreAllMocks();
+    });
+  });
+
   // --- $element_href ---
 
   describe('$element_href', () => {

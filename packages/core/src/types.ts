@@ -74,7 +74,10 @@ export interface PageContextProperties {
   [key: string]: unknown;
 }
 
-export interface PageviewProperties extends PageContextProperties {}
+export interface PageviewProperties extends PageContextProperties {
+  $previous_url?: string;
+  $previous_pathname?: string;
+}
 
 /** Base properties shared by all autocapture event types. */
 export interface AutocaptureBaseProperties extends PageContextProperties {
@@ -91,6 +94,8 @@ export interface AutocaptureBaseProperties extends PageContextProperties {
   $element_data_track?: string;
   $element_href?: string;
   $element_text?: string;
+  $element_text_source?: 'content' | 'aria-label' | 'title' | 'alt' | 'svg-title';
+  $element_state?: { disabled?: boolean; checked?: boolean; selected?: boolean; expanded?: boolean };
   $element_position?: { x: number; y: number; width: number; height: number };
   $parent_tag?: string;
   $parent_id?: string;
