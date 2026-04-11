@@ -97,8 +97,9 @@ export class AutocaptureTracker {
 
   private addClickListener(): void {
     const clickListener = (event: Event) => {
-      const target = event.target as HTMLElement;
-      
+      const rawTarget = event.target as HTMLElement;
+      const target = this.findInteractiveAncestor(rawTarget) ?? rawTarget;
+
       if (this.shouldIgnoreElement(target)) {
         return;
       }
@@ -159,6 +160,12 @@ export class AutocaptureTracker {
         $event_type: 'text_selection',
         $selected_text: selectedText.substring(0, 200), // Limit text length
         $selection_length: selectedText.length,
+        $current_url: window.location.href,
+        $host: window.location.host,
+        $pathname: window.location.pathname,
+        $search: window.location.search,
+        $page_title: document.title,
+        $referrer: document.referrer,
       });
     };
 
@@ -256,9 +263,10 @@ export class AutocaptureTracker {
 
     // Element content
     if (this.options.captureContentText) {
-      const text = this.getElementText(element);
-      if (text) {
-        properties.$element_text = text.substring(0, 200); // Limit text length
+      const result = this.getElementText(element);
+      if (result && result.source) {
+        properties.$element_text = result.text.substring(0, 200); // Limit text length
+        (properties as Record<string, unknown>).$element_text_source = result.source;
       }
     }
 
@@ -269,6 +277,12 @@ export class AutocaptureTracker {
     properties.$elements_chain_elements = elementsChain.elements;
     properties.$elements_chain_texts = elementsChain.texts;
     properties.$elements_chain_ids = elementsChain.ids;
+
+    // Element state
+    const elementState = this.getElementState(element);
+    if (elementState) {
+      properties.$element_state = elementState;
+    }
 
     // Position information
     const rect = element.getBoundingClientRect();
@@ -373,21 +387,57 @@ export class AutocaptureTracker {
     return tag;
   }
 
-  private getElementText(element: HTMLElement): string {
-    // For buttons and links, get the visible text
-    if (['button', 'a'].includes(element.tagName.toLowerCase())) {
-      return element.textContent?.trim() || '';
-    }
+  private getElementText(element: HTMLElement): { text: string; source: string } | null {
+    const tag = element.tagName.toLowerCase();
 
     // For inputs, get placeholder or label
-    if (element.tagName.toLowerCase() === 'input') {
+    if (tag === 'input') {
       const input = element as HTMLInputElement;
-      return input.placeholder || input.value || '';
+      const text = input.placeholder || input.value || '';
+      return text ? { text, source: 'content' } : null;
+    }
+
+    // For buttons and links, use fallback chain
+    if (['button', 'a'].includes(tag)) {
+      // 1. Visible text content (excluding SVG title/desc which aren't rendered)
+      const visibleText = this.getVisibleTextContent(element);
+      if (visibleText) {
+        return { text: visibleText, source: 'content' };
+      }
+
+      // 2. aria-label
+      const ariaLabel = element.getAttribute('aria-label')?.trim();
+      if (ariaLabel) {
+        return { text: ariaLabel, source: 'aria-label' };
+      }
+
+      // 3. title
+      const title = element.getAttribute('title')?.trim();
+      if (title) {
+        return { text: title, source: 'title' };
+      }
+
+      // 4. First <img> child's alt
+      const img = element.querySelector('img');
+      if (img?.alt?.trim()) {
+        return { text: img.alt.trim(), source: 'alt' };
+      }
+
+      // 5. First <svg> child's <title> element
+      const svg = element.querySelector('svg');
+      const svgTitle = svg?.querySelector('title');
+      if (svgTitle?.textContent?.trim()) {
+        return { text: svgTitle.textContent.trim(), source: 'svg-title' };
+      }
+
+      return null;
     }
 
     // For other elements, get text content but limit it
     const text = element.textContent?.trim() || '';
-    return text.length > 50 ? text.substring(0, 47) + '...' : text;
+    if (!text) return null;
+    const truncated = text.length > 50 ? text.substring(0, 47) + '...' : text;
+    return { text: truncated, source: 'content' };
   }
 
   private getElementsChain(element: HTMLElement): {
@@ -506,6 +556,66 @@ export class AutocaptureTracker {
     return /^[a-zA-Z0-9]{5,10}$/.test(value)
       && /[a-zA-Z]/.test(value)
       && /[0-9]/.test(value);
+  }
+
+  private getVisibleTextContent(element: HTMLElement): string {
+    let text = '';
+    for (let i = 0; i < element.childNodes.length; i++) {
+      const child = element.childNodes.item(i);
+      if (!child) continue;
+      if (child.nodeType === Node.TEXT_NODE) {
+        text += child.textContent || '';
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        const el = child as HTMLElement;
+        if (el.tagName.toLowerCase() !== 'svg') {
+          text += this.getVisibleTextContent(el);
+        }
+      }
+    }
+    return text.trim();
+  }
+
+  private getElementState(element: HTMLElement): AutocaptureBaseProperties['$element_state'] | null {
+    const state: NonNullable<AutocaptureBaseProperties['$element_state']> = {};
+
+    // DOM properties
+    if ((element as HTMLButtonElement | HTMLInputElement).disabled === true) {
+      state.disabled = true;
+    } else if (element.getAttribute('aria-disabled') === 'true') {
+      state.disabled = true;
+    }
+
+    if ((element as HTMLInputElement).checked === true) {
+      state.checked = true;
+    } else if (element.getAttribute('aria-checked') === 'true') {
+      state.checked = true;
+    }
+
+    if (element.getAttribute('aria-selected') === 'true') {
+      state.selected = true;
+    }
+
+    if (element.getAttribute('aria-expanded') === 'true') {
+      state.expanded = true;
+    }
+
+    return Object.keys(state).length > 0 ? state : null;
+  }
+
+  private findInteractiveAncestor(element: HTMLElement): HTMLElement | null {
+    const interactiveTags = ['button', 'a', 'input', 'select', 'textarea'];
+    let current: HTMLElement | null = element;
+    while (current && current !== document.body) {
+      if (
+        interactiveTags.includes(current.tagName.toLowerCase()) ||
+        current.getAttribute('role') === 'button' ||
+        current.getAttribute('role') === 'link'
+      ) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    return null;
   }
 
   private isSafeInputType(type: string): boolean {

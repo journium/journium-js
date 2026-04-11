@@ -1,25 +1,25 @@
-version: 2
+# version: 2
 
-updates:
-  # Root workspace dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    groups:
-      dev-dependencies:
-        dependency-type: "development"
-      prod-dependencies:
-        dependency-type: "production"
+# updates:
+#   # Root workspace dependencies
+#   - package-ecosystem: "npm"
+#     directory: "/"
+#     schedule:
+#       interval: "weekly"
+#     open-pull-requests-limit: 5
+#     groups:
+#       dev-dependencies:
+#         dependency-type: "development"
+#       prod-dependencies:
+#         dependency-type: "production"
 
-  # Packages inside /packages
-  - package-ecosystem: "npm"
-    directory: "/packages"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    groups:
-      workspace-dependencies:
-        patterns:
-          - "*"
+#   # Packages inside /packages
+#   - package-ecosystem: "npm"
+#     directory: "/packages"
+#     schedule:
+#       interval: "weekly"
+#     open-pull-requests-limit: 5
+#     groups:
+#       workspace-dependencies:
+#         patterns:
+#           - "*"
