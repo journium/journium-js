@@ -1,5 +1,11 @@
 # @journium/core
 
+## 1.3.1
+
+### Patch Changes
+
+- decb8d8: enriched autocapture event data
+
 ## 1.3.0
 
 ### Minor Changes
