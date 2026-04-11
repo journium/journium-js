@@ -1,5 +1,16 @@
 # @journium/js
 
+## 1.3.0
+
+### Minor Changes
+
+- 538eedf: Added SDK version in events. Added support for capturing data attributes of tags.
+
+### Patch Changes
+
+- Updated dependencies [538eedf]
+  - @journium/core@1.3.0
+
 ## 1.2.3
 
 ### Patch Changes
